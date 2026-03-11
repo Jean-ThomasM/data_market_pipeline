@@ -3,8 +3,25 @@ name = "data-market-pipeline"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.13"
 dependencies = []
+
+[tool.semantic_release]
+version_toml = [
+    "pyproject.toml:project.version",
+]
+upload_to_vcs_release = true
+upload_to_pypi = false
+build_command = "uv build"
+
+[tool.semantic_release.branches.main]
+match = "(main|master)"
+prerelease = false
+
+[tool.semantic_release.branches.integration]
+match = "integration"
+prerelease = true
+prerelease_token = "beta"
 
 [dependency-groups]
 dev = [
