@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.1.0-beta.2 (2026-03-11)
+
+### Bug Fixes
+
+- Orthographe Dockerfile
+  ([`22f9599`](https://github.com/Jean-ThomasM/data_market_pipeline/commit/22f95999fffe3b1a91d043f67680b2e226de87fe))
+
+
 ## v0.1.0-beta.1 (2026-03-11)
 
 ### Bug Fixes
