@@ -1,0 +1,51 @@
+name: CI - Tests & Securite
+
+on:
+  pull_request:
+    branches:
+      - main
+      - integration
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Récupérer le code
+      - name: Checkout du code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2. Chercher les mots de passe oubliés
+      - name: Scan des secrets (TruffleHog)
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+
+      # 3. Installer l'outil uv
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      # 4. Installer Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 5. Installer les paquets du projet
+      - name: Installer les dépendances
+        run: uv sync --all-extras --dev
+
+      # 6. Vérifier la propreté du code
+      - name: Linter le code
+        run: uv run ruff check .
+
+      # 7. Lancer les tests
+      - name: Lancer les tests
+        run: uv run pytest
+    
