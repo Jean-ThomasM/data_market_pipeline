@@ -1,0 +1,27 @@
+name: CD - Semantic Release & Docker
+
+on:
+  push:
+    branches:
+      - main
+      - integration # Le robot écoute maintenant ces deux branches
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 1. Lancement de Python Semantic Release
+      - name: Python Semantic Release
+        id: semantic
+        uses: python-semantic-release/python-semantic-release@v9
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
