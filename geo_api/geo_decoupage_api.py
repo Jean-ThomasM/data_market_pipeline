@@ -3,10 +3,8 @@ from pathlib import Path
 from typing import List, Dict, Any
 import os
 import requests
-from dotenv import load_dotenv
-load_dotenv()
-BASE_URL = os.getenv("GEO_API_URL")
 
+BASE_URL = os.getenv("GEO_API_URL")
 
 def _get(path: str, **params: Any) -> Any:
     """
