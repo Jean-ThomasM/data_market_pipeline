@@ -1,28 +1,18 @@
 # CHANGELOG
 
 
-## v0.1.0-beta.3 (2026-03-11)
-
-### Bug Fixes
-
-- Suppression du docker build & push automatique en attendant de l'optimiser
-  ([`3cb3062`](https://github.com/Jean-ThomasM/data_market_pipeline/commit/3cb30626941c7f660b93a5b6d8b825756b9232ab))
-
-
-## v0.1.0-beta.2 (2026-03-11)
-
-### Bug Fixes
-
-- Orthographe Dockerfile
-  ([`22f9599`](https://github.com/Jean-ThomasM/data_market_pipeline/commit/22f95999fffe3b1a91d043f67680b2e226de87fe))
-
-
 ## v0.1.0-beta.1 (2026-03-11)
 
 ### Bug Fixes
 
 - Désactivation du build python dans semantic release
   ([`5a38cb8`](https://github.com/Jean-ThomasM/data_market_pipeline/commit/5a38cb85ef657e94eeac222bb5aaeb2c35bfd18f))
+
+- Orthographe Dockerfile
+  ([`22f9599`](https://github.com/Jean-ThomasM/data_market_pipeline/commit/22f95999fffe3b1a91d043f67680b2e226de87fe))
+
+- Suppression du docker build & push automatique en attendant de l'optimiser
+  ([`3cb3062`](https://github.com/Jean-ThomasM/data_market_pipeline/commit/3cb30626941c7f660b93a5b6d8b825756b9232ab))
 
 ### Chores
 
@@ -34,6 +24,12 @@
 
 - Nettoyage dépendances pour test + rajout dockerfile
   ([`136c735`](https://github.com/Jean-ThomasM/data_market_pipeline/commit/136c735b775f30fe874316c01ca44cf77b832131))
+
+- Nettoyage fichiers tests
+  ([`fbf2e27`](https://github.com/Jean-ThomasM/data_market_pipeline/commit/fbf2e2783898dc2f6253dbc5296e242afaf818e5))
+
+- Remise à zero du versionning
+  ([`a5e1c6e`](https://github.com/Jean-ThomasM/data_market_pipeline/commit/a5e1c6e6216eae17929562c6d35cc2719a841c5e))
 
 ### Features
 
