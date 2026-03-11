@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.1.0-beta.3 (2026-03-11)
+
+### Bug Fixes
+
+- Suppression du docker build & push automatique en attendant de l'optimiser
+  ([`3cb3062`](https://github.com/Jean-ThomasM/data_market_pipeline/commit/3cb30626941c7f660b93a5b6d8b825756b9232ab))
+
+
 ## v0.1.0-beta.2 (2026-03-11)
 
 ### Bug Fixes
