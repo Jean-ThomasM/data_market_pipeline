@@ -12,7 +12,7 @@ version_toml = [
 ]
 upload_to_vcs_release = true
 upload_to_pypi = false
-build_command = "uv build"
+build_command = "echo 'Pas de build Python requis pour Docker'"
 
 [tool.semantic_release.branches.main]
 match = "(main|master)"
