@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  geo_api:
+    build: .
+    container_name: geo_api_uv
+    # Charge les variables d'environnement (dont GEO_API_URL) depuis .env
+    env_file:
+      - .env
+    # Monte les données de sortie sur l'hôte pour les récupérer facilement
+    volumes:
+      - ./data/data_geo:/app/data/data_geo
+    # Commande par défaut : laisse celle du Dockerfile (python main.py)
+    # command: ["python", "main.py"]
+

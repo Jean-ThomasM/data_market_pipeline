@@ -68,7 +68,7 @@ def get_epcis() -> List[Dict[str, Any]]:
     return _get("/epcis")
 
 
-def export_geo_to_json(output_dir: str = "data/data_geo") -> None:
+def export_geo_to_json(output_dir) -> None:
     """
     Extrait les données géographiques (régions, départements, communes)
     et les enregistre dans 3 fichiers JSON distincts dans un dossier.

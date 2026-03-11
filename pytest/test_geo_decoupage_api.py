@@ -1,9 +1,15 @@
 import json
 from pathlib import Path
+import sys
 
 import pytest
 
-from geo_api import geo_decoupage_api as geo
+# Ajouter dynamiquement la racine du projet au sys.path
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+import geo_api.geo_decoupage_api as geo
 
 
 def test__get_success_builds_url_and_passes_params(monkeypatch):
