@@ -1,5 +1,3 @@
-import os
-
 from geo_api.geo_decoupage_api import export_geo_to_json
 
 
