@@ -5,8 +5,6 @@ import os
 import requests
 
 BASE_URL = os.getenv("GEO_API_URL")
-DEFAULT_COMMUNE_FIELDS = "code,nom,codeRegion,codeDepartement,codesPostaux,population"
-
 
 def _get(path: str, **params: Any) -> Any:
     """
@@ -55,9 +53,7 @@ def get_communes(fields: str | None = None) -> List[Dict[str, Any]]:
     """
     # Si aucun `fields` n'est fourni, on force un ensemble de champs
     # cohérent avec nos besoins de pipeline (dont `codesPostaux`).
-    if fields is None:
-        fields = DEFAULT_COMMUNE_FIELDS
-    return _get("/communes", fields=fields)
+    return _get("/communes")
 
 
 def get_epcis() -> List[Dict[str, Any]]:
