@@ -1,4 +1,4 @@
-from geo_api.geo_decoupage_api import export_geo_to_json
+from geo_api.extract_geo_api import export_geo_to_json
 
 
 def main() -> None:
