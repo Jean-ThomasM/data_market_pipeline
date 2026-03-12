@@ -9,11 +9,12 @@ WORKDIR /app
 # Copier les fichiers de configuration du projet uv
 COPY pyproject.toml .
 
-# Synchroniser les dépendances dans un environnement virtuel local (.venv)
-RUN uv sync
 
 # Activer l'environnement virtuel par défaut
 ENV PATH="/app/.venv/bin:$PATH"
+
+# Synchroniser les dépendances dans un environnement virtuel local (.venv)
+RUN uv sync
 
 # Copier le reste du projet
 COPY . .
