@@ -6,8 +6,8 @@ def main() -> None:
     Point d'entrée principal de l'application.
 
     """
-    output_dir_geo = "data/data_geo"
-    export_geo_to_json(output_dir=output_dir_geo)
+    output_dir = "data/data_geo"
+    export_geo_to_json(output_dir=output_dir)
 
     extract_francetravail()
 
