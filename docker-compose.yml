@@ -7,6 +7,6 @@ services:
     env_file:
       - .env
     volumes:
-      - ./data/data_geo:/app/data/data_geo
+      - ./data:/app/data
 
 
