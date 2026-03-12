@@ -129,8 +129,10 @@ def test_get_communes_without_fields(monkeypatch):
 
     assert result == [{"code": "12345", "nom": "Commune test"}]
     assert called["path"] == "/communes"
-    # Sans `fields`, aucun paramètre n'est envoyé
-    assert called["params"] == {}
+    # Sans `fields`, on force désormais un ensemble de champs par défaut
+    # (dont `codesPostaux` pour avoir la liste complète des CP).
+    assert "fields" in called["params"]
+    assert "codesPostaux" in called["params"]["fields"]
 
 
 def test_get_communes_with_fields(monkeypatch):

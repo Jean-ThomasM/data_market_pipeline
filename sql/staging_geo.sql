@@ -6,43 +6,48 @@
 -- Exemple d'hypothèse de nommage des tables sources :
 --   raw_geo_regions, raw_geo_departements, raw_geo_communes, raw_geo_communes_codes_postaux, raw_geo_epcis
 
-create or replace view stg_geo_regions as
-select
-    trim(region_code) as region_code,
-    trim(region_nom)  as region_nom
-from raw_geo_regions;
+DROP VIEW IF EXISTS stg_geo_regions;
+CREATE VIEW stg_geo_regions AS
+SELECT
+    trim(region_code) AS region_code,
+    trim(region_nom)  AS region_nom
+FROM raw_geo_regions;
 
 
-create or replace view stg_geo_departements as
-select
-    trim(departement_code) as departement_code,
-    trim(departement_nom)  as departement_nom,
-    trim(region_code)      as region_code
-from raw_geo_departements;
+DROP VIEW IF EXISTS stg_geo_departements;
+CREATE VIEW stg_geo_departements AS
+SELECT
+    trim(departement_code) AS departement_code,
+    trim(departement_nom)  AS departement_nom,
+    trim(region_code)      AS region_code
+FROM raw_geo_departements;
 
 
-create or replace view stg_geo_communes as
-select
-    trim(commune_code)    as commune_code,
-    trim(commune_nom)     as commune_nom,
-    trim(departement_code) as departement_code,
-    trim(region_code)     as region_code,
-    cast(nullif(population, '') as integer) as population
-from raw_geo_communes;
+DROP VIEW IF EXISTS stg_geo_communes;
+CREATE VIEW stg_geo_communes AS
+SELECT
+    trim(commune_code)     AS commune_code,
+    trim(commune_nom)      AS commune_nom,
+    trim(departement_code) AS departement_code,
+    trim(region_code)      AS region_code,
+    CAST(NULLIF(population, '') AS INTEGER) AS population
+FROM raw_geo_communes;
 
 
-create or replace view stg_geo_communes_codes_postaux as
-select
-    trim(commune_code) as commune_code,
-    trim(code_postal)  as code_postal
-from raw_geo_communes_codes_postaux;
+DROP VIEW IF EXISTS stg_geo_communes_codes_postaux;
+CREATE VIEW stg_geo_communes_codes_postaux AS
+SELECT
+    trim(commune_code) AS commune_code,
+    trim(code_postal)  AS code_postal
+FROM raw_geo_communes_codes_postaux;
 
 
-create or replace view stg_geo_epcis as
-select
-    trim(epci_code)  as epci_code,
-    trim(epci_nom)   as epci_nom,
-    trim(region_code) as region_code,
-    trim(nature)     as nature
-from raw_geo_epcis;
+DROP VIEW IF EXISTS stg_geo_epcis;
+CREATE VIEW stg_geo_epcis AS
+SELECT
+    trim(epci_code)   AS epci_code,
+    trim(epci_nom)    AS epci_nom,
+    trim(region_code) AS region_code,
+    trim(nature)      AS nature
+FROM raw_geo_epcis;
 
