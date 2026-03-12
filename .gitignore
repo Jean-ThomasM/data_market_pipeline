@@ -1,6 +1,6 @@
-data/*
 .env
-
+# Data
+*.parquet
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
