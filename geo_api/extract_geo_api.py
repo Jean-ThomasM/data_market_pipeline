@@ -58,10 +58,19 @@ def get_communes(fields: str | None = None) -> List[Dict[str, Any]]:
 
 def get_epcis() -> List[Dict[str, Any]]:
     """
-    Renvoie la liste de tous les EPCI.
-    Structure exemple:
+    Renvoie la liste de tous les EPCI tels que définis par l'API
+    geo.api.gouv.fr.
+
+    Structure exemple (simplifiée):
     [
-      {"code": "200046977", "nom": "Métropole de Lyon", "codeRegion": "84", "nature": "METROPOLE"},
+      {
+        "code": "200046977",
+        "nom": "Métropole de Lyon",
+        "codesDepartements": ["69"],
+        "codesRegions": ["84"],
+        "population": 1417389,
+        "type": "METROPOLE"
+      },
       ...
     ]
     """

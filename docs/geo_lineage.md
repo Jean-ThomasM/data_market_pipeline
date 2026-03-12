@@ -8,41 +8,22 @@
   - `data/data_geo/communes.json`
   - `data/data_geo/epcis.json` (optionnel)
 
-### 2. Transformation Python (pré‑staging)
-
-Script : `geo_api/transform_geo_json.py`
-
-Rôle :
-- Charger les JSON bruts depuis `data/data_geo`.
-- Nettoyer et typer les champs principaux.
-- Produire des fichiers CSV prêts pour la couche de staging SQL :
-  - `data/processed_geo/regions.csv`
-  - `data/processed_geo/departements.csv`
-  - `data/processed_geo/communes.csv`
-  - `data/processed_geo/communes_codes_postaux.csv`
-  - `data/processed_geo/epcis.csv`
-
-Principales transformations :
-- Renommage des colonnes (`code` → `region_code`, `departement_code`, etc.).
-- Normalisation des chaînes (trim).
-- Cast de `population` en entier si possible.
-- Explosion de `codesPostaux` en table `communes_codes_postaux`.
-
-### 3. Couche STAGING
+### 2. Couche STAGING (SQLite)
 
 Fichier SQL : `sql/staging_geo.sql`
 
-Vues créées :
+Rôle :
+- Lire directement les tables `raw_geo_*` chargées depuis les JSON bruts.
+- Appliquer un typage simple (cast des champs numériques).
+- Nettoyer légèrement les chaînes (trim).
+- Fournir des vues dimensionnelles prêtes à consommer.
+
+Vues principales :
 - `stg_geo_regions(region_code, region_nom)`
 - `stg_geo_departements(departement_code, departement_nom, region_code)`
-- `stg_geo_communes(commune_code, commune_nom, departement_code, region_code, population)`
-- `stg_geo_communes_codes_postaux(commune_code, code_postal)`
-- `stg_geo_epcis(epci_code, epci_nom, region_code, nature)`
-
-Objectif :
-- Typage simple (cast des champs numériques).
-- Nettoyage léger (trim, gestion des valeurs vides).
-- Mise à disposition de dimensions géographiques propres.
+- `stg_geo_communes(commune_code, commune_nom, departement_code, region_code, population, codes_postaux_json)`
+- `stg_geo_communes_codes_postaux(commune_code, code_postal)` (explosion de `codesPostaux` par `json_each`)
+- `stg_geo_epcis(epci_code, epci_nom, region_code, nature, departements_codes_json, regions_codes_json, population)`
 
 ### 4. Schéma de lignage (mermaid)
 
@@ -55,11 +36,7 @@ flowchart LR
     epcisJson["epcis.json"]
   end
 
-  subgraph pythonLayer [Transformation Python]
-    pyTransform["transform_geo_json.py"]
-  end
-
-  subgraph staging [Staging]
+  subgraph staging [Staging SQLite]
     stgRegions["stg_geo_regions"]
     stgDepartements["stg_geo_departements"]
     stgCommunes["stg_geo_communes"]
@@ -67,8 +44,7 @@ flowchart LR
     stgEpcis["stg_geo_epcis"]
   end
 
-  sources --> pyTransform
-  pyTransform --> staging
+  sources --> staging
   stgRegions --> stgDepartements --> stgCommunes
   stgCommuneCP --> stgCommunes
   stgEpcis --> stgDepartements
