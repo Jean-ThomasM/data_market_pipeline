@@ -1,4 +1,3 @@
-import argparse
 import json
 import sqlite3
 from pathlib import Path
@@ -91,78 +90,44 @@ def load_json_to_raw_table(
     print(f"[geo-sqlite]   -> {len(to_insert)} lignes insérées dans {table_name}")
 
 
-def apply_staging_sql(conn: sqlite3.Connection, staging_sql_path: Path) -> None:
+def apply_geo_views_sql(conn: sqlite3.Connection, geo_views_sql_path: Path) -> None:
     """
     Exécute le fichier SQL de staging sur la base SQLite (création des vues stg_geo_*).
     """
-    if not staging_sql_path.exists():
-        raise FileNotFoundError(f"Fichier SQL de staging introuvable : {staging_sql_path}")
+    if not geo_views_sql_path.exists():
+        raise FileNotFoundError(f"Fichier SQL de staging introuvable : {geo_views_sql_path}")
 
-    sql = staging_sql_path.read_text(encoding="utf-8")
-    print(f"[geo-sqlite] Application du SQL de staging depuis {staging_sql_path}...")
+    sql = geo_views_sql_path.read_text(encoding="utf-8")
+    print(f"[geo-sqlite] Application du SQL de staging depuis {geo_views_sql_path}...")
     conn.executescript(sql)
     conn.commit()
-    print("[geo-sqlite] Vues de staging créées avec succès.")
-
+    print("[geo-sqlite] Vues géographiques créées avec succès.")    
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description=(
-            "Charge les JSON géographiques bruts dans une base SQLite, "
-            "en créant des tables raw_* qui reflètent exactement la structure des JSON, "
-            "puis applique le SQL de staging."
-        )
-    )
-    parser.add_argument(
-        "--db-path",
-        type=str,
-        default="data/geo.sqlite",
-        help="Chemin du fichier SQLite à créer/utiliser (par défaut: data/geo.sqlite).",
-    )
-    parser.add_argument(
-        "--json-dir",
-        type=str,
-        default="data/data_geo",
-        help="Dossier contenant les JSON géographiques (par défaut: data/data_geo).",
-    )
-    parser.add_argument(
-        "--views-sql",
-        type=str,
-        default="sql/geo_views.sql",
-        help="Chemin du fichier SQL des vues géographiques (par défaut: sql/geo_views.sql).",
-    )
-
-    args = parser.parse_args()
-
-    db_path = Path(args.db_path)
-    json_dir = Path(args.json_dir)
-    staging_sql_path = Path(args.views_sql)
+    db_path = Path("data/geo.sqlite")
+    geo_json_dir = Path("data/data_geo")
+    geo_views_sql_path = Path("sql/geo_views.sql")
 
     print(f"[geo-sqlite] Base SQLite cible : {db_path.resolve()}")
-    print(f"[geo-sqlite] Dossier JSON      : {json_dir.resolve()}")
-    print(f"[geo-sqlite] Fichier vues      : {staging_sql_path.resolve()}")
+    print(f"[geo-sqlite] Dossier JSON      : {geo_json_dir.resolve()}")
+    print(f"[geo-sqlite] Fichier vues      : {geo_views_sql_path.resolve()}")
 
-    if not json_dir.exists():
-        raise FileNotFoundError(f"Dossier JSON introuvable : {json_dir}")
+    if not geo_json_dir.exists():
+        raise FileNotFoundError(f"Dossier JSON introuvable : {geo_json_dir}")
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
     conn = sqlite3.connect(db_path)
     try:
         # Chargement des JSON bruts -> tables raw_* miroir exact des JSON
-        load_json_to_raw_table(conn, json_dir / "regions.json", "raw_geo_regions")
-        load_json_to_raw_table(conn, json_dir / "departements.json", "raw_geo_departements")
-        load_json_to_raw_table(conn, json_dir / "communes.json", "raw_geo_communes")
-        load_json_to_raw_table(conn, json_dir / "epcis.json", "raw_geo_epcis")
+        load_json_to_raw_table(conn, geo_json_dir / "regions.json", "raw_geo_regions")
+        load_json_to_raw_table(conn, geo_json_dir / "departements.json", "raw_geo_departements")
+        load_json_to_raw_table(conn, geo_json_dir / "communes.json", "raw_geo_communes")
+        load_json_to_raw_table(conn, geo_json_dir / "epcis.json", "raw_geo_epcis")
 
         # Application du SQL pour créer les vues geo_*
-        apply_staging_sql(conn, staging_sql_path)
-
-        print("[geo-sqlite] Chargement terminé. Vous pouvez maintenant interroger les vues geo_*.")        
+        apply_geo_views_sql(conn, geo_views_sql_path)
     finally:
         conn.close()
-
-
-if __name__ == "__main__":
-    main()
+    print("[geo-sqlite] Chargement terminé. Vous pouvez maintenant interroger les vues geo_*.")        
 

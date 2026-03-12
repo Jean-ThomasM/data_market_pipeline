@@ -82,6 +82,7 @@ name = "data-market-pipeline"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "pytest" },
     { name = "python-dotenv" },
     { name = "requests" },
 ]
@@ -94,6 +95,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "pytest", specifier = ">=9.0.2" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "requests", specifier = ">=2.32.5" },
 ]

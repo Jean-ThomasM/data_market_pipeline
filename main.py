@@ -1,5 +1,5 @@
 from geo_api.extract_geo_api import export_geo_to_json
-from scripts.load_geo_to_sqlite import main as load_geo_to_sqlite
+from geo_api.load_geo_to_sqlite import main as load_geo_to_sqlite
 
 
 def main() -> None:
