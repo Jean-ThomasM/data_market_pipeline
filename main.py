@@ -1,6 +1,10 @@
 from geo_api.extract_geo_api import export_geo_to_json
-from extract_francetravail_api.extract_francetravail_api import extract_francetravail
+from extract_francetravail_api.extract_francetravail_api import (
+    extract_francetravail_offres,
+    extract_francetravail_referentiels,
+)
 from geo_api.load_geo_to_sqlite import main as load_geo_to_sqlite
+from load_france_travail_to_sqlite import main as load_france_travail_to_sqlite
 
 
 def main() -> None:
@@ -14,7 +18,9 @@ def main() -> None:
     export_geo_to_json(output_dir=geo_json_output_dir)
     load_geo_to_sqlite()
 
-    extract_francetravail()
+    extract_francetravail_referentiels()
+    extract_francetravail_offres()
+    load_france_travail_to_sqlite()
 
 
 
