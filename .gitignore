@@ -9,6 +9,10 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+*.json
+*.ndjson
+*.csv
+
 # C extensions
 *.so
 

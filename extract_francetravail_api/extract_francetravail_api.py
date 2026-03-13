@@ -3,14 +3,14 @@ Scraper France Travail — Offres Data Engineer + Référentiels
 Extraction multi-recherches avec dédoublonnage, retry et double stockage (local / GCS).
 """
 
+import json
+import logging
 import os
 import re
 import time
-import json
-import logging
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from dataclasses import dataclass, field
 
 import requests
 from dotenv import load_dotenv
@@ -39,11 +39,17 @@ class Config:
     """Paramètres centralisés, résolus à l'instanciation."""
 
     client_id: str = field(default_factory=lambda: os.getenv("FT_CLIENT_ID", ""))
-    client_secret: str = field(default_factory=lambda: os.getenv("FT_CLIENT_SECRET", ""))
-    scope: str = field(
-        default_factory=lambda: os.getenv("SCOPE_API_FT_EMPLOI", "api_offresdemploiv2 o2dsoffre")
+    client_secret: str = field(
+        default_factory=lambda: os.getenv("FT_CLIENT_SECRET", "")
     )
-    gcs_bucket_name: str = field(default_factory=lambda: os.getenv("GCS_BUCKET_NAME", ""))
+    scope: str = field(
+        default_factory=lambda: os.getenv(
+            "SCOPE_API_FT_EMPLOI", "api_offresdemploiv2 o2dsoffre"
+        )
+    )
+    gcs_bucket_name: str = field(
+        default_factory=lambda: os.getenv("GCS_BUCKET_NAME", "")
+    )
 
     token_url: str = (
         "https://entreprise.francetravail.fr/connexion/oauth2/access_token"
@@ -63,29 +69,35 @@ class Config:
     )
     local_save_dir_refs: str = field(
         default_factory=lambda: str(
-            Path(__file__).resolve().parent.parent / "data" / "france_travail_referentiels"
+            Path(__file__).resolve().parent.parent
+            / "data"
+            / "france_travail_referentiels"
         )
     )
 
-    searches: list = field(default_factory=lambda: [
-        {"codeROME": os.getenv("FT_ROME_CODE", "M1811")},
-        {"motsCles": "data engineer"},
-        {"motsCles": "architecte data"},
-        {"motsCles": "data ingénieur"},
-        {"motsCles": "ingénieur data"},
-        {"motsCles": "data architect"},
-    ])
+    searches: list = field(
+        default_factory=lambda: [
+            {"codeROME": os.getenv("FT_ROME_CODE", "M1811")},
+            {"motsCles": "data engineer"},
+            {"motsCles": "architecte data"},
+            {"motsCles": "data ingénieur"},
+            {"motsCles": "ingénieur data"},
+            {"motsCles": "data architect"},
+        ]
+    )
 
     # Référentiels à extraire : endpoint API -> nom du fichier local
-    referentiels: dict = field(default_factory=lambda: {
-        "metiers": "ref_metiers_rome.json",
-        "domaines": "ref_domaines_rome.json",
-        "secteursActivites": "ref_secteurs_activites.json",
-        "typesContrats": "ref_types_contrats.json",
-        "niveauxFormations": "ref_niveaux_formations.json",
-        "permis": "ref_permis.json",
-        "langues": "ref_langues.json",
-    })
+    referentiels: dict = field(
+        default_factory=lambda: {
+            "metiers": "ref_metiers_rome.json",
+            "domaines": "ref_domaines_rome.json",
+            "secteursActivites": "ref_secteurs_activites.json",
+            "typesContrats": "ref_types_contrats.json",
+            "niveauxFormations": "ref_niveaux_formations.json",
+            "permis": "ref_permis.json",
+            "langues": "ref_langues.json",
+        }
+    )
 
     def validate(self) -> None:
         if not self.client_id or not self.client_secret:
@@ -154,15 +166,18 @@ class BaseFranceTravailClient:
         logger.info("✅ Authentification réussie.")
 
     # ── Sauvegarde générique ─────────────────────────────────────────────
-    def _save_json(self, json_str: str, filename: str, gcs_prefix: str) -> None:
+    def _save_json(self, data: list, filename: str, gcs_prefix: str) -> None:
+        """Sauvegarde une liste de dicts en NDJSON."""
+        ndjson = "\n".join(json.dumps(item, ensure_ascii=False) for item in data)
+
         if self.bucket:
             blob = self.bucket.blob(f"{gcs_prefix}/{filename}")
-            blob.upload_from_string(json_str, content_type="application/json")
+            blob.upload_from_string(ndjson, content_type="application/json")
             logger.info("☁️  Sauvegardé sur GCS : %s/%s", gcs_prefix, filename)
         else:
             path = os.path.join(self.local_dir, filename)
             with open(path, "w", encoding="utf-8") as fh:
-                fh.write(json_str)
+                fh.write(ndjson)
             logger.info("💾 Sauvegardé en local : %s", path)
 
     # ── Nettoyage JSON (caractères invisibles) ───────────────────────────
@@ -205,13 +220,11 @@ class ReferentielsExtractor(BaseFranceTravailClient):
                 res.raise_for_status()
                 data = res.json()
 
-                json_str = self.sanitize_json(
-                    json.dumps(data, ensure_ascii=False, indent=2)
-                )
-                self._save_json(json_str, filename, gcs_prefix="raw_referentiels")
-                logger.info(
-                    "✅ Référentiel '%s' OK — %s entrées.", endpoint, len(data)
-                )
+                # json_str = self.sanitize_json(
+                #     json.dumps(data, ensure_ascii=False, indent=2)
+                # )
+                self._save_json(data, filename, gcs_prefix="raw_referentiels")
+                logger.info("✅ Référentiel '%s' OK — %s entrées.", endpoint, len(data))
                 return
 
             except requests.RequestException as exc:
@@ -222,9 +235,11 @@ class ReferentielsExtractor(BaseFranceTravailClient):
                     MAX_RETRIES,
                     exc,
                 )
-                time.sleep(2 ** attempt)
+                time.sleep(2**attempt)
 
-        logger.error("🚨 Abandon du référentiel '%s' après %s tentatives.", endpoint, MAX_RETRIES)
+        logger.error(
+            "🚨 Abandon du référentiel '%s' après %s tentatives.", endpoint, MAX_RETRIES
+        )
 
     # ── Point d'entrée ───────────────────────────────────────────────────
     def extract_all(self) -> None:
@@ -294,7 +309,7 @@ class DataEngineerScraper(BaseFranceTravailClient):
                     attempt + 1,
                     MAX_RETRIES,
                 )
-                time.sleep(2 ** attempt)
+                time.sleep(2**attempt)
 
             except requests.RequestException as exc:
                 logger.error(
@@ -305,9 +320,11 @@ class DataEngineerScraper(BaseFranceTravailClient):
                     MAX_RETRIES,
                     exc,
                 )
-                time.sleep(2 ** attempt)
+                time.sleep(2**attempt)
 
-        logger.error("🚨 Abandon de la plage %s-%s après %s tentatives.", start, end, MAX_RETRIES)
+        logger.error(
+            "🚨 Abandon de la plage %s-%s après %s tentatives.", start, end, MAX_RETRIES
+        )
         return []
 
     # ── Exécution d'une recherche ────────────────────────────────────────
@@ -366,24 +383,23 @@ class DataEngineerScraper(BaseFranceTravailClient):
 
         offres_finales = list(self.unique_offers.values())
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"offres_data_market_{timestamp}.json"
+        filename = f"offres_data_market_{timestamp}.ndjson"  # Extension .ndjson
 
-        payload = {
-            "metadata": {
-                "searches_performed": self.config.searches,
-                "offers_added_per_search": self.stats_per_search,
-                "total_fetched_before_dedup": self.total_fetched,
-                "duplicates_removed": self.total_fetched - len(offres_finales),
-                "total_unique_offers": len(offres_finales),
-                "extracted_at": datetime.now().isoformat(),
-            },
-            "resultats": offres_finales,
-        }
+        # NDJSON pur : une ligne JSON par offre, pas de wrapper
+        if self.bucket:
+            blob = self.bucket.blob(f"raw_offres/{filename}")
+            ndjson_content = "\n".join(
+                json.dumps(offer, ensure_ascii=False) for offer in offres_finales
+            )
+            blob.upload_from_string(ndjson_content, content_type="application/x-ndjson")
+            logger.info("☁️  Sauvegardé sur GCS : raw_offres/%s", filename)
+        else:
+            path = os.path.join(self.local_dir, filename)
+            with open(path, "w", encoding="utf-8") as fh:
+                for offer in offres_finales:
+                    fh.write(json.dumps(offer, ensure_ascii=False) + "\n")
+            logger.info("💾 Sauvegardé en local : %s", path)
 
-        json_str = self.sanitize_json(
-            json.dumps(payload, ensure_ascii=False, indent=2)
-        )
-        self._save_json(json_str, filename, gcs_prefix="raw_offres")
         logger.info(
             "🧹 Terminé — %s récupérées, %s uniques, %s doublons éliminés.",
             self.total_fetched,
