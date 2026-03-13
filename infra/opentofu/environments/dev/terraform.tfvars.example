@@ -1,0 +1,5 @@
+project_id        = "project id gcp"
+region            = "region name: europe-west1"
+environment       = "nom environment: dev, prod"
+bucket_location   = "bucket location: EU"
+bigquery_location = "bigquery location: EU"
