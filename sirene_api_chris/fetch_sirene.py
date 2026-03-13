@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-import json 
+import json
 import os
 from pathlib import Path
 
@@ -9,7 +9,7 @@ import requests
 from dotenv import load_dotenv
 
 API_BASE_URL = "https://api.insee.fr/api-sirene/3.11/siren"
-DEFAULT_OUTPUT_PATH = Path("data/data_sirene/sirene.json")
+DEFAULT_OUTPUT_DIR = Path("data/data_sirene")
 
 
 def parse_args() -> argparse.Namespace:
@@ -19,8 +19,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("siren", help="Target SIREN (9 digits).")
     parser.add_argument(
         "--output",
-        default=str(DEFAULT_OUTPUT_PATH),
-        help=f"Output JSON path (default: {DEFAULT_OUTPUT_PATH}).",
+        default=None,
+        help=(
+            "Output JSON path (default: data/data_sirene/<siren>.json "
+            "if not provided)."
+        ),
     )
     parser.add_argument(
         "--api-key",
@@ -65,6 +68,12 @@ def write_json(data: dict, output_path: Path) -> None:
     output_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def resolve_output_path(siren: str, output_arg: str | None) -> Path:
+    if output_arg:
+        return Path(output_arg)
+    return DEFAULT_OUTPUT_DIR / f"{siren}.json"
+
+
 def main() -> None:
     load_dotenv()
     args = parse_args()
@@ -73,7 +82,7 @@ def main() -> None:
     api_key = get_api_key(args.api_key)
 
     data = fetch_siren_json(args.siren, api_key)
-    output_path = Path(args.output)
+    output_path = resolve_output_path(args.siren, args.output)
     write_json(data, output_path)
 
     print(f"SIRENE JSON saved to: {output_path}")
