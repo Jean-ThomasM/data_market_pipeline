@@ -1,7 +1,6 @@
 import requests
 from dotenv import load_dotenv
 import os
-import pprint
 
 load_dotenv()
 sirene_api_url = os.getenv("SIRENE_API_URL")

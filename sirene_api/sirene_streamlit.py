@@ -3,7 +3,6 @@ import requests
 from dotenv import load_dotenv
 import os
 import pandas as pd
-import json
 
 # 1. Chargement des variables d'environnement
 load_dotenv()
