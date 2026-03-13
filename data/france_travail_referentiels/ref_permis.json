@@ -1,82 +1,20 @@
-[
-  {
-    "code": "AM",
-    "libelle": "AM - Cyclomoteur <= 50 cm3"
-  },
-  {
-    "code": "A1",
-    "libelle": "A1 - Motocyclette <=125 cm3"
-  },
-  {
-    "code": "A2",
-    "libelle": "A2 - Moto <= 600 cm3"
-  },
-  {
-    "code": "A",
-    "libelle": "A - Moto"
-  },
-  {
-    "code": "B1",
-    "libelle": "B1 - Quadricycle"
-  },
-  {
-    "code": "B",
-    "libelle": "B - Véhicule léger"
-  },
-  {
-    "code": "B96",
-    "libelle": "B mention 96 - VL + remorque (PTAC < 4,25 T)"
-  },
-  {
-    "code": "EB",
-    "libelle": "EB - Véhicule léger + remorque"
-  },
-  {
-    "code": "B79",
-    "libelle": "B mention 79.06 (= EB)"
-  },
-  {
-    "code": "BE",
-    "libelle": "BE - Véhicule léger + remorque  (PTAC > 4,25 T)"
-  },
-  {
-    "code": "C1",
-    "libelle": "C1 - Poids lourd < 7,5 T"
-  },
-  {
-    "code": "C1E",
-    "libelle": "C1E - Poids lourd < 7,5 T + remorque"
-  },
-  {
-    "code": "C",
-    "libelle": "C - Poids lourd"
-  },
-  {
-    "code": "CE",
-    "libelle": "CE - Poids lourd + remorque  (= EC)"
-  },
-  {
-    "code": "EC",
-    "libelle": "EC - Poids lourd + remorque"
-  },
-  {
-    "code": "D1",
-    "libelle": "D1 - Transport de personnes <= 16 places"
-  },
-  {
-    "code": "D1E",
-    "libelle": "D1E - Transport de personnes <= 16 P + remorque"
-  },
-  {
-    "code": "D",
-    "libelle": "D - Transport de personnes"
-  },
-  {
-    "code": "DE",
-    "libelle": "DE - Transport de personnes + remorque (= ED)"
-  },
-  {
-    "code": "ED",
-    "libelle": "ED - Transport de personnes + remorque"
-  }
-]
+{"code": "AM", "libelle": "AM - Cyclomoteur <= 50 cm3"}
+{"code": "A1", "libelle": "A1 - Motocyclette <=125 cm3"}
+{"code": "A2", "libelle": "A2 - Moto <= 600 cm3"}
+{"code": "A", "libelle": "A - Moto"}
+{"code": "B1", "libelle": "B1 - Quadricycle"}
+{"code": "B", "libelle": "B - Véhicule léger"}
+{"code": "B96", "libelle": "B mention 96 - VL + remorque (PTAC < 4,25 T)"}
+{"code": "EB", "libelle": "EB - Véhicule léger + remorque"}
+{"code": "B79", "libelle": "B mention 79.06 (= EB)"}
+{"code": "BE", "libelle": "BE - Véhicule léger + remorque  (PTAC > 4,25 T)"}
+{"code": "C1", "libelle": "C1 - Poids lourd < 7,5 T"}
+{"code": "C1E", "libelle": "C1E - Poids lourd < 7,5 T + remorque"}
+{"code": "C", "libelle": "C - Poids lourd"}
+{"code": "CE", "libelle": "CE - Poids lourd + remorque  (= EC)"}
+{"code": "EC", "libelle": "EC - Poids lourd + remorque"}
+{"code": "D1", "libelle": "D1 - Transport de personnes <= 16 places"}
+{"code": "D1E", "libelle": "D1E - Transport de personnes <= 16 P + remorque"}
+{"code": "D", "libelle": "D - Transport de personnes"}
+{"code": "DE", "libelle": "DE - Transport de personnes + remorque (= ED)"}
+{"code": "ED", "libelle": "ED - Transport de personnes + remorque"}

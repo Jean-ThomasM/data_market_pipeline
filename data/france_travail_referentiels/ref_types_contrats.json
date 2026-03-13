@@ -1,50 +1,12 @@
-[
-  {
-    "code": "CDI",
-    "libelle": "Contrat à durée indéterminée"
-  },
-  {
-    "code": "CDD",
-    "libelle": "Contrat à durée déterminée"
-  },
-  {
-    "code": "MIS",
-    "libelle": "Mission intérimaire"
-  },
-  {
-    "code": "SAI",
-    "libelle": "Contrat travail saisonnier"
-  },
-  {
-    "code": "CCE",
-    "libelle": "Profession commerciale"
-  },
-  {
-    "code": "FRA",
-    "libelle": "Franchise"
-  },
-  {
-    "code": "LIB",
-    "libelle": "Profession libérale"
-  },
-  {
-    "code": "REP",
-    "libelle": "Reprise d'entreprise"
-  },
-  {
-    "code": "TTI",
-    "libelle": "Contrat travail temporaire insertion"
-  },
-  {
-    "code": "DDI",
-    "libelle": "Contrat durée déterminée insertion"
-  },
-  {
-    "code": "DIN",
-    "libelle": "CDI Intérimaire"
-  },
-  {
-    "code": "DDT",
-    "libelle": "CDD Tremplin"
-  }
-]
+{"code": "CDI", "libelle": "Contrat à durée indéterminée"}
+{"code": "CDD", "libelle": "Contrat à durée déterminée"}
+{"code": "MIS", "libelle": "Mission intérimaire"}
+{"code": "SAI", "libelle": "Contrat travail saisonnier"}
+{"code": "CCE", "libelle": "Profession commerciale"}
+{"code": "FRA", "libelle": "Franchise"}
+{"code": "LIB", "libelle": "Profession libérale"}
+{"code": "REP", "libelle": "Reprise d'entreprise"}
+{"code": "TTI", "libelle": "Contrat travail temporaire insertion"}
+{"code": "DDI", "libelle": "Contrat durée déterminée insertion"}
+{"code": "DIN", "libelle": "CDI Intérimaire"}
+{"code": "DDT", "libelle": "CDD Tremplin"}
