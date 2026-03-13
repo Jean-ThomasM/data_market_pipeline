@@ -8,6 +8,8 @@ __pycache__/
 *$py.class
 
 *.json
+*.ndjson
+*.csv
 
 # C extensions
 *.so
