@@ -1,4 +1,4 @@
-exclude: ^02_extraction_old/
+exclude: ^(_old|_developpements)/
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.5

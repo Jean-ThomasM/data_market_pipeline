@@ -42,11 +42,11 @@ def load_config() -> Config:
         ft_client_key = get_secrets(project_id, "FT_CLIENT_KEY")
         local_save_dir_offres = None
         local_save_dir_refs = None
-        search_params = json.loads(
-            gcs.read_file(
-                gcs_bucket_name, f"config/search_params_{os.getenv('ENV', 'prod')}.json"
-            )
+        search_params_object = os.getenv(
+            "FT_SEARCH_PARAMS_OBJECT",
+            f"config/search_params_{os.getenv('ENV', 'prod')}.json",
         )
+        search_params = json.loads(gcs.read_file(gcs_bucket_name, search_params_object))
     elif env == "local":
         ft_client_id = os.getenv("FT_CLIENT_ID")
         ft_client_key = os.getenv("FT_CLIENT_KEY")

@@ -5,6 +5,9 @@ on:
     branches:
       - main
       - integration # Le robot écoute maintenant ces deux branches
+    paths-ignore:
+      - "_*/**"
+      - "**/_*/**"
 
 jobs:
   release:
