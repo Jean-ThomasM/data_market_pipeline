@@ -55,7 +55,9 @@ def load_json_to_raw_table(
         print(f"[geo-sqlite] Fichier JSON introuvable, ignoré : {json_path}")
         return
 
-    print(f"[geo-sqlite] Chargement de {json_path} dans la table {table_name} (raw JSON)...")
+    print(
+        f"[geo-sqlite] Chargement de {json_path} dans la table {table_name} (raw JSON)..."
+    )
     rows = _load_json_list(json_path)
     if not rows:
         print(f"[geo-sqlite]   Aucun enregistrement dans {json_path}, table non créée.")
@@ -63,7 +65,9 @@ def load_json_to_raw_table(
 
     fieldnames = _infer_columns(rows)
     if not fieldnames:
-        print(f"[geo-sqlite]   Aucune colonne déduite pour {json_path}, table non créée.")
+        print(
+            f"[geo-sqlite]   Aucune colonne déduite pour {json_path}, table non créée."
+        )
         return
 
     cols_def = ", ".join(f'"{name}" TEXT' for name in fieldnames)
@@ -95,13 +99,16 @@ def apply_geo_views_sql(conn: sqlite3.Connection, geo_views_sql_path: Path) -> N
     Exécute le fichier SQL de staging sur la base SQLite (création des vues stg_geo_*).
     """
     if not geo_views_sql_path.exists():
-        raise FileNotFoundError(f"Fichier SQL de staging introuvable : {geo_views_sql_path}")
+        raise FileNotFoundError(
+            f"Fichier SQL de staging introuvable : {geo_views_sql_path}"
+        )
 
     sql = geo_views_sql_path.read_text(encoding="utf-8")
     print(f"[geo-sqlite] Application du SQL de staging depuis {geo_views_sql_path}...")
     conn.executescript(sql)
     conn.commit()
-    print("[geo-sqlite] Vues géographiques créées avec succès.")    
+    print("[geo-sqlite] Vues géographiques créées avec succès.")
+
 
 def main() -> None:
     db_path = Path("data/geo.sqlite")
@@ -121,7 +128,9 @@ def main() -> None:
     try:
         # Chargement des JSON bruts -> tables raw_* miroir exact des JSON
         load_json_to_raw_table(conn, geo_json_dir / "regions.json", "raw_geo_regions")
-        load_json_to_raw_table(conn, geo_json_dir / "departements.json", "raw_geo_departements")
+        load_json_to_raw_table(
+            conn, geo_json_dir / "departements.json", "raw_geo_departements"
+        )
         load_json_to_raw_table(conn, geo_json_dir / "communes.json", "raw_geo_communes")
         load_json_to_raw_table(conn, geo_json_dir / "epcis.json", "raw_geo_epcis")
 
@@ -129,5 +138,6 @@ def main() -> None:
         apply_geo_views_sql(conn, geo_views_sql_path)
     finally:
         conn.close()
-    print("[geo-sqlite] Chargement terminé. Vous pouvez maintenant interroger les vues geo_*.")        
-
+    print(
+        "[geo-sqlite] Chargement terminé. Vous pouvez maintenant interroger les vues geo_*."
+    )

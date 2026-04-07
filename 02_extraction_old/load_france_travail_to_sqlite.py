@@ -87,9 +87,7 @@ def load_offres_json_to_raw_table(
     )
     rows = _load_offres_list(json_path)
     if not rows:
-        print(
-            f"[ft-sqlite]   Aucune offre dans {json_path}, table non créée."
-        )
+        print(f"[ft-sqlite]   Aucune offre dans {json_path}, table non créée.")
         return
 
     fieldnames = _infer_columns(rows)
@@ -146,9 +144,7 @@ def apply_france_travail_views_sql(
         )
 
     sql = views_sql_path.read_text(encoding="utf-8")
-    print(
-        f"[ft-sqlite] Application du SQL de staging depuis {views_sql_path}..."
-    )
+    print(f"[ft-sqlite] Application du SQL de staging depuis {views_sql_path}...")
     conn.executescript(sql)
     conn.commit()
     print("[ft-sqlite] Vues France Travail créées avec succès.")
@@ -194,5 +190,3 @@ def main() -> None:
     print(
         "[ft-sqlite] Chargement terminé. Vous pouvez maintenant interroger les vues liées aux offres."
     )
-
-

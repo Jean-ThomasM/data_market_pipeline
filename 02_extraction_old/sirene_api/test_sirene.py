@@ -6,15 +6,12 @@ load_dotenv()
 sirene_api_url = os.getenv("SIRENE_API_URL")
 sirene_api_key = os.getenv("SIRENE_API_KEY")
 
-headers = {
-    "X-INSEE-Api-Key-Integration": sirene_api_key,
-    "Accept": "application/json"
-}
+headers = {"X-INSEE-Api-Key-Integration": sirene_api_key, "Accept": "application/json"}
 
 criteres = (
     'denominationUniteLegale:"RENAULT SAS" '
-    'AND libelleCommuneEtablissement:BOULOGNE* '
-    'AND activitePrincipaleUniteLegale:29.10Z'
+    "AND libelleCommuneEtablissement:BOULOGNE* "
+    "AND activitePrincipaleUniteLegale:29.10Z"
 )
 
 params = {"q": criteres}

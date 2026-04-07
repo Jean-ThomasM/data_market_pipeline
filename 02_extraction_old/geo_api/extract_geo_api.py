@@ -6,6 +6,7 @@ import requests
 
 BASE_URL = os.getenv("GEO_API_URL")
 
+
 def _get(path: str, **params: Any) -> Any:
     """
     Appelle l'API geo.api.gouv.fr avec gestion simple des erreurs.
@@ -15,8 +16,11 @@ def _get(path: str, **params: Any) -> Any:
     try:
         resp.raise_for_status()
     except requests.HTTPError as exc:
-        raise RuntimeError(f"Erreur API {url} - {resp.status_code}: {resp.text[:200]}") from exc
+        raise RuntimeError(
+            f"Erreur API {url} - {resp.status_code}: {resp.text[:200]}"
+        ) from exc
     return resp.json()
+
 
 def get_regions() -> List[Dict[str, Any]]:
     """
@@ -40,6 +44,7 @@ def get_departements() -> List[Dict[str, Any]]:
     ]
     """
     return _get("/departements")
+
 
 def get_communes(fields: str | None = None) -> List[Dict[str, Any]]:
     """
@@ -109,7 +114,7 @@ def export_geo_to_json(output_dir) -> None:
     _dump_json(communes, "communes.json")
     _dump_json(epcis, "epcis.json")
 
+
 if __name__ == "__main__":
     # Pour lancer l'extraction directement lorsque le script est exécuté :
     export_geo_to_json()
-
