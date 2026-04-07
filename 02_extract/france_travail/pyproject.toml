@@ -1,0 +1,23 @@
+[project]
+name = "france-travail"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.116.1",
+    "python-dotenv>=1.0.1",
+    "requests>=2.33.1",
+    "shared",
+    "uvicorn>=0.35.0",
+]
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv.sources]
+shared = { workspace = true }
+
+[tool.setuptools]
+py-modules = ["auth", "config", "ft_api", "scraper", "utils"]

@@ -57,4 +57,3 @@ flowchart LR
   - **Type** : entier (nullable).
   - **Sémantique** : population totale de la commune (source INSEE via API geo.api.gouv.fr).
   - **Règles** : cast en entier, valeurs non castables → `NULL`.
-

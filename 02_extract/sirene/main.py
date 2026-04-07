@@ -1,5 +1,5 @@
 def main():
-    print("Hello from data-market-pipeline!")
+    print("Hello from sirene!")
 
 
 if __name__ == "__main__":

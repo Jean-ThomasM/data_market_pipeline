@@ -3,15 +3,15 @@ from pathlib import Path
 import sqlite3
 import sys
 
-import pytest
+import
 
 # Ajouter dynamiquement la racine du projet au sys.path
 ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from geo_api import extract_geo_api as geo
-from geo_api import load_geo_to_sqlite as geo_sqlite
+from  import extract_geo_api as geo
+from  import load_geo_to_sqlite as geo_sqlite
 
 
 def test__get_success_builds_url_and_passes_params(monkeypatch):
@@ -75,7 +75,7 @@ def test__get_raises_runtime_error_on_http_error(monkeypatch):
     monkeypatch.setattr(geo.requests, "get", fake_get)
     geo.BASE_URL = "https://example.com"
 
-    with pytest.raises(RuntimeError) as excinfo:
+    with .raises(RuntimeError) as excinfo:
         geo._get("/test")
 
     msg = str(excinfo.value)
@@ -225,14 +225,14 @@ def test_export_geo_to_json_writes_three_files(tmp_path, monkeypatch):
 
 def test__load_json_list_errors_on_missing_file(tmp_path):
     missing = tmp_path / "missing.json"
-    with pytest.raises(FileNotFoundError):
+    with .raises(FileNotFoundError):
         geo_sqlite._load_json_list(missing)
 
 
 def test__load_json_list_errors_on_non_list(tmp_path):
     path = tmp_path / "not_a_list.json"
     path.write_text('{"a": 1}', encoding="utf-8")
-    with pytest.raises(ValueError):
+    with .raises(ValueError):
         geo_sqlite._load_json_list(path)
 
 

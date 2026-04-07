@@ -18,8 +18,10 @@ from dotenv import load_dotenv
 # =============================================================================
 # Configuration
 # =============================================================================
+# Chargement des variables d'environnement
 load_dotenv()
 
+# Instanciation du logger
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
@@ -75,7 +77,7 @@ class Config:
         )
     )
 
-    searches: list = field(
+    searches_parameters: list = field(
         default_factory=lambda: [
             {"codeROME": os.getenv("FT_ROME_CODE", "M1811")},
             {"motsCles": "data engineer"},
@@ -123,6 +125,7 @@ class BaseFranceTravailClient:
             os.makedirs(self.local_dir, exist_ok=True)
 
     # ── GCS (lazy import) ────────────────────────────────────────────────
+    # Si l
     def _init_gcs_bucket(self):
         if not self.config.gcs_bucket_name:
             logger.info("💻 Stockage : local (%s)", self.local_dir)
@@ -410,7 +413,7 @@ class DataEngineerScraper(BaseFranceTravailClient):
     # ── Point d'entrée ───────────────────────────────────────────────────
     def run(self) -> None:
         self.authenticate()
-        for search in self.config.searches:
+        for search in self.config.searches_parameters:
             self._run_search(search)
         self._save()
 
