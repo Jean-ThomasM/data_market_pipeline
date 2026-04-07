@@ -20,4 +20,4 @@ build-backend = "setuptools.build_meta"
 shared = { workspace = true }
 
 [tool.setuptools]
-py-modules = ["auth", "config", "ft_api", "scraper", "utils"]
+py-modules = ["auth", "config", "ft_api", "main", "scraper", "utils"]
