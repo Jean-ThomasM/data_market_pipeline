@@ -33,6 +33,7 @@ ENV PATH="/app/.venv/bin:${PATH}" \
     PYTHONUNBUFFERED=1
 
 COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /app/01_shared/shared /app/01_shared/shared
 COPY --from=builder /app/02_extract/geo/config.py /app/02_extract/geo/config.py
 COPY --from=builder /app/02_extract/geo/geo_api.py /app/02_extract/geo/geo_api.py
 COPY --from=builder /app/02_extract/geo/scraper.py /app/02_extract/geo/scraper.py

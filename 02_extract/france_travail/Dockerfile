@@ -42,8 +42,8 @@ COPY --from=builder /app/02_extract/france_travail/auth.py /app/02_extract/franc
 COPY --from=builder /app/02_extract/france_travail/config.py /app/02_extract/france_travail/config.py
 COPY --from=builder /app/02_extract/france_travail/ft_api.py /app/02_extract/france_travail/ft_api.py
 COPY --from=builder /app/02_extract/france_travail/scraper.py /app/02_extract/france_travail/scraper.py
-COPY --from=builder /app/01_shared/shared app/01_shared/shared
-COPY --from=builder /app/02_extract/france_travail/utils.py app/02_extract/france_travail/utils.py
+COPY --from=builder /app/01_shared/shared /app/01_shared/shared
+COPY --from=builder /app/02_extract/france_travail/utils.py /app/02_extract/france_travail/utils.py
 
 EXPOSE 8000
 
