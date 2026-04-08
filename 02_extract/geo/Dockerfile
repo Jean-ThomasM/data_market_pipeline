@@ -17,7 +17,7 @@ COPY 02_extract/france_travail/pyproject.toml 02_extract/france_travail/pyprojec
 
 COPY 01_shared/shared 01_shared/shared
 COPY 02_extract/geo/config.py 02_extract/geo/config.py
-COPY 02_extract/geo/geo_api.py 02_extract/geo/geo_api.py
+COPY 02_extract/geo/main.py 02_extract/geo/main.py
 COPY 02_extract/geo/scraper.py 02_extract/geo/scraper.py
 
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -35,9 +35,7 @@ ENV PATH="/app/.venv/bin:${PATH}" \
 COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app/01_shared/shared /app/01_shared/shared
 COPY --from=builder /app/02_extract/geo/config.py /app/02_extract/geo/config.py
-COPY --from=builder /app/02_extract/geo/geo_api.py /app/02_extract/geo/geo_api.py
+COPY --from=builder /app/02_extract/geo/main.py /app/02_extract/geo/main.py
 COPY --from=builder /app/02_extract/geo/scraper.py /app/02_extract/geo/scraper.py
 
-EXPOSE 8000
-
-CMD ["uvicorn", "geo_api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "main.py"]

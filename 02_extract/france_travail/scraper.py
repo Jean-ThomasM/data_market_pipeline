@@ -41,6 +41,13 @@ def request_with_retry(
     """
 
     for attempt_index in range(MAX_RETRY_ATTEMPTS):
+        logger.info(
+            "Sending France Travail request to %s (attempt %s/%s).",
+            url,
+            attempt_index + 1,
+            MAX_RETRY_ATTEMPTS,
+        )
+        request_start_time = time.monotonic()
         try:
             response = session.get(
                 url,
@@ -58,6 +65,13 @@ def request_with_retry(
             )
             time.sleep(2**attempt_index)
             continue
+
+        logger.info(
+            "France Travail response received from %s with status %s in %.2f seconds.",
+            url,
+            response.status_code,
+            time.monotonic() - request_start_time,
+        )
 
         if response.status_code in (401, 403):
             logger.info("Access token expired or rejected. Refreshing session.")
@@ -109,6 +123,7 @@ class ReferentialsExtractor:
     def __init__(self, config: Config):
         self.config = config
         self.session = create_authenticated_session(config)
+        logger.info("Referentials extractor initialized.")
 
     def extract(self) -> None:
         for (
@@ -143,6 +158,11 @@ class OffersExtractor:
         self.total_offers_fetched = 0
         self.unique_offers_added_by_search_label: dict[str, int] = {}
         self.mode = mode
+        logger.info(
+            "Offers extractor initialized with mode=%s and %s search params.",
+            mode,
+            len(config.search_params or []),
+        )
 
     def extract(self) -> None:
         if not self.config.search_params:
@@ -265,12 +285,14 @@ class OffersExtractor:
 
 
 def extract_referentials() -> None:
+    logger.info("Preparing referentials extraction.")
     config = load_config()
     extractor = ReferentialsExtractor(config)
     extractor.extract()
 
 
 def extract_offers(mode: str) -> None:
+    logger.info("Preparing offers extraction with mode=%s.", mode)
     config = load_config()
     extractor = OffersExtractor(config, mode)
     extractor.extract()

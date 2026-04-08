@@ -9,6 +9,7 @@ from config import Config, load_config
 
 logger = logging.getLogger(__name__)
 
+GEO_API_BASE_URL = "https://geo.api.gouv.fr"
 REQUEST_TIMEOUT_SECONDS = 30
 
 RESOURCE_PATHS = {
@@ -68,7 +69,7 @@ class GeoExtractor:
 
     def _fetch_resource(self, resource_name: str) -> list[dict]:
         resource_path = RESOURCE_PATHS[resource_name]
-        resource_url = f"{self.config.geo_api_base_url}{resource_path}"
+        resource_url = f"{GEO_API_BASE_URL}{resource_path}"
 
         try:
             response = self.session.get(resource_url, timeout=REQUEST_TIMEOUT_SECONDS)

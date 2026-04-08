@@ -1,11 +1,26 @@
 import json
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
 
+from google.api_core.exceptions import NotFound
 from dotenv import load_dotenv
 from shared import gcs
 from shared.secrets import get_secrets
+
+logger = logging.getLogger(__name__)
+
+
+def build_default_search_params() -> list[dict[str, str]]:
+    return [
+        {"codeROME": os.getenv("FT_ROME_CODE", "M1811")},
+        {"motsCles": "data engineer"},
+        {"motsCles": "architecte data"},
+        {"motsCles": "data ingénieur"},
+        {"motsCles": "ingénieur data"},
+        {"motsCles": "data architect"},
+    ]
 
 
 @dataclass
@@ -37,7 +52,9 @@ def load_config() -> Config:
     project_id = os.getenv("GCP_PROJECT_ID")
     gcs_bucket_name: str = os.getenv("GCS_BUCKET_NAME", "")
     storage = os.getenv("STORAGE")
+    logger.info("Loading France Travail config with storage=%s.", storage)
     if storage == "gcs":
+        logger.info("Fetching France Travail credentials from Secret Manager.")
         ft_client_id = get_secrets(project_id, "FT_CLIENT_ID")
         ft_client_key = get_secrets(project_id, "FT_CLIENT_KEY")
         local_save_dir_offres = None
@@ -46,7 +63,26 @@ def load_config() -> Config:
             "FT_SEARCH_PARAMS_OBJECT",
             f"config/search_params_{storage}.json",
         )
-        search_params = json.loads(gcs.read_file(gcs_bucket_name, search_params_object))
+        logger.info(
+            "Loading France Travail search params from GCS object: %s/%s.",
+            gcs_bucket_name,
+            search_params_object,
+        )
+        try:
+            search_params = json.loads(
+                gcs.read_file(gcs_bucket_name, search_params_object)
+            )
+        except NotFound:
+            logger.warning(
+                "Search params object not found in GCS: %s/%s. Falling back to default search parameters.",
+                gcs_bucket_name,
+                search_params_object,
+            )
+            search_params = build_default_search_params()
+        logger.info(
+            "France Travail search params ready: %s entries loaded.",
+            len(search_params),
+        )
     elif storage == "local":
         ft_client_id = os.getenv("FT_CLIENT_ID")
         ft_client_key = os.getenv("FT_CLIENT_KEY")
@@ -58,14 +94,11 @@ def load_config() -> Config:
             / "data"
             / "france_travail_referentiels"
         )
-        search_params: list = [
-            {"codeROME": os.getenv("FT_ROME_CODE", "M1811")},
-            {"motsCles": "data engineer"},
-            {"motsCles": "architecte data"},
-            {"motsCles": "data ingénieur"},
-            {"motsCles": "ingénieur data"},
-            {"motsCles": "data architect"},
-        ]
+        search_params = build_default_search_params()
+        logger.info(
+            "Using local France Travail config with %s default search params.",
+            len(search_params),
+        )
     else:
         raise ValueError("Variable STORAGE doit être 'gcs' ou 'local'")
 
@@ -96,4 +129,5 @@ def load_config() -> Config:
         storage=storage,
     )
     config.validate()
+    logger.info("France Travail config validation completed.")
     return config

@@ -311,10 +311,6 @@ marts_<env>
   Optionnel. Exemple : `api_offresdemploiv2 o2dsoffre`
   Usage : surcharge du scope OAuth France Travail.
 
-- `GEO_API_URL`
-  Obligatoire pour `extract-geo`. Exemple : `https://geo.api.gouv.fr`
-  Usage : endpoint source de l'API GEO.
-
 ### Configuration metier dans GCS
 
 <<<<<<< HEAD

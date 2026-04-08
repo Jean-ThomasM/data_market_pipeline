@@ -21,7 +21,6 @@ COPY 02_extract/france_travail/pyproject.toml 02_extract/france_travail/pyprojec
 COPY 01_shared/shared 01_shared/shared
 COPY 02_extract/france_travail/auth.py 02_extract/france_travail/auth.py
 COPY 02_extract/france_travail/config.py 02_extract/france_travail/config.py
-COPY 02_extract/france_travail/ft_api.py 02_extract/france_travail/ft_api.py
 COPY 02_extract/france_travail/main.py 02_extract/france_travail/main.py
 COPY 02_extract/france_travail/scraper.py 02_extract/france_travail/scraper.py
 COPY 02_extract/france_travail/utils.py 02_extract/france_travail/utils.py
@@ -41,12 +40,9 @@ ENV PATH="/app/.venv/bin:${PATH}" \
 COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app/02_extract/france_travail/auth.py /app/02_extract/france_travail/auth.py
 COPY --from=builder /app/02_extract/france_travail/config.py /app/02_extract/france_travail/config.py
-COPY --from=builder /app/02_extract/france_travail/ft_api.py /app/02_extract/france_travail/ft_api.py
 COPY --from=builder /app/02_extract/france_travail/main.py /app/02_extract/france_travail/main.py
 COPY --from=builder /app/02_extract/france_travail/scraper.py /app/02_extract/france_travail/scraper.py
 COPY --from=builder /app/01_shared/shared /app/01_shared/shared
 COPY --from=builder /app/02_extract/france_travail/utils.py /app/02_extract/france_travail/utils.py
 
-EXPOSE 8000
-
-CMD ["uvicorn", "ft_api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "main.py"]
