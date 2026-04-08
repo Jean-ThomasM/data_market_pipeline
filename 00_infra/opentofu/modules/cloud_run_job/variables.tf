@@ -24,11 +24,17 @@ variable "service_account_email" {
 }
 
 variable "cpu" {
-  type        = string
-  default     = "1"
+  type    = string
+  default = "1"
 }
 
 variable "memory" {
-  type        = string
-  default     = "512Mi"
+  type    = string
+  default = "512Mi"
+}
+
+variable "env_vars" {
+  description = "Environment variables injected into the container"
+  type        = map(string)
+  default     = {}
 }
