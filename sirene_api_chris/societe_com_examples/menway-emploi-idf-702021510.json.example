@@ -1,0 +1,36 @@
+[
+  {
+    "Forme juridique": "Société par actions simplifiée (SAS)",
+    "Capital": "300000,00",
+    "Activité principale déclarée": "Travail temporaire, placement",
+    "Type d'activité": "COMMERCIALE",
+    "Convention collective déduite": null,
+    "Chiffre d'affaires": "20076000,00",
+    "Résultats net": 621500,
+    "Bilan carbone": " tCO2e",
+    "autres bilans": [
+      {
+        "label": "Gouvernance du secteur",
+        "score": "50/100"
+      },
+      {
+        "label": "Achats & approvisionnements du secteur",
+        "score": "98/100"
+      },
+      {
+        "label": "Dépendance commerciale du secteur",
+        "score": "100/100"
+      },
+      {
+        "label": "Souveraineté numérique du secteur",
+        "score": "25/100"
+      },
+      {
+        "Année score": "2024",
+        "Score territorial": "E",
+        "Score social": "A",
+        "Score fiscal": "B"
+      }
+    ]
+  }
+]
