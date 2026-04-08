@@ -94,30 +94,12 @@ def load_json_to_raw_table(
     print(f"[geo-sqlite]   -> {len(to_insert)} lignes insérées dans {table_name}")
 
 
-def apply_geo_views_sql(conn: sqlite3.Connection, geo_views_sql_path: Path) -> None:
-    """
-    Exécute le fichier SQL de staging sur la base SQLite (création des vues stg_geo_*).
-    """
-    if not geo_views_sql_path.exists():
-        raise FileNotFoundError(
-            f"Fichier SQL de staging introuvable : {geo_views_sql_path}"
-        )
-
-    sql = geo_views_sql_path.read_text(encoding="utf-8")
-    print(f"[geo-sqlite] Application du SQL de staging depuis {geo_views_sql_path}...")
-    conn.executescript(sql)
-    conn.commit()
-    print("[geo-sqlite] Vues géographiques créées avec succès.")
-
-
 def main() -> None:
-    db_path = Path("data/geo.sqlite")
-    geo_json_dir = Path("data/data_geo")
-    geo_views_sql_path = Path("sql/geo_views.sql")
+    db_path = Path("_old/data/geo.sqlite")
+    geo_json_dir = Path("_old/data/data_geo")
 
     print(f"[geo-sqlite] Base SQLite cible : {db_path.resolve()}")
     print(f"[geo-sqlite] Dossier JSON      : {geo_json_dir.resolve()}")
-    print(f"[geo-sqlite] Fichier vues      : {geo_views_sql_path.resolve()}")
 
     if not geo_json_dir.exists():
         raise FileNotFoundError(f"Dossier JSON introuvable : {geo_json_dir}")
@@ -134,10 +116,6 @@ def main() -> None:
         load_json_to_raw_table(conn, geo_json_dir / "communes.json", "raw_geo_communes")
         load_json_to_raw_table(conn, geo_json_dir / "epcis.json", "raw_geo_epcis")
 
-        # Application du SQL pour créer les vues geo_*
-        apply_geo_views_sql(conn, geo_views_sql_path)
     finally:
         conn.close()
-    print(
-        "[geo-sqlite] Chargement terminé. Vous pouvez maintenant interroger les vues geo_*."
-    )
+    print("[geo-sqlite] Chargement raw terminé. Les transformations doivent être faites via dbt.")

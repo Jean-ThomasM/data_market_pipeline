@@ -16,6 +16,18 @@ def _load_offres_list(path: Path) -> List[Dict[str, Any]]:
     """
     if not path.exists():
         raise FileNotFoundError(f"Fichier JSON introuvable : {path}")
+    if path.suffix.lower() == ".ndjson":
+        rows: List[Dict[str, Any]] = []
+        with path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                obj = json.loads(line)
+                if isinstance(obj, dict):
+                    rows.append(obj)
+        return rows
+
     with path.open("r", encoding="utf-8") as f:
         data = json.load(f)
     if not isinstance(data, dict) or "resultats" not in data:
@@ -152,41 +164,47 @@ def apply_france_travail_views_sql(
 
 def main() -> None:
     """
-    Charge le dernier fichier JSON d'offres France Travail dans SQLite
-    et crée les vues de staging / enrichies.
+    Charge le dernier fichier brut d'offres France Travail dans SQLite.
+    Les transformations SQL sont faites ensuite via dbt.
     """
-    db_path = Path("data/geo.sqlite")
-    offres_json_dir = Path("data/france_travail_offres")
-    offres_views_sql_path = Path("sql/france_travail_offres_views.sql")
+    db_path = Path("_old/data/geo.sqlite")
+    offres_json_dir_candidates = [
+        Path("_old/data/france_travail_offres"),
+        Path("_old/data/france_travail_offres"),
+    ]
 
     print(f"[ft-sqlite] Base SQLite cible : {db_path.resolve()}")
-    print(f"[ft-sqlite] Dossier JSON      : {offres_json_dir.resolve()}")
-    print(f"[ft-sqlite] Fichier vues      : {offres_views_sql_path.resolve()}")
+    def _has_offres_files(path: Path) -> bool:
+        return any(path.glob("offres_data_market_*.json")) or any(
+            path.glob("offres_data_market_*.ndjson")
+        )
 
+    offres_json_dir = next(
+        (p for p in offres_json_dir_candidates if p.exists() and _has_offres_files(p)),
+        next((p for p in offres_json_dir_candidates if p.exists()), offres_json_dir_candidates[0]),
+    )
+    print(f"[ft-sqlite] Dossier JSON      : {offres_json_dir.resolve()}")
     if not offres_json_dir.exists():
-        raise FileNotFoundError(f"Dossier JSON introuvable : {offres_json_dir}")
+        raise FileNotFoundError(f"Dossier offres introuvable : {offres_json_dir}")
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # On prend le dernier fichier JSON généré (par ordre alphabétique, qui inclut la date/heure)
+    # On prend le dernier fichier brut généré (JSON ou NDJSON).
     json_files = sorted(offres_json_dir.glob("offres_data_market_*.json"))
-    if not json_files:
+    ndjson_files = sorted(offres_json_dir.glob("offres_data_market_*.ndjson"))
+    all_files = sorted(json_files + ndjson_files)
+    if not all_files:
         raise FileNotFoundError(
-            f"Aucun fichier 'offres_data_market_*.json' trouvé dans {offres_json_dir}"
+            f"Aucun fichier 'offres_data_market_*.json/.ndjson' trouvé dans {offres_json_dir}"
         )
-    latest_json = json_files[-1]
+    latest_json = all_files[-1]
 
-    print(f"[ft-sqlite] Fichier JSON utilisé : {latest_json.name}")
+    print(f"[ft-sqlite] Fichier brut utilisé : {latest_json.name}")
 
     conn = sqlite3.connect(db_path)
     try:
         # Chargement du JSON brut -> table raw_ft_offres
         load_offres_json_to_raw_table(conn, latest_json, "raw_ft_offres")
-
-        # Application du SQL pour créer les vues stg_* et la vue enrichie
-        apply_france_travail_views_sql(conn, offres_views_sql_path)
     finally:
         conn.close()
-    print(
-        "[ft-sqlite] Chargement terminé. Vous pouvez maintenant interroger les vues liées aux offres."
-    )
+    print("[ft-sqlite] Chargement raw terminé. Les transformations doivent être faites via dbt.")

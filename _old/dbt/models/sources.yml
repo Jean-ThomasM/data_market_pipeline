@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: geo
+    description: "Tables raw issues de l'extraction Geo API."
+    schema: main
+    tables:
+      - name: raw_geo_regions
+      - name: raw_geo_departements
+      - name: raw_geo_communes
+      - name: raw_geo_epcis
+
+  - name: france_travail
+    description: "Tables raw issues de l'extraction France Travail."
+    schema: main
+    tables:
+      - name: raw_ft_offres

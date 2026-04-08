@@ -1,0 +1,13 @@
+name: data_market_pipeline_old
+version: "1.0.0"
+profile: data_market_pipeline_old
+
+model-paths: ["models"]
+target-path: "target"
+clean-targets:
+  - "target"
+
+models:
+  data_market_pipeline_old:
+    intermediate:
+      +materialized: table

@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 import os
 import requests
 
-BASE_URL = os.getenv("GEO_API_URL")
+BASE_URL = os.getenv("GEO_API_URL", "https://geo.api.gouv.fr")
 
 
 def _get(path: str, **params: Any) -> Any:

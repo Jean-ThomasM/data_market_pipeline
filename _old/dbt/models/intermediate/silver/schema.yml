@@ -1,0 +1,41 @@
+version: 2
+
+models:
+  - name: int_geo_communes_silver
+    description: "Silver intermediaire des communes enrichies depuis les sources geo raw."
+    columns:
+      - name: commune_nom
+        tests:
+          - not_null
+
+      - name: departement_code
+        tests:
+          - not_null:
+              config:
+                severity: warn
+
+  - name: int_ft_offre_geo_silver
+    description: "Silver intermediaire France Travail geolocalise, normalise et deduplique."
+    columns:
+      - name: offre_id
+        tests:
+          - not_null
+          - unique
+
+      - name: intitule
+        tests:
+          - not_null:
+              config:
+                severity: warn
+
+      - name: commune_code
+        tests:
+          - not_null:
+              config:
+                severity: warn
+
+      - name: date_creation
+        tests:
+          - not_null:
+              config:
+                severity: warn
