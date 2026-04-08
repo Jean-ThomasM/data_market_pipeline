@@ -131,8 +131,4 @@ module "ft_client_key_secret" {
 
   project_id = var.project_id
   secret_id  = "FT_CLIENT_KEY"
-<<<<<<< HEAD:infra/opentofu/environments/dev/main.tf
 }
-=======
-}
->>>>>>> 2c552c8d20c70672608d03f3ce18da24cd658fd1:00_infra/opentofu/environments/dev/main.tf
