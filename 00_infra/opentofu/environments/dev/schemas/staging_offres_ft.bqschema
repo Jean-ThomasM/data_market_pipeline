@@ -1,0 +1,267 @@
+[
+  {
+    "name": "ingested_at",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "source_file",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "id",
+    "type": "STRING",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "intitule",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "description",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "dateCreation",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "dateActualisation",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "romeCode",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "romeLibelle",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "appellationlibelle",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "typeContrat",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "typeContratLibelle",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "natureContrat",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "experienceExige",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "experienceLibelle",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "alternance",
+    "type": "BOOL",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "accessibleTH",
+    "type": "BOOL",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "employeurHandiEngage",
+    "type": "BOOL",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "entrepriseAdaptee",
+    "type": "BOOL",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "nombrePostes",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "offresManqueCandidats",
+    "type": "BOOL",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "qualificationCode",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "qualificationLibelle",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "codeNAF",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "secteurActivite",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "secteurActiviteLibelle",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "trancheEffectifEtab",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "dureeTravailLibelle",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "dureeTravailLibelleConverti",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "origineOffre_origine",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "origineOffre_urlOrigine",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "lieuTravail_libelle",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "lieuTravail_codePostal",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "lieuTravail_commune",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "lieuTravail_latitude",
+    "type": "FLOAT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "lieuTravail_longitude",
+    "type": "FLOAT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "entreprise_nom",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "entreprise_description",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "entreprise_entrepriseAdaptee",
+    "type": "BOOL",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "lieuTravail",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "entreprise",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "origineOffre",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "contact",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "salaire",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "contexteTravail",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "origineOffre_partenaires",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "competences",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "formations",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "langues",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "permis",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "qualitesProfessionnelles",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "agence",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "payload",
+    "type": "JSON",
+    "mode": "NULLABLE"
+  }
+]

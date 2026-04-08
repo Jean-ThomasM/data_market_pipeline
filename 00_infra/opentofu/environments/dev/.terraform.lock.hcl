@@ -19,3 +19,21 @@ provider "registry.opentofu.org/hashicorp/google" {
     "zh:b75184fe5c162821b0524fa941d6a934c452e815d82e62675bb21bbdc9046dfc",
   ]
 }
+
+provider "registry.opentofu.org/hashicorp/google-beta" {
+  version     = "5.45.2"
+  constraints = "~> 5.0"
+  hashes = [
+    "h1:KkOlqypKHYYvfzrqVPdhfiyHwYeafFy0WD805a01eSg=",
+    "zh:2df6e40591ceee7ee77d429ea072c9d51fef2dd04015b2604ff332a2af4ac819",
+    "zh:4096af21991ba76ab81c8cb00c0eb0bd4f22619f7e491d60023fb10b8b33bfb1",
+    "zh:44ded286956fff5668f1acbf152b62ca8e6a03abc8df12c5c181bc2ca05b4df7",
+    "zh:7ae19e1b53a0e26bea0acb9a96b4b44038d7c182c3fdd496148fd20e40aa78e1",
+    "zh:81c9812823b78fd1b12bc0acd6dae35bc573944950e09eaf237b2e83b6b587d7",
+    "zh:9db6101421b53b9533807928c651e779f5b8129f4a57ff892bf256c84ba6ed29",
+    "zh:b779729cb08829f621a718ecdfdb503c310ef5411e694996c7cfda7227221134",
+    "zh:c43edb31aee354317a6181272a961965b93722fd18637f38c395af013aa65617",
+    "zh:dbb93970a85f2fe84f650b6a4da694ecb1023a99c3b9bbf6953dccd074fa49ce",
+    "zh:df9d13853269e98651d495571b4d58c883b4386247d0b9c5495c2e82ef721f45",
+  ]
+}

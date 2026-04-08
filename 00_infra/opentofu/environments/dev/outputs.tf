@@ -6,6 +6,10 @@ output "staging_dataset_id" {
   value = module.staging_dataset.dataset_id
 }
 
+output "staging_offres_ft_table_id" {
+  value = module.staging_offres_ft_table.table_id
+}
+
 output "intermediate_dataset_id" {
   value = module.intermediate_dataset.dataset_id
 }
@@ -24,4 +28,8 @@ output "enabled_services" {
 
 output "artifact_registry_repository_url" {
   value = module.artifact_registry.repository_url
+}
+
+output "load_staging_offres_ft_workflow_name" {
+  value = module.load_staging_offres_ft_workflow.name
 }
