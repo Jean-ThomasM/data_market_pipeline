@@ -30,7 +30,6 @@ export FT_CLIENT_KEY=your-france-travail-client-key
 
 # GEO
 export STORAGE=local
-export GEO_API_URL=https://geo.api.gouv.fr
 ```
 
 Notes :
@@ -38,7 +37,6 @@ Notes :
 - `STORAGE` pilote `france_travail` et doit valoir `local` ou `gcs`
 - `STORAGE` pilote aussi `geo` et doit valoir `local` ou `gcs`
 - l'API France Travail exige `FT_CLIENT_ID` et `FT_CLIENT_KEY`
-- l'API GEO exige `GEO_API_URL`
 - en local, les donnees sont ecrites sous `02_extract/data/`
 
 ## Lancer les APIs en local
@@ -49,21 +47,22 @@ Depuis la racine du projet :
 
 ```bash
 cd 02_extract/france_travail
-uv run uvicorn ft_api:app --reload --host 0.0.0.0 --port 8000
+export FT_EXTRACT_TARGET=offers
+uv run python main.py
 ```
 
-Endpoints utiles :
+Valeurs utiles pour `FT_EXTRACT_TARGET` :
 
-- `GET /health`
-- `POST /referentials`
-- `POST /offers`
+- `offers`
+- `referentials`
+- `all`
 
 Exemples :
 
 ```bash
-curl http://127.0.0.1:8000/health
-curl -X POST http://127.0.0.1:8000/referentials
-curl -X POST "http://127.0.0.1:8000/offers?mode=local"
+FT_EXTRACT_TARGET=offers uv run python 02_extract/france_travail/main.py
+FT_EXTRACT_TARGET=referentials uv run python 02_extract/france_travail/main.py
+FT_EXTRACT_TARGET=all uv run python 02_extract/france_travail/main.py
 ```
 
 ### GEO
@@ -72,19 +71,7 @@ Depuis la racine du projet :
 
 ```bash
 cd 02_extract/geo
-uv run uvicorn geo_api:app --reload --host 0.0.0.0 --port 8001
-```
-
-Endpoints utiles :
-
-- `GET /health`
-- `POST /extract`
-
-Exemples :
-
-```bash
-curl http://127.0.0.1:8001/health
-curl -X POST http://127.0.0.1:8001/extract
+uv run python main.py
 ```
 
 ## Tester avec Docker
@@ -102,20 +89,36 @@ docker build -f 02_extract/france_travail/Dockerfile -t data-market-ft:local .
 Run :
 
 ```bash
-docker run --rm -p 8000:8000 \
+docker run --rm \
   -e STORAGE=local \
   -e GCP_PROJECT_ID=your-gcp-project \
   -e GCS_BUCKET_NAME=your-bucket \
   -e FT_CLIENT_ID=your-france-travail-client-id \
   -e FT_CLIENT_KEY=your-france-travail-client-key \
+  -e FT_EXTRACT_TARGET=offers \
   data-market-ft:local
 ```
 
-Test :
+Exemples :
 
 ```bash
-curl http://127.0.0.1:8000/health
-curl -X POST "http://127.0.0.1:8000/offers?mode=local"
+docker run --rm \
+  -e STORAGE=local \
+  -e GCP_PROJECT_ID=your-gcp-project \
+  -e GCS_BUCKET_NAME=your-bucket \
+  -e FT_CLIENT_ID=your-france-travail-client-id \
+  -e FT_CLIENT_KEY=your-france-travail-client-key \
+  -e FT_EXTRACT_TARGET=offers \
+  data-market-ft:local
+
+docker run --rm \
+  -e STORAGE=local \
+  -e GCP_PROJECT_ID=your-gcp-project \
+  -e GCS_BUCKET_NAME=your-bucket \
+  -e FT_CLIENT_ID=your-france-travail-client-id \
+  -e FT_CLIENT_KEY=your-france-travail-client-key \
+  -e FT_EXTRACT_TARGET=all \
+  data-market-ft:local
 ```
 
 ### Image GEO
@@ -129,15 +132,7 @@ docker build -f 02_extract/geo/Dockerfile -t data-market-geo:local .
 Run :
 
 ```bash
-docker run --rm -p 8001:8000 \
+docker run --rm \
   -e STORAGE=local \
-  -e GEO_API_URL=https://geo.api.gouv.fr \
   data-market-geo:local
-```
-
-Test :
-
-```bash
-curl http://127.0.0.1:8001/health
-curl -X POST http://127.0.0.1:8001/extract
 ```
