@@ -277,9 +277,9 @@ marts_<env>
 
 ### Variables du Cloud Run Job
 
-- `ENV`
-  Obligatoire. Exemple : `prod`
-  Usage : active le mode runtime du job.
+- `STORAGE`
+  Obligatoire pour `extract-ft` et `extract-geo`. Exemple : `gcs`
+  Usage : choisit le backend de persistance des extracteurs.
 
 - `GCP_PROJECT_ID`
   Obligatoire. Exemple : `my-gcp-project`
@@ -294,7 +294,7 @@ marts_<env>
   Usage : choisit la cible d'extraction France Travail.
 
 - `FT_SEARCH_PARAMS_OBJECT`
-  Recommande. Exemple : `config/search_params_prod.json`
+  Recommande. Exemple : `config/search_params_gcs.json`
   Usage : chemin de la config de recherche FT dans le bucket.
 
 - `SCOPE_API_FT_EMPLOI`
@@ -307,14 +307,14 @@ marts_<env>
 
 ### Configuration metier dans GCS
 
-- `config/search_params_prod.json`
-  Obligatoire pour FT prod si on utilise la version decoupee.
-  Exemple : `gs://bucket/config/search_params_prod.json`
+- `config/search_params_gcs.json`
+  Obligatoire pour FT avec stockage GCS si on utilise la version decoupee.
+  Exemple : `gs://bucket/config/search_params_gcs.json`
   Usage : parametres de recherche France Travail.
 
-- `config/search_params_prod_no_departement.json`
+- `config/search_params_gcs_no_departement.json`
   Alternative prudente si le filtre `departement` n'est pas valide.
-  Exemple : `gs://bucket/config/search_params_prod_no_departement.json`
+  Exemple : `gs://bucket/config/search_params_gcs_no_departement.json`
   Usage : parametres de recherche France Travail sans decoupage departement.
 
 ### Parametres Workflows

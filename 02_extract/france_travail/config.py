@@ -11,7 +11,7 @@ from shared.secrets import get_secrets
 @dataclass
 class Config:
     project_id: str | None
-    env: str | None
+    storage: str | None
     ft_client_id: str | None
     ft_client_key: str | None
     scope: str | None
@@ -36,18 +36,18 @@ def load_config() -> Config:
     load_dotenv()
     project_id = os.getenv("GCP_PROJECT_ID")
     gcs_bucket_name: str = os.getenv("GCS_BUCKET_NAME", "")
-    env = os.getenv("ENV")
-    if env == "prod":
+    storage = os.getenv("STORAGE")
+    if storage == "gcs":
         ft_client_id = get_secrets(project_id, "FT_CLIENT_ID")
         ft_client_key = get_secrets(project_id, "FT_CLIENT_KEY")
         local_save_dir_offres = None
         local_save_dir_refs = None
         search_params_object = os.getenv(
             "FT_SEARCH_PARAMS_OBJECT",
-            f"config/search_params_{os.getenv('ENV', 'prod')}.json",
+            f"config/search_params_{storage}.json",
         )
         search_params = json.loads(gcs.read_file(gcs_bucket_name, search_params_object))
-    elif env == "local":
+    elif storage == "local":
         ft_client_id = os.getenv("FT_CLIENT_ID")
         ft_client_key = os.getenv("FT_CLIENT_KEY")
         local_save_dir_offres: str = str(
@@ -67,7 +67,7 @@ def load_config() -> Config:
             {"motsCles": "data architect"},
         ]
     else:
-        raise ValueError("Variable ENV doit être 'prod' ou 'local'")
+        raise ValueError("Variable STORAGE doit être 'gcs' ou 'local'")
 
     scope: str = os.getenv("SCOPE_API_FT_EMPLOI", "api_offresdemploiv2 o2dsoffre")
 
@@ -93,7 +93,7 @@ def load_config() -> Config:
         offres_base_url=offres_base_url,
         referentiels_base_url=referentiels_base_url,
         search_params=search_params,
-        env=env,
+        storage=storage,
     )
     config.validate()
     return config

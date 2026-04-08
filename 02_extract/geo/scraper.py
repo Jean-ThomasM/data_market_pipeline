@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 from pathlib import Path
 
 import requests
@@ -27,8 +26,8 @@ RESOURCE_FILE_NAMES = {
 }
 
 
-def is_production_environment() -> bool:
-    return os.getenv("ENV") == "prod"
+def use_gcs_storage(config: Config) -> bool:
+    return config.storage == "gcs"
 
 
 def save_json_payload(
@@ -38,7 +37,7 @@ def save_json_payload(
 ) -> None:
     json_content = json.dumps(payload, ensure_ascii=False, indent=2)
 
-    if is_production_environment():
+    if use_gcs_storage(config):
         gcs_path = f"raw_geo/{destination_name}"
         gcs.write_file(config.gcs_bucket_name, gcs_path, json_content.encode("utf-8"))
         logger.info("Saved GEO file to GCS: %s", gcs_path)

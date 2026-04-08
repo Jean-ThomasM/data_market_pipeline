@@ -17,13 +17,13 @@ def save_text_content(
     local_directory: str | None,
 ) -> None:
     """
-    Persiste un contenu texte dans GCS en production, ou dans un répertoire
-    local lorsque l'environnement d'exécution est local.
+    Persiste un contenu texte dans GCS, ou dans un répertoire local lorsque
+    le backend de stockage configuré est local.
     """
 
-    if config.env == "prod":
+    if config.storage == "gcs":
         if not config.gcs_bucket_name:
-            raise ValueError("GCS_BUCKET_NAME est requis lorsque ENV=prod.")
+            raise ValueError("GCS_BUCKET_NAME est requis lorsque STORAGE=gcs.")
 
         gcs_path = f"{gcs_prefix}/{destination_name}"
         gcs.write_file(config.gcs_bucket_name, gcs_path, content.encode("utf-8"))
@@ -31,7 +31,7 @@ def save_text_content(
         return
 
     if not local_directory:
-        raise ValueError("A local output directory is required when ENV=local.")
+        raise ValueError("A local output directory is required when STORAGE=local.")
 
     output_directory = Path(local_directory)
     output_directory.mkdir(parents=True, exist_ok=True)

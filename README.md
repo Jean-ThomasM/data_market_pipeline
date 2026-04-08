@@ -21,17 +21,22 @@ uv sync --dev
 Exemple minimal pour lancer les APIs en local :
 
 ```bash
-export ENV=local
+# France Travail
+export STORAGE=local
 export GCP_PROJECT_ID=your-gcp-project
 export GCS_BUCKET_NAME=your-bucket
 export FT_CLIENT_ID=your-france-travail-client-id
 export FT_CLIENT_KEY=your-france-travail-client-key
+
+# GEO
+export STORAGE=local
 export GEO_API_URL=https://geo.api.gouv.fr
 ```
 
 Notes :
 
-- `ENV` doit valoir `local` ou `prod`
+- `STORAGE` pilote `france_travail` et doit valoir `local` ou `gcs`
+- `STORAGE` pilote aussi `geo` et doit valoir `local` ou `gcs`
 - l'API France Travail exige `FT_CLIENT_ID` et `FT_CLIENT_KEY`
 - l'API GEO exige `GEO_API_URL`
 - en local, les donnees sont ecrites sous `02_extract/data/`
@@ -98,7 +103,7 @@ Run :
 
 ```bash
 docker run --rm -p 8000:8000 \
-  -e ENV=local \
+  -e STORAGE=local \
   -e GCP_PROJECT_ID=your-gcp-project \
   -e GCS_BUCKET_NAME=your-bucket \
   -e FT_CLIENT_ID=your-france-travail-client-id \
@@ -125,7 +130,7 @@ Run :
 
 ```bash
 docker run --rm -p 8001:8000 \
-  -e ENV=local \
+  -e STORAGE=local \
   -e GEO_API_URL=https://geo.api.gouv.fr \
   data-market-geo:local
 ```
