@@ -34,7 +34,7 @@ def main() -> None:
             "--profiles-dir",
             "_old/dbt",
             "--select",
-            "intermediate.silver+",
+            "path:models/intermediate/silver+",
             "--indirect-selection",
             "eager",
         ],
