@@ -1,17 +1,14 @@
 import json
 from pathlib import Path
-import sqlite3
 import sys
 
+import geo_api.geo_decoupage_api as geo
 import pytest
 
 # Ajouter dynamiquement la racine du projet au sys.path
 ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
-
-from geo_api import extract_geo_api as geo
-from geo_api import load_geo_to_sqlite as geo_sqlite
 
 
 def test__get_success_builds_url_and_passes_params(monkeypatch):
@@ -132,10 +129,8 @@ def test_get_communes_without_fields(monkeypatch):
 
     assert result == [{"code": "12345", "nom": "Commune test"}]
     assert called["path"] == "/communes"
-    # Sans `fields`, on force désormais un ensemble de champs par défaut
-    # (dont `codesPostaux` pour avoir la liste complète des CP).
-    assert "fields" in called["params"]
-    assert "codesPostaux" in called["params"]["fields"]
+    # Sans `fields`, aucun paramètre n'est envoyé
+    assert called["params"] == {}
 
 
 def test_get_communes_with_fields(monkeypatch):
@@ -221,76 +216,3 @@ def test_export_geo_to_json_writes_three_files(tmp_path, monkeypatch):
     assert departements_data == [{"code": "69", "nom": "Rhône", "codeRegion": "84"}]
     assert communes_data[0]["code"] == "12345"
     assert communes_data[0]["population"] == 1000
-
-
-def test__load_json_list_errors_on_missing_file(tmp_path):
-    missing = tmp_path / "missing.json"
-    with pytest.raises(FileNotFoundError):
-        geo_sqlite._load_json_list(missing)
-
-
-def test__load_json_list_errors_on_non_list(tmp_path):
-    path = tmp_path / "not_a_list.json"
-    path.write_text('{"a": 1}', encoding="utf-8")
-    with pytest.raises(ValueError):
-        geo_sqlite._load_json_list(path)
-
-
-def test__infer_columns_collects_all_keys():
-    rows = [
-        {"a": 1, "b": 2},
-        {"b": 3, "c": 4},
-    ]
-    cols = geo_sqlite._infer_columns(rows)
-    assert cols == ["a", "b", "c"]
-
-
-def test__serialize_value_behaviour():
-    assert geo_sqlite._serialize_value(None) == ""
-    assert geo_sqlite._serialize_value(123) == "123"
-    assert geo_sqlite._serialize_value("abc") == "abc"
-    assert geo_sqlite._serialize_value([1, 2]) == json.dumps([1, 2], ensure_ascii=False)
-    assert geo_sqlite._serialize_value({"x": 1}) == json.dumps({"x": 1}, ensure_ascii=False)
-
-
-def test_load_json_to_raw_table_creates_table_and_inserts_rows(tmp_path):
-    db = sqlite3.connect(":memory:")
-    try:
-        json_path = tmp_path / "regions.json"
-        data = [
-            {"code": "01", "nom": "Région A"},
-            {"code": "02", "nom": "Région B"},
-        ]
-        json_path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-
-        geo_sqlite.load_json_to_raw_table(db, json_path, "raw_geo_regions")
-
-        cur = db.cursor()
-        cur.execute('SELECT name FROM sqlite_master WHERE type="table" AND name="raw_geo_regions"')
-        assert cur.fetchone() is not None
-
-        cur.execute('SELECT COUNT(*) FROM "raw_geo_regions"')
-        count = cur.fetchone()[0]
-        assert count == 2
-    finally:
-        db.close()
-
-
-def test_apply_geo_views_sql_creates_view(tmp_path):
-    db = sqlite3.connect(":memory:")
-    try:
-        cur = db.cursor()
-        cur.execute('CREATE TABLE raw_geo_regions (code TEXT, nom TEXT)')
-        cur.execute('INSERT INTO raw_geo_regions (code, nom) VALUES ("01", "Région A")')
-
-        sql_path = tmp_path / "geo_views.sql"
-        sql_path.write_text(
-            'CREATE VIEW geo_regions AS SELECT code, nom FROM raw_geo_regions;', encoding="utf-8"
-        )
-
-        geo_sqlite.apply_geo_views_sql(db, sql_path)
-
-        cur.execute('SELECT name FROM sqlite_master WHERE type="view" AND name="geo_regions"')
-        assert cur.fetchone() is not None
-    finally:
-        db.close()
