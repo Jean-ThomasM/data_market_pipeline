@@ -5,6 +5,9 @@ on:
     branches:
       - main
       - integration
+    paths-ignore:
+      - "_*/**"
+      - "**/_*/**"
 
 jobs:
   test:

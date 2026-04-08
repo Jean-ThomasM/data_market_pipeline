@@ -237,3 +237,6 @@ override.tf.json
 # IDE
 .vscode/
 .idea/
+
+# Nos amis les IA
+.qwen
