@@ -45,32 +45,21 @@ def get_communes(fields: str | None = None) -> List[Dict[str, Any]]:
     """
     Renvoie la liste de toutes les communes de France.
 
-    :param fields: liste de champs à renvoyer, séparés par des virgules.
-                   Par défaut on récupère exactement :
-                   "code,nom,codeRegion,codeDepartement,codesPostaux,population"
-                   afin que `codesPostaux` soit toujours présent comme liste
-                   complète de codes postaux pour chaque commune.
+    :param fields: liste de champs à renvoyer, séparés par des virgules
+                   (ex: "code,nom,codeRegion,codeDepartement,codesPostaux,population").
     """
-    # Si aucun `fields` n'est fourni, on force un ensemble de champs
-    # cohérent avec nos besoins de pipeline (dont `codesPostaux`).
-    return _get("/communes")
+    params: Dict[str, Any] = {}
+    if fields:
+        params["fields"] = fields
+    return _get("/communes", **params)
 
 
 def get_epcis() -> List[Dict[str, Any]]:
     """
-    Renvoie la liste de tous les EPCI tels que définis par l'API
-    geo.api.gouv.fr.
-
-    Structure exemple (simplifiée):
+    Renvoie la liste de tous les EPCI.
+    Structure exemple:
     [
-      {
-        "code": "200046977",
-        "nom": "Métropole de Lyon",
-        "codesDepartements": ["69"],
-        "codesRegions": ["84"],
-        "population": 1417389,
-        "type": "METROPOLE"
-      },
+      {"code": "200046977", "nom": "Métropole de Lyon", "codeRegion": "84", "nature": "METROPOLE"},
       ...
     ]
     """
@@ -93,10 +82,9 @@ def export_geo_to_json(output_dir) -> None:
     departements = get_departements()
 
     print("Récupération des communes (toutes la France)...")
-    communes = get_communes()
-
-    print("Récupération des EPCI...")
-    epcis = get_epcis()
+    communes = get_communes(
+        fields="code,nom,codeRegion,codeDepartement,codesPostaux,population"
+    )
 
     def _dump_json(data: List[Dict[str, Any]], filename: str) -> None:
         path = out_dir / filename
@@ -107,7 +95,7 @@ def export_geo_to_json(output_dir) -> None:
     _dump_json(regions, "regions.json")
     _dump_json(departements, "departements.json")
     _dump_json(communes, "communes.json")
-    _dump_json(epcis, "epcis.json")
+
 
 if __name__ == "__main__":
     # Pour lancer l'extraction directement lorsque le script est exécuté :

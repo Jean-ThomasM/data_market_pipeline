@@ -7,13 +7,17 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 WORKDIR /app
 
 # Copier les fichiers de configuration du projet uv
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml .
 
-# Synchroniser les dépendances (production uniquement, pas dev)
-RUN uv sync --frozen --no-dev
+# Synchroniser les dépendances dans un environnement virtuel local (.venv)
+RUN uv sync
+
+# Activer l'environnement virtuel par défaut
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Copier le reste du projet
 COPY . .
 
-# Commande par défaut : exécuter avec uv run pour utiliser le bon environnement
-CMD ["uv", "run", "main.py"]
+# Commande par défaut : exécuter le point d'entrée principal via l'env .venv
+CMD ["python", "main.py"]
+
