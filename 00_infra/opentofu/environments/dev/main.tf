@@ -1,3 +1,7 @@
+data "google_project" "current" {
+  project_id = var.project_id
+}
+
 module "data_lake" {
   source = "../../modules/gcs_bucket"
 
@@ -25,6 +29,40 @@ module "marts_dataset" {
 
   dataset_id = "marts_${var.environment}"
   location   = var.bigquery_location
+}
+
+module "staging_offres_ft_table" {
+  source = "../../modules/bigquery_table"
+
+  project_id = var.project_id
+  dataset_id = module.staging_dataset.dataset_id
+  table_id   = "staging_offres_ft"
+  schema     = file("${path.module}/schemas/staging_offres_ft.bqschema")
+}
+
+module "load_staging_offres_ft_workflow" {
+  source = "../../modules/workflow"
+
+  project_id            = var.project_id
+  region                = var.region
+  name                  = "load-staging-offres-ft-${var.environment}"
+  description           = "Charge les offres France Travail depuis GCS vers BigQuery."
+  service_account_email = module.pipeline_service_account.email
+  source_contents = templatefile(
+    "${path.module}/workflows/load_staging_offres_ft.yaml.tftpl",
+    {
+      project_id = var.project_id
+      dataset_id = module.staging_dataset.dataset_id
+      table_id   = module.staging_offres_ft_table.table_id
+      bucket_name = module.data_lake.bucket_name
+    }
+  )
+
+  depends_on = [
+    module.project_services,
+    google_project_service_identity.workflows_service_agent,
+    google_service_account_iam_member.workflows_service_account_token_creator
+  ]
 }
 
 module "pipeline_service_account" {
@@ -131,4 +169,21 @@ module "ft_client_key_secret" {
 
   project_id = var.project_id
   secret_id  = "FT_CLIENT_KEY"
+}
+
+resource "google_project_service_identity" "workflows_service_agent" {
+  provider = google-beta
+
+  project = var.project_id
+  service = "workflows.googleapis.com"
+
+  depends_on = [module.project_services]
+}
+
+resource "google_service_account_iam_member" "workflows_service_account_token_creator" {
+  service_account_id = module.pipeline_service_account.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:service-${data.google_project.current.number}@gcp-sa-workflows.iam.gserviceaccount.com"
+
+  depends_on = [google_project_service_identity.workflows_service_agent]
 }

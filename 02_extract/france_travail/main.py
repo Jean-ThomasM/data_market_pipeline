@@ -1,6 +1,8 @@
 import logging
 import os
 
+from dotenv import load_dotenv
+
 from scraper import extract_offers, extract_referentials
 
 logging.basicConfig(
@@ -10,10 +12,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 VALID_TARGETS = {"offers", "referentials", "all"}
+TARGET_ALIASES = {
+    "referentiels": "referentials",
+}
 
 
 def _get_extract_target() -> str:
     target = os.getenv("FT_EXTRACT_TARGET", "offers").strip().lower()
+    target = TARGET_ALIASES.get(target, target)
     if target not in VALID_TARGETS:
         valid_targets = ", ".join(sorted(VALID_TARGETS))
         raise ValueError(
@@ -23,6 +29,7 @@ def _get_extract_target() -> str:
 
 
 def main() -> None:
+    load_dotenv()
     target = _get_extract_target()
     logger.info("Starting France Travail batch extraction with target: %s", target)
 

@@ -1,0 +1,48 @@
+[90m┌────────────────────────────────────────────────────────────────────────────────────────────────────┐[00m[90m
+[00m[90m│                                              [00m[1mDescribe[00m[90m                                              │[00m[90m
+[00m[90m│                                                                                                    │[00m[90m
+[00m[90m│ [00mid[90m                          [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mintitule[90m                    [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mdescription[90m                 [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mdateCreation[90m                [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mdateActualisation[90m           [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mlieuTravail[90m                 [00m[90mstruct(libelle varchar, latitude double, longitude double, codepostal…[00m[90m [00m[90m│[00m[90m
+[00m[90m│ [00mromeCode[90m                    [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mromeLibelle[90m                 [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mappellationlibelle[90m          [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mentreprise[90m                  [00m[90mstruct(nom varchar, entrepriseadaptee boolean, url varchar, descripti…[00m[90m [00m[90m│[00m[90m
+[00m[90m│ [00mtypeContrat[90m                 [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mtypeContratLibelle[90m          [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mnatureContrat[90m               [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mexperienceExige[90m             [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mexperienceLibelle[90m           [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mlangues[90m                     [00m[90mstruct(libelle varchar, exigence varchar)[][00m[90m                            [00m[90m│[00m[90m
+[00m[90m│ [00mpermis[90m                      [00m[90mstruct(libelle varchar, exigence varchar)[][00m[90m                            [00m[90m│[00m[90m
+[00m[90m│ [00mcompetences[90m                 [00m[90mstruct(code varchar, libelle varchar, exigence varchar)[][00m[90m              [00m[90m│[00m[90m
+[00m[90m│ [00msalaire[90m                     [00m[90mstruct(commentaire varchar, complement1 varchar, complement2 varchar,…[00m[90m [00m[90m│[00m[90m
+[00m[90m│ [00mdureeTravailLibelle[90m         [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mdureeTravailLibelleConverti[90m [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00malternance[90m                  [00m[90mboolean[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mcontact[90m                     [00m[90mmap(varchar, varchar)[00m[90m                                                  [00m[90m│[00m[90m
+[00m[90m│ [00magence[90m                      [00m[90mmap(varchar, varchar)[00m[90m                                                  [00m[90m│[00m[90m
+[00m[90m│ [00mnombrePostes[90m                [00m[90mbigint[00m[90m                                                                 [00m[90m│[00m[90m
+[00m[90m│ [00maccessibleTH[90m                [00m[90mboolean[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mdeplacementCode[90m             [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mdeplacementLibelle[90m          [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mqualificationCode[90m           [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mqualificationLibelle[90m        [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mcodeNAF[90m                     [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00msecteurActivite[90m             [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00msecteurActiviteLibelle[90m      [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mqualitesProfessionnelles[90m    [00m[90mstruct(libelle varchar, description varchar)[][00m[90m                         [00m[90m│[00m[90m
+[00m[90m│ [00mtrancheEffectifEtab[90m         [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00morigineOffre[90m                [00m[90mstruct(origine varchar, urlorigine varchar, partenaires struct(nom va…[00m[90m [00m[90m│[00m[90m
+[00m[90m│ [00moffresManqueCandidats[90m       [00m[90mboolean[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mcontexteTravail[90m             [00m[90mstruct(horaires varchar[], conditionsexercice varchar[])[00m[90m               [00m[90m│[00m[90m
+[00m[90m│ [00mentrepriseAdaptee[90m           [00m[90mboolean[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00memployeurHandiEngage[90m        [00m[90mboolean[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mformations[90m                  [00m[90mstruct(niveaulibelle varchar, exigence varchar, codeformation varchar…[00m[90m [00m[90m│[00m[90m
+[00m[90m│ [00mexperienceCommentaire[90m       [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m│ [00mcomplementExercice[90m          [00m[90mvarchar[00m[90m                                                                [00m[90m│[00m[90m
+[00m[90m└────────────────────────────────────────────────────────────────────────────────────────────────────┘[00m[90m
+[00m

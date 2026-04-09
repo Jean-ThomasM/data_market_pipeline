@@ -1,0 +1,26 @@
+main:
+  steps:
+    - load_staging_offres_ft:
+        call: googleapis.bigquery.v2.jobs.insert
+        args:
+          projectId: "${project_id}"
+          body:
+            configuration:
+              load:
+                destinationTable:
+                  projectId: "${project_id}"
+                  datasetId: "${dataset_id}"
+                  tableId: "${table_id}"
+                sourceUris:
+                  - "gs://${bucket_name}/raw_offres/*.ndjson"
+                sourceFormat: "NEWLINE_DELIMITED_JSON"
+                createDisposition: "CREATE_NEVER"
+                writeDisposition: "WRITE_APPEND"
+                ignoreUnknownValues: true
+        result: load_job
+
+    - return_result:
+        return:
+          job_id: $${load_job.jobReference.jobId}
+          source_uri: "gs://${bucket_name}/raw_offres/*.ndjson"
+          destination_table: "${project_id}.${dataset_id}.${table_id}"
