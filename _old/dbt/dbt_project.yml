@@ -11,3 +11,5 @@ models:
   data_market_pipeline_old:
     intermediate:
       +materialized: table
+    marts:
+      +materialized: table

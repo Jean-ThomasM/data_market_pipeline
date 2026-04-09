@@ -1,0 +1,107 @@
+name: dbt-old-pipeline (mock)
+
+# Workflow de demonstration:
+# - CI sur Pull Request: valide le code dbt en environnement dev/ci
+# - CD sur push main: illustre un deploiement prod (mock)
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Variables reutilisees dans les commandes dbt.
+env:
+  DBT_PROJECT_DIR: _old/dbt
+  DBT_PROFILES_DIR: _old/dbt
+  DBT_SELECT: path:models/intermediate/silver+
+
+jobs:
+  # Job CI: verification technique du projet dbt avant merge.
+  ci-dbt:
+    name: CI - Validate dbt models
+    runs-on: ubuntu-latest
+
+    steps:
+      # Recupere le code du commit/PR.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Environnement Python requis par dbt/uv.
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Installe uv (gestionnaire d'environnement/dependances).
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      # Installe les dependances declarees du projet.
+      - name: Install dependencies
+        run: uv sync
+
+      # Etape placeholder pour montrer ou injecter un profil CI et des secrets.
+      - name: Prepare CI profile (mock)
+        run: |
+          echo "Using mock CI profile for dbt"
+          # Example:
+          # export DBT_USER=...
+          # export DBT_PASSWORD=...
+          # generate profiles.yml with secrets
+
+      # Validation statique: parsing/compilation du projet (sans materialiser les modeles).
+      - name: dbt parse
+        run: uv run dbt parse --project-dir "$DBT_PROJECT_DIR" --profiles-dir "$DBT_PROFILES_DIR"
+
+      # Execution CI: build du scope silver + tests associes (target dev).
+      - name: dbt build (CI scope)
+        run: |
+          uv run dbt build \
+            --project-dir "$DBT_PROJECT_DIR" \
+            --profiles-dir "$DBT_PROFILES_DIR" \
+            --target dev \
+            --select "$DBT_SELECT" \
+            --indirect-selection eager
+
+      # Publie les artefacts dbt pour debug et audit CI.
+      - name: Upload dbt artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-artifacts-ci
+          path: |
+            _old/dbt/target/manifest.json
+            _old/dbt/target/run_results.json
+            _old/dbt/logs/dbt.log
+
+  # Job CD: exemple de deploiement prod (declenche sur push main seulement).
+  cd-dbt:
+    name: CD - Build image & run dbt (mock)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    # Le CD ne demarre que si la CI a reussi.
+    needs: [ci-dbt]
+
+    steps:
+      # Recupere le code de la branche main.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Authentification cloud (placeholder).
+      - name: Auth to GCP (mock)
+        run: |
+          echo "MOCK: authenticate with Workload Identity / service account"
+
+      # Build d'une image immuable versionnee par SHA (placeholder).
+      - name: Build Docker image (mock)
+        run: |
+          echo "MOCK: docker build -t europe-west1-docker.pkg.dev/<PROJECT>/<REPO>/dbt-old:${GITHUB_SHA} ."
+
+      # Push de l'image vers le registry (placeholder).
+      - name: Push Docker image (mock)
+        run: |
+          echo "MOCK: docker push europe-west1-docker.pkg.dev/<PROJECT>/<REPO>/dbt-old:${GITHUB_SHA}"
+
+      # Lance le job de transformation prod (placeholder).
+      - name: Run Cloud Run Job (mock)
+        run: |
+          echo "MOCK: gcloud run jobs execute dbt-old-job --region <REGION> --args='dbt build --target prod --select $DBT_SELECT'"

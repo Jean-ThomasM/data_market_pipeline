@@ -2,40 +2,185 @@ version: 2
 
 models:
   - name: int_geo_communes_silver
-    description: "Silver intermediaire des communes enrichies depuis les sources geo raw."
+    description: "Dimension geographique intermediaire issue des sources geo raw, enrichie avec departement, region, epci et population."
     columns:
       - name: commune_nom
+        description: "Nom de la commune."
         tests:
           - not_null
-
+      - name: code_postal
+        description: "Premier code postal connu pour la commune (extrait du tableau codesPostaux)."
       - name: departement_code
+        description: "Code departement associe a la commune."
         tests:
           - not_null:
               config:
                 severity: warn
+      - name: departement_nom
+        description: "Libelle du departement associe."
+      - name: region_nom
+        description: "Libelle de la region associee."
+      - name: epci_nom
+        description: "Nom de l'EPCI rattache a la commune."
+      - name: population
+        description: "Population municipale cast en entier."
 
   - name: int_ft_offre_geo_silver
-    description: "Silver intermediaire France Travail geolocalise, normalise et deduplique."
+    description: "Table intermediaire des offres France Travail normalisees, dedupliquees par offre_id et enrichies avec les dimensions geographiques."
     columns:
       - name: offre_id
+        description: "Identifiant technique unique de l'offre France Travail."
         tests:
           - not_null
           - unique
-
       - name: intitule
+        description: "Intitule du poste propose."
         tests:
           - not_null:
               config:
                 severity: warn
-
+      - name: description
+        description: "Description textuelle de l'offre."
+      - name: rome_code
+        description: "Code ROME du metier cible."
+      - name: rome_libelle
+        description: "Libelle du code ROME."
+      - name: appellation_libelle
+        description: "Appellation metier precise de l'offre."
       - name: commune_code
+        description: "Code INSEE de la commune du lieu de travail."
         tests:
           - not_null:
               config:
                 severity: warn
-
+      - name: code_postal
+        description: "Code postal du lieu de travail."
+      - name: lieu_libelle
+        description: "Libelle libre du lieu de travail."
+      - name: entreprise_nom
+        description: "Nom de l'entreprise qui recrute."
+      - name: type_contrat_code
+        description: "Code du type de contrat (ex: CDI, CDD)."
+      - name: type_contrat_libelle
+        description: "Libelle du type de contrat."
+      - name: nature_contrat
+        description: "Nature detaillee du contrat."
       - name: date_creation
+        description: "Date de creation de l'offre (normalisee en date)."
         tests:
           - not_null:
               config:
                 severity: warn
+      - name: date_actualisation
+        description: "Date de derniere actualisation de l'offre (normalisee en date)."
+      - name: secteur_activite_code
+        description: "Code du secteur d'activite de l'employeur."
+      - name: secteur_activite_libelle
+        description: "Libelle du secteur d'activite."
+      - name: salaire_libelle
+        description: "Libelle salaire fourni par la source."
+      - name: remuneration_libelle
+        description: "Libelle de remuneration (alias metier explicite de salaire_libelle)."
+      - name: remuneration_commentaire
+        description: "Commentaire libre sur la remuneration fourni par la source."
+      - name: duree_travail_libelle
+        description: "Libelle de la duree de travail."
+      - name: duree_travail_libelle_converti
+        description: "Version convertie/normalisee du libelle de duree de travail."
+      - name: nombre_postes
+        description: "Nombre de postes ouverts, cast en entier."
+      - name: alternance
+        description: "Indicateur alternance normalise (1=true, 0=false, null=inconnu)."
+        tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+                quote: false
+              config:
+                severity: warn
+      - name: accessible_th
+        description: "Indicateur accessibilite travailleurs handicapes (1=true, 0=false, null=inconnu)."
+        tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+                quote: false
+              config:
+                severity: warn
+      - name: qualification_code
+        description: "Code de qualification demandee."
+      - name: qualification_libelle
+        description: "Libelle de qualification demandee."
+      - name: origine_offre_code
+        description: "Code de l'origine de publication de l'offre."
+      - name: origine_offre_url
+        description: "URL source de l'offre quand disponible."
+      - name: departement_nom
+        description: "Nom du departement enrichi via la reference geo."
+      - name: departement_code
+        description: "Code du departement enrichi via la reference geo."
+      - name: region_nom
+        description: "Nom de la region enrichi via la reference geo."
+      - name: epci_nom
+        description: "Nom de l'EPCI enrichi via la reference geo."
+
+  - name: int_offres_par_region_contrat_silver
+    description: "Agregation intermediaire des offres par region et type de contrat."
+    columns:
+      - name: region_nom
+        description: "Nom de la region (ou Non renseignee)."
+        tests:
+          - not_null
+      - name: type_contrat_libelle
+        description: "Libelle du type de contrat (ou Non renseigne)."
+        tests:
+          - not_null
+      - name: offres_total
+        description: "Nombre total d'offres pour la combinaison region/contrat."
+        tests:
+          - not_null
+      - name: offres_uniques
+        description: "Nombre d'offres distinctes pour la combinaison region/contrat."
+      - name: entreprises_uniques
+        description: "Nombre d'entreprises distinctes pour la combinaison region/contrat."
+      - name: moyenne_nombre_postes
+        description: "Moyenne du nombre de postes pour la combinaison region/contrat."
+      - name: part_offres_pct
+        description: "Part en pourcentage des offres de la combinaison region/contrat dans le total global."
+
+  - name: int_ft_offres_listes_silver
+    description: "Projection silver complete de raw_ft_offres: toutes les colonnes brutes + colonnes dictionnaires aplanies nettoyees automatiquement + colonnes listes eclatees/agreges."
+    columns:
+      - name: offre_id
+        description: "Identifiant technique de l'offre."
+        tests:
+          - not_null
+          - unique
+      - name: contact__nom_clean
+        description: "Exemple de colonne dictionnaire nettoyee automatiquement (contact.nom)."
+      - name: contact__courriel_clean
+        description: "Exemple de colonne dictionnaire nettoyee automatiquement (contact.courriel)."
+      - name: nb_competences
+        description: "Nombre de competences declarees dans la liste competences."
+      - name: competences_libelles
+        description: "Liste des libelles de competences (concatenee)."
+      - name: nb_langues
+        description: "Nombre de langues declarees."
+      - name: langues_libelles
+        description: "Liste des langues (concatenee)."
+      - name: nb_permis
+        description: "Nombre de permis demandes."
+      - name: permis_libelles
+        description: "Liste des permis (concatenee)."
+      - name: nb_qualites_professionnelles
+        description: "Nombre de qualites professionnelles declarees."
+      - name: qualites_professionnelles_libelles
+        description: "Liste des qualites professionnelles (concatenee)."
+      - name: nb_salaire_complements
+        description: "Nombre de complements de remuneration dans salaire__listeComplements."
+      - name: salaire_complements_libelles
+        description: "Liste des complements de remuneration (concatenee)."
+      - name: nb_horaires
+        description: "Nombre d'entrees horaires issues de contexteTravail__horaires."
+      - name: horaires_libelles
+        description: "Liste des horaires (concatenee)."

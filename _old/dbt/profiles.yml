@@ -1,5 +1,5 @@
 data_market_pipeline_old:
-  target: dev
+  target: "{{ env_var('DBT_TARGET', 'dev') }}"
   outputs:
     dev:
       type: sqlite
@@ -9,3 +9,14 @@ data_market_pipeline_old:
       schemas_and_paths:
         main: "_old/data/geo.sqlite"
       schema_directory: "_old/data"
+
+    prod:
+      type: bigquery
+      method: service-account-json
+      project: "{{ env_var('DBT_BQ_PROJECT') }}"
+      dataset: "{{ env_var('DBT_BQ_DATASET') }}"
+      keyfile_json: "{{ env_var('DBT_BQ_KEYFILE_JSON') }}"
+      location: "{{ env_var('DBT_BQ_LOCATION', 'europe-west1') }}"
+      priority: "{{ env_var('DBT_BQ_PRIORITY', 'interactive') }}"
+      threads: "{{ env_var('DBT_THREADS', '4') | int }}"
+      job_execution_timeout_seconds: "{{ env_var('DBT_BQ_TIMEOUT', '300') | int }}"

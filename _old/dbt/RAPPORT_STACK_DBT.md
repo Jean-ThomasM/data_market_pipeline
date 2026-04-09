@@ -2,7 +2,7 @@
 
 ## 1) Perimetre et objectif
 
-La stack dbt actuelle dans `_old/dbt` sert a transformer les tables `raw_*` chargees en SQLite vers une couche **intermediate/silver** exploitable pour l'analyse.
+La stack dbt dans `_old/dbt` transforme les tables `raw_*` chargees en SQLite vers une couche **intermediate/silver** exploitable.
 
 Architecture cible:
 
@@ -20,13 +20,30 @@ Architecture cible:
 
 Implication: chaque run reconstruit des tables physiques silver.
 
-### `profiles.yml`
+### `profiles.yml` (dev + prod)
 
-- Adapter: `sqlite`
-- Base cible: `_old/data/geo.sqlite`
-- Schema: `main`
+Le profil supporte maintenant **deux environnements**:
 
-Implication: tous les modeles dbt sont materialises dans la base `_old/data/geo.sqlite`.
+- `dev` (SQLite local):
+  - `type: sqlite`
+  - base: `_old/data/geo.sqlite`
+  - schema: `main`
+- `prod` (BigQuery):
+  - `type: bigquery`
+  - parametre par variables d'environnement
+
+Le target est dynamique:
+
+- `target: "{{ env_var('DBT_TARGET', 'dev') }}"`
+
+Variables prod attendues:
+
+- `DBT_BQ_PROJECT`
+- `DBT_BQ_DATASET`
+- `DBT_BQ_KEYFILE_JSON`
+- optionnelles: `DBT_BQ_LOCATION`, `DBT_BQ_PRIORITY`, `DBT_THREADS`, `DBT_BQ_TIMEOUT`
+
+Implication: meme code dbt, execution differenciee selon l'environnement runtime.
 
 
 ## 3) Sources declarees
@@ -44,12 +61,12 @@ Fichier: `models/sources.yml`
 
 - `raw_ft_offres`
 
-Point positif: les tables sont clairement classees par **origine fonctionnelle**.
+Point positif: les tables sont classees par **origine fonctionnelle**.
 
 
 ## 4) Modeles silver en place
 
-## `int_geo_communes_silver`
+### `int_geo_communes_silver`
 
 Fichier: `models/intermediate/silver/int_geo_communes_silver.sql`
 
@@ -62,7 +79,7 @@ Traitements:
 
 Usage: dimension geo enrichie reutilisable dans d'autres modeles.
 
-## `int_ft_offre_geo_silver`
+### `int_ft_offre_geo_silver`
 
 Fichier: `models/intermediate/silver/int_ft_offre_geo_silver.sql`
 
@@ -124,21 +141,50 @@ Detail warning:
 
 Interpretation:
 
-- La qualite globale est **bonne** (aucune erreur bloquante).
-- Le warning geo est coherent avec certains cas de communes sans rattachement departement standard (ou cas de jointure non resolus).
+- Qualite globale **bonne** (aucune erreur bloquante).
+- Warning geo coherent avec certains cas de communes hors rattachement departement standard ou jointures non resolues.
 
 
-## 7) Points forts actuels
+## 7) CI/CD de reference (mock)
+
+Fichier: `_old/CI_CD_MOCK_GITHUB_ACTIONS.yml`
+
+### Flux CI (Pull Request)
+
+- checkout
+- setup Python + uv
+- `uv sync`
+- `dbt parse`
+- `dbt build --target dev --select path:models/intermediate/silver+`
+- publication des artefacts (`manifest.json`, `run_results.json`, `dbt.log`)
+
+Objectif: valider le code dbt avant merge, en environnement non prod.
+
+### Flux CD (push main)
+
+- execution conditionnelle apres CI
+- auth cloud (mock)
+- build image Docker (mock)
+- push image (mock)
+- lancement job dbt prod (mock) avec `--target prod`
+
+Objectif: representer le deploiement prod industrialise.
+
+Remarque: le fichier est volontairement **non fonctionnel** (placeholders) et sert de base de travail.
+
+
+## 8) Points forts actuels
 
 - separation claire raw -> silver
-- source declaration propre par domaine (`geo` / `france_travail`)
+- declaration de sources propre (`geo` / `france_travail`)
 - deduplication explicite des offres
 - tests critiques sur l'identifiant offre (`not_null` + `unique`)
-- pipeline `_old/main.py` aligne sur un select dbt robuste par chemin:
+- distinction dev/prod centralisee dans `profiles.yml`
+- pipeline `_old/main.py` aligne sur un select dbt robuste:
   - `path:models/intermediate/silver+`
 
 
-## 8) Limites connues et prochaines etapes recommandees
+## 9) Limites connues et prochaines etapes recommandees
 
 1. Ajouter des tests relationnels (`relationships`) entre `commune_code` et la dimension geo.
 2. Ajouter un test metier custom:
@@ -146,16 +192,19 @@ Interpretation:
 3. Ajouter des tests de domaine:
    - `alternance in (0,1)`
    - `accessible_th in (0,1)`
-4. Documenter les colonnes (descriptions metier) dans `schema.yml` pour faciliter la gouvernance.
-5. Preparer une couche **gold** (KPI metier, agregations, marts).
+4. Documenter davantage les colonnes metier dans `schema.yml`.
+5. Completer la CI/CD mock en pipeline reel (secrets, auth GCP, execution Cloud Run Job).
+6. Preparer une couche **gold** (KPI metier, marts).
 
 
-## 9) Conclusion
+## 10) Conclusion
 
 La stack dbt `_old` est operationnelle et coherentement structuree:
 
 - ingestion raw stable
 - silver de nettoyage/enrichissement en place
 - qualite couverte par des tests avec severites adaptees
+- separation dev/prod definie dans la configuration
+- base CI/CD documentee pour industrialisation
 
-L'etat actuel est satisfaisant pour un usage analytique initial, avec un seul signal qualite non bloquant a suivre sur la geo (`departement_code` manquant).
+L'etat actuel est satisfaisant pour un usage analytique initial, avec un signal qualite non bloquant a suivre sur la geo (`departement_code` manquant).

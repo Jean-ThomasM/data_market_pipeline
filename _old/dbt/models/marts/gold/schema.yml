@@ -1,0 +1,93 @@
+version: 2
+
+models:
+  - name: gold_data_engineer_marche_geo
+    description: "Table gold pour repondre a la question 'ou recrute-t-on des Data Engineers, dans quels volumes et avec quelle disponibilite d'information salaire'."
+    columns:
+      - name: region_nom
+        description: "Region de l'offre."
+        tests:
+          - not_null
+
+      - name: departement_nom
+        description: "Departement de l'offre."
+        tests:
+          - not_null
+
+      - name: departement_code
+        description: "Numero/code du departement de l'offre."
+        tests:
+          - not_null
+
+      - name: type_contrat_libelle
+        description: "Type de contrat de l'offre."
+        tests:
+          - not_null
+
+      - name: offres_total
+        description: "Nombre total d'offres Data Engineer pour la combinaison region/departement/contrat."
+        tests:
+          - not_null
+
+      - name: entreprises_uniques
+        description: "Nombre d'entreprises distinctes qui recrutent sur la combinaison."
+
+      - name: offres_uniques
+        description: "Nombre d'offres distinctes (offre_id) sur la combinaison."
+
+      - name: offres_avec_salaire
+        description: "Nombre d'offres disposant d'un salaire_libelle renseigne."
+
+      - name: part_offres_avec_salaire_pct
+        description: "Part (%) des offres avec information salaire sur la combinaison."
+        tests:
+          - not_null
+
+      - name: part_offres_marche_pct
+        description: "Part (%) de cette combinaison dans le volume global des offres Data Engineer."
+        tests:
+          - not_null
+
+      - name: salaire_min_eur
+        description: "Placeholder pour le salaire minimum numerique (a alimenter quand la donnee sera disponible)."
+
+      - name: salaire_max_eur
+        description: "Placeholder pour le salaire maximum numerique (a alimenter quand la donnee sera disponible)."
+
+      - name: salaire_median_eur
+        description: "Placeholder pour le salaire median numerique (a alimenter quand la donnee sera disponible)."
+
+  - name: gold_data_engineer_top_entreprises
+    description: "Table gold orientee recrutement par entreprise pour identifier qui recrute le plus de Data Engineers et dans quelles regions."
+    columns:
+      - name: entreprise_nom
+        description: "Nom de l'entreprise recrutant des Data Engineers."
+        tests:
+          - not_null
+
+      - name: region_nom
+        description: "Region principale associee au groupe d'offres de l'entreprise."
+        tests:
+          - not_null
+
+      - name: offres_total
+        description: "Nombre total d'offres Data Engineer publiees par l'entreprise dans la region."
+        tests:
+          - not_null
+
+      - name: nb_types_contrat
+        description: "Nombre de types de contrat distincts utilises par l'entreprise."
+
+      - name: offres_avec_salaire
+        description: "Nombre d'offres de l'entreprise avec salaire_libelle renseigne."
+
+      - name: part_offres_avec_salaire_pct
+        description: "Part (%) des offres de l'entreprise avec salaire renseigne."
+        tests:
+          - not_null
+
+      - name: premiere_date_offre
+        description: "Date de creation la plus ancienne dans le groupe."
+
+      - name: derniere_actualisation
+        description: "Date d'actualisation la plus recente dans le groupe."
