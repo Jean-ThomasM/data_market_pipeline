@@ -1,3 +1,7 @@
+locals {
+  artifact_registry_repository_url = "${var.region}-docker.pkg.dev/${var.project_id}/data-market-docker-repository"
+}
+
 module "data_lake" {
   source = "../../modules/gcs_bucket"
 
@@ -55,15 +59,6 @@ module "project_services" {
   ]
 }
 
-module "artifact_registry" {
-  source = "../../modules/artifact_registry"
-
-  project_id    = var.project_id
-  location      = var.region
-  repository_id = "data-market-docker-repository"
-  description   = "Docker images for data pipelines in prod"
-}
-
 module "extract_job_ft" {
   source = "../../modules/cloud_run_job"
 
@@ -72,7 +67,7 @@ module "extract_job_ft" {
 
   job_name = "extract-ft-prod"
 
-  image = "${module.artifact_registry.repository_url}/extract-ft:latest"
+  image = "${local.artifact_registry_repository_url}/extract-ft:latest"
 
   service_account_email = module.pipeline_service_account.email
 
@@ -96,7 +91,7 @@ module "extract_job_geo" {
 
   job_name = "extract-geo-prod"
 
-  image = "${module.artifact_registry.repository_url}/extract-geo:latest"
+  image = "${local.artifact_registry_repository_url}/extract-geo:latest"
 
   service_account_email = module.pipeline_service_account.email
 
@@ -119,16 +114,49 @@ module "pipeline_iam" {
   service_account_email = module.pipeline_service_account.email
 }
 
-module "ft_client_id_secret" {
-  source = "../../modules/secret_manager_secret"
+module "scheduler_service_account" {
+  source = "../../modules/service_account"
 
-  project_id = var.project_id
-  secret_id  = "FT_CLIENT_ID"
+  account_id   = "scheduler-runner-${var.environment}"
+  display_name = "Scheduler Runner ${var.environment}"
 }
 
-module "ft_client_key_secret" {
-  source = "../../modules/secret_manager_secret"
+resource "google_project_iam_member" "scheduler_cloud_run_job_runner" {
+  project = var.project_id
+  role    = "roles/run.invoker"
+  member  = "serviceAccount:${module.scheduler_service_account.email}"
+}
+
+resource "google_project_iam_member" "scheduler_cloud_run_job_admin" {
+  project = var.project_id
+  role    = "roles/run.developer"
+  member  = "serviceAccount:${module.scheduler_service_account.email}"
+}
+
+module "extract_ft_scheduler" {
+  source = "../../modules/cloud_scheduler_job"
 
   project_id = var.project_id
-  secret_id  = "FT_CLIENT_KEY"
+  region     = var.region
+
+  scheduler_name = "extract-ft-scheduler-prod"
+  schedule       = "0 7 * * *"
+  time_zone      = "Europe/Paris"
+
+  cloud_run_job_name              = "extract-ft-prod"
+  scheduler_service_account_email = module.scheduler_service_account.email
+}
+
+module "extract_geo_scheduler" {
+  source = "../../modules/cloud_scheduler_job"
+
+  project_id = var.project_id
+  region     = var.region
+
+  scheduler_name = "extract-geo-scheduler-prod"
+  schedule       = "10 7 * * *"
+  time_zone      = "Europe/Paris"
+
+  cloud_run_job_name              = "extract-geo-prod"
+  scheduler_service_account_email = module.scheduler_service_account.email
 }

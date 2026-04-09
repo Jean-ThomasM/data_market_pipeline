@@ -51,9 +51,9 @@ module "load_staging_offres_ft_workflow" {
   source_contents = templatefile(
     "${path.module}/workflows/load_staging_offres_ft.yaml.tftpl",
     {
-      project_id = var.project_id
-      dataset_id = module.staging_dataset.dataset_id
-      table_id   = module.staging_offres_ft_table.table_id
+      project_id  = var.project_id
+      dataset_id  = module.staging_dataset.dataset_id
+      table_id    = module.staging_offres_ft_table.table_id
       bucket_name = module.data_lake.bucket_name
     }
   )

@@ -23,5 +23,5 @@ output "enabled_services" {
 }
 
 output "artifact_registry_repository_url" {
-  value = module.artifact_registry.repository_url
+  value = local.artifact_registry_repository_url
 }
