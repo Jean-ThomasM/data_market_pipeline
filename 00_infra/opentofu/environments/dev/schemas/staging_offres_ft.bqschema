@@ -1,15 +1,5 @@
 [
   {
-    "name": "ingested_at",
-    "type": "TIMESTAMP",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "source_file",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
     "name": "id",
     "type": "STRING",
     "mode": "REQUIRED"
@@ -35,6 +25,38 @@
     "mode": "NULLABLE"
   },
   {
+    "name": "lieuTravail",
+    "type": "RECORD",
+    "mode": "NULLABLE",
+    "fields": [
+      {
+        "name": "libelle",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "latitude",
+        "type": "FLOAT64",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "longitude",
+        "type": "FLOAT64",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "codePostal",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "commune",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      }
+    ]
+  },
+  {
     "name": "romeCode",
     "type": "STRING",
     "mode": "NULLABLE"
@@ -48,6 +70,38 @@
     "name": "appellationlibelle",
     "type": "STRING",
     "mode": "NULLABLE"
+  },
+  {
+    "name": "entreprise",
+    "type": "RECORD",
+    "mode": "NULLABLE",
+    "fields": [
+      {
+        "name": "nom",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "description",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "entrepriseAdaptee",
+        "type": "BOOL",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "url",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "logo",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      }
+    ]
   },
   {
     "name": "typeContrat",
@@ -75,8 +129,187 @@
     "mode": "NULLABLE"
   },
   {
+    "name": "experienceCommentaire",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "langues",
+    "type": "RECORD",
+    "mode": "REPEATED",
+    "fields": [
+      {
+        "name": "libelle",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "exigence",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      }
+    ]
+  },
+  {
+    "name": "permis",
+    "type": "RECORD",
+    "mode": "REPEATED",
+    "fields": [
+      {
+        "name": "libelle",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "exigence",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      }
+    ]
+  },
+  {
+    "name": "competences",
+    "type": "RECORD",
+    "mode": "REPEATED",
+    "fields": [
+      {
+        "name": "code",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "libelle",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "exigence",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      }
+    ]
+  },
+  {
+    "name": "salaire",
+    "type": "RECORD",
+    "mode": "NULLABLE",
+    "fields": [
+      {
+        "name": "libelle",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "commentaire",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "complement1",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "complement2",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "listeComplements",
+        "type": "RECORD",
+        "mode": "REPEATED",
+        "fields": [
+          {
+            "name": "code",
+            "type": "STRING",
+            "mode": "NULLABLE"
+          },
+          {
+            "name": "libelle",
+            "type": "STRING",
+            "mode": "NULLABLE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "dureeTravailLibelle",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "dureeTravailLibelleConverti",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "complementExercice",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
     "name": "alternance",
     "type": "BOOL",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "contact",
+    "type": "RECORD",
+    "mode": "NULLABLE",
+    "fields": [
+      {
+        "name": "nom",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "coordonnees1",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "coordonnees2",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "coordonnees3",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "courriel",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "telephone",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "urlPostulation",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      }
+    ]
+  },
+  {
+    "name": "agence",
+    "type": "RECORD",
+    "mode": "NULLABLE",
+    "fields": [
+      {
+        "name": "courriel",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      }
+    ]
+  },
+  {
+    "name": "nombrePostes",
+    "type": "INT64",
     "mode": "NULLABLE"
   },
   {
@@ -85,23 +318,13 @@
     "mode": "NULLABLE"
   },
   {
-    "name": "employeurHandiEngage",
-    "type": "BOOL",
+    "name": "deplacementCode",
+    "type": "STRING",
     "mode": "NULLABLE"
   },
   {
-    "name": "entrepriseAdaptee",
-    "type": "BOOL",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "nombrePostes",
-    "type": "INT64",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "offresManqueCandidats",
-    "type": "BOOL",
+    "name": "deplacementLibelle",
+    "type": "STRING",
     "mode": "NULLABLE"
   },
   {
@@ -130,138 +353,128 @@
     "mode": "NULLABLE"
   },
   {
+    "name": "qualitesProfessionnelles",
+    "type": "RECORD",
+    "mode": "REPEATED",
+    "fields": [
+      {
+        "name": "libelle",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "description",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      }
+    ]
+  },
+  {
     "name": "trancheEffectifEtab",
     "type": "STRING",
     "mode": "NULLABLE"
   },
   {
-    "name": "dureeTravailLibelle",
-    "type": "STRING",
-    "mode": "NULLABLE"
+    "name": "origineOffre",
+    "type": "RECORD",
+    "mode": "NULLABLE",
+    "fields": [
+      {
+        "name": "origine",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "urlOrigine",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "partenaires",
+        "type": "RECORD",
+        "mode": "REPEATED",
+        "fields": [
+          {
+            "name": "nom",
+            "type": "STRING",
+            "mode": "NULLABLE"
+          },
+          {
+            "name": "url",
+            "type": "STRING",
+            "mode": "NULLABLE"
+          },
+          {
+            "name": "logo",
+            "type": "STRING",
+            "mode": "NULLABLE"
+          }
+        ]
+      }
+    ]
   },
   {
-    "name": "dureeTravailLibelleConverti",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "origineOffre_origine",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "origineOffre_urlOrigine",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "lieuTravail_libelle",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "lieuTravail_codePostal",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "lieuTravail_commune",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "lieuTravail_latitude",
-    "type": "FLOAT64",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "lieuTravail_longitude",
-    "type": "FLOAT64",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "entreprise_nom",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "entreprise_description",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "entreprise_entrepriseAdaptee",
+    "name": "offresManqueCandidats",
     "type": "BOOL",
     "mode": "NULLABLE"
   },
   {
-    "name": "lieuTravail",
-    "type": "JSON",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "entreprise",
-    "type": "JSON",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "origineOffre",
-    "type": "JSON",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "contact",
-    "type": "JSON",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "salaire",
-    "type": "JSON",
-    "mode": "NULLABLE"
-  },
-  {
     "name": "contexteTravail",
-    "type": "JSON",
+    "type": "RECORD",
+    "mode": "NULLABLE",
+    "fields": [
+      {
+        "name": "horaires",
+        "type": "STRING",
+        "mode": "REPEATED"
+      },
+      {
+        "name": "conditionsExercice",
+        "type": "STRING",
+        "mode": "REPEATED"
+      }
+    ]
+  },
+  {
+    "name": "entrepriseAdaptee",
+    "type": "BOOL",
     "mode": "NULLABLE"
   },
   {
-    "name": "origineOffre_partenaires",
-    "type": "JSON",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "competences",
-    "type": "JSON",
+    "name": "employeurHandiEngage",
+    "type": "BOOL",
     "mode": "NULLABLE"
   },
   {
     "name": "formations",
-    "type": "JSON",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "langues",
-    "type": "JSON",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "permis",
-    "type": "JSON",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "qualitesProfessionnelles",
-    "type": "JSON",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "agence",
-    "type": "JSON",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "payload",
-    "type": "JSON",
-    "mode": "NULLABLE"
+    "type": "RECORD",
+    "mode": "REPEATED",
+    "fields": [
+      {
+        "name": "niveauLibelle",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "exigence",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "codeFormation",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "domaineLibelle",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      },
+      {
+        "name": "commentaire",
+        "type": "STRING",
+        "mode": "NULLABLE"
+      }
+    ]
   }
 ]

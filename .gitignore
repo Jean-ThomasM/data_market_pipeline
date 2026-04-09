@@ -240,3 +240,6 @@ override.tf.json
 
 # Nos amis les IA
 .qwen
+
+.qwen/
+gha-creds-*.json
