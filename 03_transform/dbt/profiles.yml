@@ -1,0 +1,32 @@
+data_market_pipeline:
+  target: "{{ env_var('DBT_TARGET_ENV', 'local') }}"
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: data-market-386959
+      dataset: staging-dev
+      location: europe-west-1
+      threads: 8
+      priority: interactive
+      timeout_seconds: 300
+
+    prod:
+      type: bigquery
+      method: oauth
+      project: data-market-386959
+      dataset: staging-prod
+      location: europe-west-1
+      threads: 8
+      priority: interactive
+      timeout_seconds: 300
+
+    local:
+      type: sqlite
+      threads: 1
+      database: "{{ env_var('DBT_SQLITE_DATABASE', 'staging_offres_ft') }}"
+      schema: "{{ env_var('DBT_SQLITE_SCHEMA', 'main') }}"
+      schemas_and_paths:
+        main: "{{ env_var('DBT_SQLITE_PATH', 'C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform/staging_offres_ft.sqlite') }}"
+        staging_dev: "{{ env_var('DBT_SQLITE_PATH', 'C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform/staging_offres_ft.sqlite') }}"
+      schema_directory: "{{ env_var('DBT_SQLITE_SCHEMA_DIRECTORY', 'C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform') }}"

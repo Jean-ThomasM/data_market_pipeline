@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: france-travail
+    description: "Tables raw issues de l'extraction France Travail."
+    database: "{{ env_var('DBT_SOURCE_DATABASE', env_var('DBT_SQLITE_DATABASE', 'staging_offres_ft')) }}"
+    schema: "{{ env_var('DBT_SOURCE_SCHEMA', env_var('DBT_SQLITE_SCHEMA', 'staging_dev')) }}"
+    tables:
+      - name: staging_offres_ft
