@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: n8n-postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=n8n
+      - POSTGRES_USER=n8n
+      - POSTGRES_PASSWORD=n8nn9n
+      - TZ=Europe/Paris
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:2.15.0
+    container_name: n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=34.155.193.251
+      - N8N_SECURE_COOKIE=false
+      - N8N_RESTRICT_FILE_ACCESS_TO=/home/node/.n8n-files;/files/input;/files/output
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_EXECUTE_COMMAND_ENABLED=true
+      - NODES_EXCLUDE=[]
+      - WEBHOOK_URL=http://34.155.193.251/
+      - GENERIC_TIMEZONE=Europe/Paris
+    volumes:
+      - ./data:/home/node/.n8n
+      - ./files:/files
+      
