@@ -121,16 +121,11 @@ module "scheduler_service_account" {
   display_name = "Scheduler Runner ${var.environment}"
 }
 
-resource "google_project_iam_member" "scheduler_cloud_run_job_runner" {
-  project = var.project_id
-  role    = "roles/run.invoker"
-  member  = "serviceAccount:${module.scheduler_service_account.email}"
-}
+module "scheduler_iam" {
+  source = "../../modules/scheduler_iam"
 
-resource "google_project_iam_member" "scheduler_cloud_run_job_admin" {
-  project = var.project_id
-  role    = "roles/run.developer"
-  member  = "serviceAccount:${module.scheduler_service_account.email}"
+  project_id            = var.project_id
+  service_account_email = module.scheduler_service_account.email
 }
 
 module "extract_ft_scheduler" {
