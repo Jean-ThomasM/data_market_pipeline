@@ -1,0 +1,8 @@
+gcloud auth login
+
+gcloud auth list
+
+gcloud storage cp gs://n8n-input/insert.sql /home/christian_martiny/files/insert.sql
+
+docker exec -i n8n-postgres psql -U n8n -d n8n < insert.sql
+
