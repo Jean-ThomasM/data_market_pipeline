@@ -121,13 +121,6 @@ module "scheduler_service_account" {
   display_name = "Scheduler Runner ${var.environment}"
 }
 
-module "scheduler_iam" {
-  source = "../../modules/scheduler_iam"
-
-  project_id            = var.project_id
-  service_account_email = module.scheduler_service_account.email
-}
-
 module "extract_ft_scheduler" {
   source = "../../modules/cloud_scheduler_job"
 
