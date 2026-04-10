@@ -3,23 +3,27 @@ data_market_pipeline:
   outputs:
     dev:
       type: bigquery
-      method: oauth
+      method: service-account-json
       project: data-market-386959
-      dataset: staging-dev
+      dataset: staging_dev
       location: europe-west-1
       threads: 8
       priority: interactive
       timeout_seconds: 300
+      keyfile_json: "{{ env_var('DBT_GCP_KEYFILE_JSON') }}"
+
 
     prod:
       type: bigquery
-      method: oauth
+      method: service-account-json
       project: data-market-386959
-      dataset: staging-prod
+      dataset: staging_prod
       location: europe-west-1
       threads: 8
       priority: interactive
       timeout_seconds: 300
+      keyfile_json: "{{ env_var('DBT_GCP_KEYFILE_JSON') }}"
+
 
     local:
       type: sqlite
