@@ -9,17 +9,17 @@ ENV UV_COMPILE_BYTECODE=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# Initialiser l'environnement Python du projet et ajouter dbt.
-COPY 03_transform/pyproject.toml /app/pyproject.toml
+# Installer les dependances verrouillees du projet (dont dbt-bigquery).
+COPY pyproject.toml /app/pyproject.toml
+COPY uv.lock /app/uv.lock
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv add dbt-core dbt-bigquery && \
-    uv sync --no-dev
+    uv sync --frozen --no-dev --no-install-project
 
 # Copier la configuration dbt.
-COPY 03_transform/dbt /app/dbt
+COPY dbt /app/dbt
 
 ENV DBT_PROFILES_DIR=/app/dbt
 
 WORKDIR /app/dbt
 
-CMD ["uv", "run", "dbt", "--version"]
+CMD ["uv", "run", "dbt", "run", "--project-dir", "/app/dbt", "--profiles-dir", "/app/dbt", "--target", "dev"]
