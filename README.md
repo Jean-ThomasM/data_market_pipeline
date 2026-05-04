@@ -129,6 +129,14 @@ Build :
 docker build -f 02_extract/geo/Dockerfile -t data-market-geo:local .
 ```
 
+Tag et push vers Artifact Registry :
+
+```bash
+docker build -f 02_extract/geo/Dockerfile -t extract-geo:latest .
+docker tag extract-geo:latest europe-west1-docker.pkg.dev/data-market-386959/data-market-docker-repository/extract-geo:latest
+docker push europe-west1-docker.pkg.dev/data-market-386959/data-market-docker-repository/extract-geo:latest
+```
+
 Run :
 
 ```bash

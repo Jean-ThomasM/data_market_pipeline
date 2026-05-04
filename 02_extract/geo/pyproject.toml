@@ -18,4 +18,4 @@ build-backend = "setuptools.build_meta"
 shared = { workspace = true }
 
 [tool.setuptools]
-py-modules = ["config", "main", "scraper"]
+py-modules = ["config", "main", "scraper", "utils"]
