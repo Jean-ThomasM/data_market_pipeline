@@ -1,4 +1,5 @@
 [
   { "name": "nom", "type": "STRING", "mode": "NULLABLE" },
-  { "name": "code", "type": "STRING", "mode": "NULLABLE" }
+  { "name": "code", "type": "STRING", "mode": "NULLABLE" },
+  { "name": "codesDepartements", "type": "STRING", "mode": "REPEATED" }
 ]
