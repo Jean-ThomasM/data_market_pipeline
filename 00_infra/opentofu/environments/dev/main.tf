@@ -251,3 +251,42 @@ resource "google_service_account_iam_member" "workflows_service_account_token_cr
 
   depends_on = [google_project_service_identity.workflows_service_agent]
 }
+
+module "dbt_service_account" {
+  source = "../../modules/service_account"
+
+  account_id   = "dbt-runner-${var.environment}"
+  display_name = "dbt Runner ${var.environment}"
+}
+
+module "dbt_iam" {
+  source = "../../modules/dbt_iam"
+
+  project_id            = var.project_id
+  service_account_email = module.dbt_service_account.email
+}
+
+module "dbt_env_secret" {
+  source = "../../modules/secret_manager_secret"
+
+  project_id = var.project_id
+  secret_id  = "DBT_ENV_SECRET"
+}
+
+module "dbt_job" {
+  source = "../../modules/cloud_run_job"
+
+  project_id = var.project_id
+  region     = var.region
+
+  job_name = "dbt-run-${var.environment}"
+
+  image = "${var.region}-docker.pkg.dev/${var.project_id}/data-market-docker-repository/dbt_transform:latest"
+
+  service_account_email = module.dbt_service_account.email
+
+  env_vars = {
+    DBT_TARGET_ENV = var.environment
+    GCP_PROJECT_ID = var.project_id
+  }
+}
