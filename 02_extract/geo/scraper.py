@@ -1,10 +1,8 @@
-import json
 import logging
-from pathlib import Path
 
 import requests
+import utils
 from config import Config, load_config
-from shared import gcs
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +17,10 @@ RESOURCE_PATHS = {
 }
 
 RESOURCE_FILE_NAMES = {
-    "regions": "regions.json",
-    "departements": "departements.json",
-    "communes": "communes.json",
-    "epcis": "epcis.json",
+    "regions": "regions.ndjson",
+    "departements": "departements.ndjson",
+    "communes": "communes.ndjson",
+    "epcis": "epcis.ndjson",
 }
 
 
@@ -30,24 +28,24 @@ def use_gcs_storage(config: Config) -> bool:
     return config.storage == "gcs"
 
 
-def save_json_payload(
-    config: Config,
-    payload: list[dict] | dict,
-    destination_name: str,
-) -> None:
-    json_content = json.dumps(payload, ensure_ascii=False, indent=2)
+# def save_json_payload(
+#     config: Config,
+#     payload: list[dict] | dict,
+#     destination_name: str,
+# ) -> None:
+#     json_content = "\n".join([json.dumps(s) for s in payload])
 
-    if use_gcs_storage(config):
-        gcs_path = f"raw_geo/{destination_name}"
-        gcs.write_file(config.gcs_bucket_name, gcs_path, json_content.encode("utf-8"))
-        logger.info("Saved GEO file to GCS: %s", gcs_path)
-        return
+#     if use_gcs_storage(config):
+#         gcs_path = f"raw_geo/{destination_name}"
+#         gcs.write_file(config.gcs_bucket_name, gcs_path, json_content.encode("utf-8"))
+#         logger.info("Saved GEO file to GCS: %s", gcs_path)
+#         return
 
-    output_directory = Path(config.local_save_directory)
-    output_directory.mkdir(parents=True, exist_ok=True)
-    output_path = output_directory / destination_name
-    output_path.write_text(json_content, encoding="utf-8")
-    logger.info("Saved GEO file locally: %s", output_path)
+#     output_directory = Path(config.local_save_directory)
+#     output_directory.mkdir(parents=True, exist_ok=True)
+#     output_path = output_directory / destination_name
+#     output_path.write_text(json_content, encoding="utf-8")
+#     logger.info("Saved GEO file locally: %s", output_path)
 
 
 class GeoExtractor:
@@ -60,10 +58,12 @@ class GeoExtractor:
     def extract(self) -> None:
         for resource_name in RESOURCE_PATHS:
             resource_payload = self._fetch_resource(resource_name)
-            save_json_payload(
+            utils.save_ndjson_records(
                 config=self.config,
-                payload=resource_payload,
+                records=resource_payload,
                 destination_name=RESOURCE_FILE_NAMES[resource_name],
+                gcs_prefix="raw_geo",
+                local_directory=self.config.local_save_directory,
             )
 
     def _fetch_resource(self, resource_name: str) -> list[dict]:
