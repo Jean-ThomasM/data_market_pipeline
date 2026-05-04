@@ -1,0 +1,86 @@
+main:
+  steps:
+    - load_regions:
+        call: googleapis.bigquery.v2.jobs.insert
+        args:
+          projectId: "${project_id}"
+          body:
+            configuration:
+              load:
+                destinationTable:
+                  projectId: "${project_id}"
+                  datasetId: "${dataset_id}"
+                  tableId: "regions"
+                sourceUris:
+                  - "gs://${bucket_name}/raw_geo/regions.ndjson"
+                sourceFormat: "NEWLINE_DELIMITED_JSON"
+                createDisposition: "CREATE_NEVER"
+                writeDisposition: "WRITE_TRUNCATE"
+                autodetect: true
+        result: load_regions_job
+
+    - load_departements:
+        call: googleapis.bigquery.v2.jobs.insert
+        args:
+          projectId: "${project_id}"
+          body:
+            configuration:
+              load:
+                destinationTable:
+                  projectId: "${project_id}"
+                  datasetId: "${dataset_id}"
+                  tableId: "departements"
+                sourceUris:
+                  - "gs://${bucket_name}/raw_geo/departements.ndjson"
+                sourceFormat: "NEWLINE_DELIMITED_JSON"
+                createDisposition: "CREATE_NEVER"
+                writeDisposition: "WRITE_TRUNCATE"
+                autodetect: true
+        result: load_departements_job
+
+    - load_communes:
+        call: googleapis.bigquery.v2.jobs.insert
+        args:
+          projectId: "${project_id}"
+          body:
+            configuration:
+              load:
+                destinationTable:
+                  projectId: "${project_id}"
+                  datasetId: "${dataset_id}"
+                  tableId: "communes"
+                sourceUris:
+                  - "gs://${bucket_name}/raw_geo/communes.ndjson"
+                sourceFormat: "NEWLINE_DELIMITED_JSON"
+                createDisposition: "CREATE_NEVER"
+                writeDisposition: "WRITE_TRUNCATE"
+                autodetect: true
+        result: load_communes_job
+
+    - load_epcis:
+        call: googleapis.bigquery.v2.jobs.insert
+        args:
+          projectId: "${project_id}"
+          body:
+            configuration:
+              load:
+                destinationTable:
+                  projectId: "${project_id}"
+                  datasetId: "${dataset_id}"
+                  tableId: "epcis"
+                sourceUris:
+                  - "gs://${bucket_name}/raw_geo/epcis.ndjson"
+                sourceFormat: "NEWLINE_DELIMITED_JSON"
+                createDisposition: "CREATE_NEVER"
+                writeDisposition: "WRITE_TRUNCATE"
+                autodetect: true
+        result: load_epcis_job
+
+    - return_result:
+        return:
+          regions_job_id: $${load_regions_job.jobReference.jobId}
+          departements_job_id: $${load_departements_job.jobReference.jobId}
+          communes_job_id: $${load_communes_job.jobReference.jobId}
+          epcis_job_id: $${load_epcis_job.jobReference.jobId}
+          dataset_id: "${dataset_id}"
+          source_prefix: "gs://${bucket_name}/raw_geo/"

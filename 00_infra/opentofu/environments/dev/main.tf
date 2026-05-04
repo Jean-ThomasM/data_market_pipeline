@@ -40,6 +40,42 @@ module "staging_offres_ft_table" {
   schema     = file("${path.module}/schemas/staging_offres_ft.bqschema")
 }
 
+module "regions_table" {
+  source = "../../modules/bigquery_table"
+
+  project_id = var.project_id
+  dataset_id = module.staging_dataset.dataset_id
+  table_id   = "regions"
+  schema     = file("${path.module}/schemas/regions.bqschema")
+}
+
+module "departements_table" {
+  source = "../../modules/bigquery_table"
+
+  project_id = var.project_id
+  dataset_id = module.staging_dataset.dataset_id
+  table_id   = "departements"
+  schema     = file("${path.module}/schemas/departements.bqschema")
+}
+
+module "communes_table" {
+  source = "../../modules/bigquery_table"
+
+  project_id = var.project_id
+  dataset_id = module.staging_dataset.dataset_id
+  table_id   = "communes"
+  schema     = file("${path.module}/schemas/communes.bqschema")
+}
+
+module "epcis_table" {
+  source = "../../modules/bigquery_table"
+
+  project_id = var.project_id
+  dataset_id = module.staging_dataset.dataset_id
+  table_id   = "epcis"
+  schema     = file("${path.module}/schemas/epcis.bqschema")
+}
+
 module "load_staging_offres_ft_workflow" {
   source = "../../modules/workflow"
 
@@ -51,14 +87,42 @@ module "load_staging_offres_ft_workflow" {
   source_contents = templatefile(
     "${path.module}/workflows/load_staging_offres_ft.yaml.tftpl",
     {
-      project_id = var.project_id
-      dataset_id = module.staging_dataset.dataset_id
-      table_id   = module.staging_offres_ft_table.table_id
+      project_id  = var.project_id
+      dataset_id  = module.staging_dataset.dataset_id
+      table_id    = module.staging_offres_ft_table.table_id
       bucket_name = module.data_lake.bucket_name
     }
   )
 
   depends_on = [
+    module.project_services,
+    google_project_service_identity.workflows_service_agent,
+    google_service_account_iam_member.workflows_service_account_token_creator
+  ]
+}
+
+module "load_staging_geo_workflow" {
+  source = "../../modules/workflow"
+
+  project_id            = var.project_id
+  region                = var.region
+  name                  = "load-staging-geo-${var.environment}"
+  description           = "Charge les données GEO depuis GCS vers BigQuery."
+  service_account_email = module.pipeline_service_account.email
+  source_contents = templatefile(
+    "${path.module}/workflows/load_staging_geo.yaml.tftpl",
+    {
+      project_id  = var.project_id
+      dataset_id  = module.staging_dataset.dataset_id
+      bucket_name = module.data_lake.bucket_name
+    }
+  )
+
+  depends_on = [
+    module.regions_table,
+    module.departements_table,
+    module.communes_table,
+    module.epcis_table,
     module.project_services,
     google_project_service_identity.workflows_service_agent,
     google_service_account_iam_member.workflows_service_account_token_creator
