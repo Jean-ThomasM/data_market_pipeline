@@ -4,9 +4,9 @@ with base_offres as (
         intitule as job_title,
         dateCreation as created_at,
         typeContrat as contract_type,
-        json_extract(salaire, '$.libelle') as salary_label,
+        salaire.libelle as salary_label,
         case
-            when json_extract(salaire, '$.libelle') is null then 'missing_salary'
+            when salaire.libelle is null then 'missing_salary'
             else 'salary_present'
         end as salary_quality_flag
     from {{ source('france-travail', 'staging_offres_ft') }}

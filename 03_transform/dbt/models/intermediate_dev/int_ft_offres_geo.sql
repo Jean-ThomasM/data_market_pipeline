@@ -1,9 +1,9 @@
 with offers as (
     select
         cast(id as string) as offer_id,
-        nullif(trim(lieuTravail_commune), '') as commune_code,
-        nullif(trim(lieuTravail_libelle), '') as commune_name,
-        nullif(trim(lieuTravail_codePostal), '') as postal_code
+        nullif(trim(lieuTravail.commune), '') as commune_code,
+        nullif(trim(lieuTravail.libelle), '') as commune_name,
+        nullif(trim(lieuTravail.codePostal), '') as postal_code
     from {{ source('france-travail', 'staging_offres_ft') }}
 )
 select
