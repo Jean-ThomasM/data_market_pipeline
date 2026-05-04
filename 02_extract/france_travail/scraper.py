@@ -3,7 +3,6 @@ import time
 from datetime import datetime
 
 import requests
-
 import utils
 from auth import create_authenticated_session, refresh_access_token
 from config import Config, load_config
@@ -277,7 +276,8 @@ class OffersExtractor:
         )
 
         logger.info(
-            "Offers extraction completed. %s offers fetched, %s unique offers saved, %s duplicates removed.",
+            """Offers extraction completed. %s offers fetched,
+            %s unique offers saved, %s duplicates removed.""",
             self.total_offers_fetched,
             len(deduplicated_offers),
             self.total_offers_fetched - len(deduplicated_offers),

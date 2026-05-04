@@ -2,7 +2,6 @@ import logging
 import os
 
 from dotenv import load_dotenv
-
 from scraper import extract_offers, extract_referentials
 
 logging.basicConfig(

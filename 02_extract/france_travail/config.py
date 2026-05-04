@@ -4,8 +4,8 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from google.api_core.exceptions import NotFound
 from dotenv import load_dotenv
+from google.api_core.exceptions import NotFound
 from shared import gcs
 from shared.secrets import get_secrets
 

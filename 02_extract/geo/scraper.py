@@ -3,9 +3,8 @@ import logging
 from pathlib import Path
 
 import requests
-from shared import gcs
-
 from config import Config, load_config
+from shared import gcs
 
 logger = logging.getLogger(__name__)
 
