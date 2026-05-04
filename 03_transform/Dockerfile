@@ -17,6 +17,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 # Copier la configuration dbt.
 COPY dbt /app/dbt
+COPY src /app/src
 
 ENV DBT_PROFILES_DIR=/app/dbt
 
