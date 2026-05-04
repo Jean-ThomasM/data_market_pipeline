@@ -16,7 +16,6 @@ main:
                 sourceFormat: "NEWLINE_DELIMITED_JSON"
                 createDisposition: "CREATE_NEVER"
                 writeDisposition: "WRITE_TRUNCATE"
-                autodetect: true
         result: load_regions_job
 
     - load_departements:
@@ -35,7 +34,6 @@ main:
                 sourceFormat: "NEWLINE_DELIMITED_JSON"
                 createDisposition: "CREATE_NEVER"
                 writeDisposition: "WRITE_TRUNCATE"
-                autodetect: true
         result: load_departements_job
 
     - load_communes:
@@ -54,7 +52,6 @@ main:
                 sourceFormat: "NEWLINE_DELIMITED_JSON"
                 createDisposition: "CREATE_NEVER"
                 writeDisposition: "WRITE_TRUNCATE"
-                autodetect: true
         result: load_communes_job
 
     - load_epcis:
@@ -73,7 +70,6 @@ main:
                 sourceFormat: "NEWLINE_DELIMITED_JSON"
                 createDisposition: "CREATE_NEVER"
                 writeDisposition: "WRITE_TRUNCATE"
-                autodetect: true
         result: load_epcis_job
 
     - return_result:
