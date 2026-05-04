@@ -1,0 +1,10 @@
+[
+  { "name": "nom", "type": "STRING", "mode": "NULLABLE" },
+  { "name": "code", "type": "STRING", "mode": "NULLABLE" },
+  { "name": "codeDepartement", "type": "STRING", "mode": "NULLABLE" },
+  { "name": "siren", "type": "STRING", "mode": "NULLABLE" },
+  { "name": "codeEpci", "type": "STRING", "mode": "NULLABLE" },
+  { "name": "codeRegion", "type": "STRING", "mode": "NULLABLE" },
+  { "name": "codesPostaux", "type": "STRING", "mode": "REPEATED" },
+  { "name": "population", "type": "INTEGER", "mode": "NULLABLE" }
+]
