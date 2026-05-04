@@ -22,3 +22,7 @@ variable "bigquery_location" {
   description = "Localisation des datasets BigQuery"
   type        = string
 }
+
+variable "zone" {
+  type = string
+}
