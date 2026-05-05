@@ -24,9 +24,10 @@ data_market_pipeline:
     local:
       type: sqlite
       threads: 1
-      database: "{{ env_var('DBT_SQLITE_DATABASE', 'staging_offres_ft') }}"
-      schema: "{{ env_var('DBT_SQLITE_SCHEMA', 'main') }}"
+      database: "staging_offres_ft"
+      schema: "main"
       schemas_and_paths:
-        main: "{{ env_var('DBT_SQLITE_PATH', 'C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform/staging_offres_ft.sqlite') }}"
-        staging_dev: "{{ env_var('DBT_SQLITE_PATH', 'C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform/staging_offres_ft.sqlite') }}"
-      schema_directory: "{{ env_var('DBT_SQLITE_SCHEMA_DIRECTORY', 'C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform') }}"
+        main: "C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform/staging_offres_ft.sqlite"
+        intermediate_dev: "C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform/staging_offres_ft.sqlite"
+        staging_dev: "C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform/staging_offres_ft.sqlite"
+      schema_directory: "C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform"

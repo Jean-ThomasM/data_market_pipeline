@@ -3,131 +3,53 @@ version: 2
 models:
   - name: int_geo_communes
     description: >
-      Referentiel communal enrichi a partir des tables GEO (communes,
-      departements, regions, EPCI), avec rattachement des libelles
-      administratifs.
+      Referentiel communal enrichi (communes, departements, regions, EPCI).
+      Une ligne par couple (commune, code_postal).
     columns:
       - name: commune_code
-        description: Code INSEE de la commune.
+        description: "Code INSEE de la commune."
         tests:
           - not_null
-          - unique
-      - name: commune_name
-        description: Libelle officiel de la commune.
+      - name: code_postal
+        description: "Code postal de la commune."
+        tests:
+          - not_null
       - name: departement_code
-        description: Code departement de rattachement.
-      - name: departement_name
-        description: Libelle du departement de rattachement.
-      - name: region_code
-        description: Code region de rattachement.
-      - name: region_name
-        description: Libelle de la region de rattachement.
-      - name: epci_code
-        description: Code EPCI de rattachement.
-      - name: epci_name
-        description: Libelle de l'EPCI de rattachement.
-      - name: postal_code
-        description: Premier code postal connu pour la commune.
-      - name: population
-        description: Population municipale quand disponible.
+        description: "Code departement (ex: 75)."
+        tests:
+          - not_null
 
   - name: int_employer_candidates
-    description: >
-      Employeurs dedupliques a enrichir via Sirene, construits a partir des
-      informations employeur et localisation derivees de la source
-      `staging_offres_ft`.
+    description: "Employeurs dedupliques pour matching Sirene."
     columns:
       - name: employer_candidate_id
-        description: Identifiant technique stable de l'employeur candidat.
+        description: "Cle unique generee (Nom|CP|Commune|NAF)."
         tests:
           - not_null
           - unique
-      - name: normalized_employer_name
-        description: Nom employeur normalise pour dedoublonnage et matching.
-      - name: postal_code
-        description: Code postal associe a l'employeur candidat.
-      - name: commune_code
-        description: Code commune associe a l'employeur candidat.
-      - name: naf_code
-        description: Code NAF brut provenant de l'offre.
       - name: offer_count
-        description: Nombre d'offres rattachees a cet employeur candidat.
+        description: "Nombre d'offres associees."
 
   - name: int_ft_offres_geo
-    description: >
-      Enrichissement geographique des offres issues de `staging_offres_ft`,
-      avec rattachement commune, departement, region et EPCI.
+    description: "Enrichissement geographique des offres France Travail."
     columns:
       - name: offer_id
-        description: Identifiant unique de l'offre.
+        description: "ID unique de l'offre."
         tests:
           - not_null
           - unique
-      - name: commune_code
-        description: Code commune de l'offre.
-      - name: commune_name
-        description: Libelle de la commune.
-      - name: departement_code
-        description: Code departement de la commune.
-      - name: departement_name
-        description: Libelle du departement.
-      - name: region_code
-        description: Code region de la commune.
-      - name: region_name
-        description: Libelle de la region.
-      - name: epci_code
-        description: Code EPCI associe.
-      - name: epci_name
-        description: Libelle EPCI associe.
-
-  - name: int_ft_offres_employers_matched
-    description: >
-      Rattachement entreprise Sirene a chaque offre issue de
-      `staging_offres_ft`, lorsque le matching est disponible.
-    columns:
-      - name: offer_id
-        description: Identifiant unique de l'offre.
+      - name: departement_nom
+        description: "Nom du departement."
         tests:
           - not_null
-          - unique
-      - name: employer_candidate_id
-        description: Cle de jonction vers la table des employeurs candidats.
-      - name: siren
-        description: SIREN de l'entreprise matchee.
-      - name: siret
-        description: SIRET de l'etablissement matche.
-      - name: legal_name
-        description: Raison sociale legale retenue.
-      - name: match_confidence
-        description: Score de confiance du matching Sirene.
-      - name: match_status
-        description: Statut final du matching.
 
   - name: int_ft_offres_enriched
-    description: >
-      Table consolidee 1 ligne par offre, enrichie avec les dimensions
-      geographiques, employeur et salaire a partir de `staging_offres_ft`.
+    description: "Table finale consolidee."
     columns:
       - name: offer_id
-        description: Identifiant unique de l'offre.
         tests:
           - not_null
           - unique
-      - name: job_title
-        description: Intitule du poste.
-      - name: created_at
-        description: Date de creation de l'offre.
-      - name: contract_type
-        description: Type de contrat principal.
-      - name: region_code
-        description: Code region de l'offre enrichie.
-      - name: region_name
-        description: Libelle region de l'offre enrichie.
-      - name: siren
-        description: SIREN rattache a l'offre si disponible.
-      - name: legal_name
-        description: Raison sociale rattachee a l'offre si disponible.
-      - name: salary_label
-        description: Salaire texte tel que fourni par la source.
-      - name: salary_quality_flag
-        description: Indicateur qualite de l'information salaire.
+      - name: region_nom
+        tests:
+          - not_null

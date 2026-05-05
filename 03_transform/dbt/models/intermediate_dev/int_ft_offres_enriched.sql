@@ -1,12 +1,12 @@
 with base_offres as (
-    select
+    select distinct
         cast(id as string) as offer_id,
         intitule as job_title,
         dateCreation as created_at,
         typeContrat as contract_type,
-        salaire.libelle as salary_label,
+        "salaire__libelle" as salary_label,
         case
-            when salaire.libelle is null then 'missing_salary'
+            when "salaire__libelle" is null then 'missing_salary'
             else 'salary_present'
         end as salary_quality_flag
     from {{ source('france-travail', 'staging_offres_ft') }}
@@ -22,8 +22,7 @@ select
     b.job_title,
     b.created_at,
     b.contract_type,
-    g.region_code,
-    g.region_name,
+    g.region_nom,
     e.siren,
     e.legal_name,
     b.salary_label,
