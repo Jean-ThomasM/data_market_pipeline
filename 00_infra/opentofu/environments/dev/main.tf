@@ -153,7 +153,8 @@ module "project_services" {
     "workflows.googleapis.com",
     "cloudscheduler.googleapis.com",
     "logging.googleapis.com",
-    "monitoring.googleapis.com"
+    "monitoring.googleapis.com",
+    "compute.googleapis.com"
   ]
 }
 
@@ -298,4 +299,8 @@ module "n8n_vm" {
   region        = var.region
   zone          = var.zone
   instance_name = "n8n-dev"
+
+  depends_on = [
+    module.project_services
+  ]
 }
