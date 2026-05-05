@@ -33,3 +33,8 @@ output "artifact_registry_repository_url" {
 output "load_staging_offres_ft_workflow_name" {
   value = module.load_staging_offres_ft_workflow.name
 }
+
+output "n8n_external_ip" {
+  description = "External IP address of the n8n VM"
+  value       = module.n8n_vm.n8n_external_ip
+}
