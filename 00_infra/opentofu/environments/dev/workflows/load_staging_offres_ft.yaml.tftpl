@@ -15,7 +15,7 @@ main:
                   - "gs://${bucket_name}/raw_offres/*.ndjson"
                 sourceFormat: "NEWLINE_DELIMITED_JSON"
                 createDisposition: "CREATE_NEVER"
-                writeDisposition: "WRITE_APPEND"
+                writeDisposition: "WRITE_TRUNCATE"
                 ignoreUnknownValues: true
         result: load_job
 
