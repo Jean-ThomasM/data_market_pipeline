@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket = "A_REMPLIR_PLUS_TARD"
-    prefix = "opentofu/prod"
+    bucket = "data-market-386959-opentofu-state"
+    prefix = "prod"
   }
 }

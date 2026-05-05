@@ -10,13 +10,12 @@ main:
                 destinationTable:
                   projectId: "${project_id}"
                   datasetId: "${dataset_id}"
-                  tableId: "regions"
+                  tableId: "staging_regions"
                 sourceUris:
                   - "gs://${bucket_name}/raw_geo/regions.ndjson"
                 sourceFormat: "NEWLINE_DELIMITED_JSON"
                 createDisposition: "CREATE_NEVER"
                 writeDisposition: "WRITE_TRUNCATE"
-                autodetect: true
         result: load_regions_job
 
     - load_departements:
@@ -29,13 +28,12 @@ main:
                 destinationTable:
                   projectId: "${project_id}"
                   datasetId: "${dataset_id}"
-                  tableId: "departements"
+                  tableId: "staging_departements"
                 sourceUris:
                   - "gs://${bucket_name}/raw_geo/departements.ndjson"
                 sourceFormat: "NEWLINE_DELIMITED_JSON"
                 createDisposition: "CREATE_NEVER"
                 writeDisposition: "WRITE_TRUNCATE"
-                autodetect: true
         result: load_departements_job
 
     - load_communes:
@@ -48,13 +46,12 @@ main:
                 destinationTable:
                   projectId: "${project_id}"
                   datasetId: "${dataset_id}"
-                  tableId: "communes"
+                  tableId: "staging_communes"
                 sourceUris:
                   - "gs://${bucket_name}/raw_geo/communes.ndjson"
                 sourceFormat: "NEWLINE_DELIMITED_JSON"
                 createDisposition: "CREATE_NEVER"
                 writeDisposition: "WRITE_TRUNCATE"
-                autodetect: true
         result: load_communes_job
 
     - load_epcis:
@@ -67,13 +64,12 @@ main:
                 destinationTable:
                   projectId: "${project_id}"
                   datasetId: "${dataset_id}"
-                  tableId: "epcis"
+                  tableId: "staging_epcis"
                 sourceUris:
                   - "gs://${bucket_name}/raw_geo/epcis.ndjson"
                 sourceFormat: "NEWLINE_DELIMITED_JSON"
                 createDisposition: "CREATE_NEVER"
                 writeDisposition: "WRITE_TRUNCATE"
-                autodetect: true
         result: load_epcis_job
 
     - return_result:
