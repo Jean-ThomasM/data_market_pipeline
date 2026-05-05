@@ -33,7 +33,7 @@ with raw_offers as (
         nullif(trim(codeNAF), '') as naf_code,
         secteurActiviteLibelle as industry_label
     from {{ source('france-travail', 'staging_offres_ft') }}
-    where commune_code is not null
+    where {% if target.type == 'bigquery' %} lieuTravail.commune {% else %} lieuTravail_commune {% endif %} is not null
 ),
 
 geo_ref as (

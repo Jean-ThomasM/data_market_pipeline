@@ -4,8 +4,7 @@
 
 select
     offer_id,
-    commune_code,
-    postal_code
-from {{ ref('int_ft_offres_geo') }}
-where (commune_code is not null or postal_code is not null)
-  and departement_nom is null
+    code_postal,
+    nom_departement
+from {{ ref('int_ft_offres') }}
+where nom_departement is null
