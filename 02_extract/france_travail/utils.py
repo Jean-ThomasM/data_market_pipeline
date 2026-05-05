@@ -2,9 +2,8 @@ import json
 import logging
 from pathlib import Path
 
-from shared import gcs
-
 from config import Config
+from shared import gcs
 
 logger = logging.getLogger(__name__)
 
