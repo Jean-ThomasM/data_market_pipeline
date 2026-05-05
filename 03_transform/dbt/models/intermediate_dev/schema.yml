@@ -19,37 +19,19 @@ models:
         tests:
           - not_null
 
-  - name: int_employer_candidates
-    description: "Employeurs dedupliques pour matching Sirene."
-    columns:
-      - name: employer_candidate_id
-        description: "Cle unique generee (Nom|CP|Commune|NAF)."
-        tests:
-          - not_null
-          - unique
-      - name: offer_count
-        description: "Nombre d'offres associees."
-
-  - name: int_ft_offres_geo
-    description: "Enrichissement geographique des offres France Travail."
+  - name: int_ft_offres_silver
+    description: "Table consolidée des offres France Travail enrichie géographiquement."
     columns:
       - name: offer_id
         description: "ID unique de l'offre."
         tests:
           - not_null
           - unique
-      - name: departement_nom
-        description: "Nom du departement."
-        tests:
-          - not_null
-
-  - name: int_ft_offres_enriched
-    description: "Table finale consolidee."
-    columns:
-      - name: offer_id
-        tests:
-          - not_null
-          - unique
+      - name: commune_name
+        description: "Nom de la commune (issu du référentiel ou de la source)."
       - name: region_nom
-        tests:
-          - not_null
+        description: "Nom de la région."
+      - name: has_salary_info
+        description: "Flag indiquant la présence d'informations de salaire (0 ou 1)."
+      - name: is_geo_matched
+        description: "Flag indiquant si l'offre a été matchée avec le référentiel GÉO (0 ou 1)."
