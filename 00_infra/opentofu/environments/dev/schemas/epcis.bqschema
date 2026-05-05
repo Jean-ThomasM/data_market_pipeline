@@ -1,5 +1,7 @@
 [
   { "name": "nom", "type": "STRING", "mode": "NULLABLE" },
   { "name": "code", "type": "STRING", "mode": "NULLABLE" },
-  { "name": "codesDepartements", "type": "STRING", "mode": "REPEATED" }
+  { "name": "codesDepartements", "type": "STRING", "mode": "REPEATED" },
+  { "name": "codesRegions", "type": "STRING", "mode": "REPEATED" },
+  { "name": "population", "type": "INTEGER", "mode": "NULLABLE" }
 ]

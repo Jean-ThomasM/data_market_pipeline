@@ -45,7 +45,7 @@ module "regions_table" {
 
   project_id = var.project_id
   dataset_id = module.staging_dataset.dataset_id
-  table_id   = "regions"
+  table_id   = "staging_regions"
   schema     = file("${path.module}/schemas/regions.bqschema")
 }
 
@@ -54,7 +54,7 @@ module "departements_table" {
 
   project_id = var.project_id
   dataset_id = module.staging_dataset.dataset_id
-  table_id   = "departements"
+  table_id   = "staging_departements"
   schema     = file("${path.module}/schemas/departements.bqschema")
 }
 
@@ -63,7 +63,7 @@ module "communes_table" {
 
   project_id = var.project_id
   dataset_id = module.staging_dataset.dataset_id
-  table_id   = "communes"
+  table_id   = "staging_communes"
   schema     = file("${path.module}/schemas/communes.bqschema")
 }
 
@@ -72,7 +72,7 @@ module "epcis_table" {
 
   project_id = var.project_id
   dataset_id = module.staging_dataset.dataset_id
-  table_id   = "epcis"
+  table_id   = "staging_epcis"
   schema     = file("${path.module}/schemas/epcis.bqschema")
 }
 
