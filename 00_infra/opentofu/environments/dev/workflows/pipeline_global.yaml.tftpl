@@ -1,0 +1,52 @@
+main:
+    params: [args]
+    steps:
+      - init:
+          assign:
+            - run_id: $${default(map.get(args, "run_id"), sys.now())}
+            - project_id: "${project_id}"
+            - region: "${region}"
+            - environment: "${environment}"
+
+      - run_extract_ft:
+          call: googleapis.run.v2.projects.locations.jobs.run
+          args:
+            name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${extract_ft_job_name}"}
+            body: {}
+          result: extract_ft_result
+
+      - run_extract_geo:
+          call: googleapis.run.v2.projects.locations.jobs.run
+          args:
+            name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${extract_geo_job_name}"}
+            body: {}
+          result: extract_geo_result
+
+      - load_ft:
+          call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+          args:
+            workflow_id: "${load_ft_workflow_name}"
+            location: "${region}"
+            project_id: "${project_id}"
+            argument:
+              run_id: $${run_id}
+          result: load_ft_result
+
+      - load_geo:
+          call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+          args:
+            workflow_id: "${load_geo_workflow_name}"
+            location: "${region}"
+            project_id: "${project_id}"
+            argument:
+              run_id: $${run_id}
+          result: load_geo_result
+
+      - done:
+          return:
+            run_id: $${run_id}
+            environment: $${environment}
+            extract_ft: $${extract_ft_result}
+            extract_geo: $${extract_geo_result}
+            load_ft: $${load_ft_result}
+            load_geo: $${load_geo_result}
