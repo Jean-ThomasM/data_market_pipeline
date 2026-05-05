@@ -1,6 +1,36 @@
 version: 2
 
 models:
+  - name: int_geo_communes
+    description: >
+      Referentiel communal enrichi a partir des tables GEO (communes,
+      departements, regions, EPCI), avec rattachement des libelles
+      administratifs.
+    columns:
+      - name: commune_code
+        description: Code INSEE de la commune.
+        tests:
+          - not_null
+          - unique
+      - name: commune_name
+        description: Libelle officiel de la commune.
+      - name: departement_code
+        description: Code departement de rattachement.
+      - name: departement_name
+        description: Libelle du departement de rattachement.
+      - name: region_code
+        description: Code region de rattachement.
+      - name: region_name
+        description: Libelle de la region de rattachement.
+      - name: epci_code
+        description: Code EPCI de rattachement.
+      - name: epci_name
+        description: Libelle de l'EPCI de rattachement.
+      - name: postal_code
+        description: Premier code postal connu pour la commune.
+      - name: population
+        description: Population municipale quand disponible.
+
   - name: int_employer_candidates
     description: >
       Employeurs dedupliques a enrichir via Sirene, construits a partir des

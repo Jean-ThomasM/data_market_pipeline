@@ -18,5 +18,8 @@ clean-targets:
 models:
   data_market_pipeline:
     +materialized: table
+    intermediate_dev:
+      +schema: intermediate_dev
+      +materialized: table
     silver:
       +materialized: table
