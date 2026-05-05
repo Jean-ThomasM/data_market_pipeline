@@ -13,7 +13,7 @@ with communes_raw as (
 -- Sur BigQuery on utilise UNNEST. 
 -- Pour SQLite local, on simule ou on utilise le premier si UNNEST n'est pas supporté.
 communes_expanded as (
-    {% if adapter.plugin_name == 'bigquery' %}
+    {% if target.type == 'bigquery' %}
     select 
         c.* except(codesPostaux),
         cast(cp as string) as code_postal_val
@@ -22,7 +22,7 @@ communes_expanded as (
     -- Version SQLite simplifiée (on prend le premier pour ne pas casser l'exécution locale)
     select 
         *,
-        json_extract(codesPostaux, '$[0]') as code_postal_val
+        json_extract(cast(codesPostaux as text), '$[0]') as code_postal_val
     from communes_raw
     {% endif %}
 ),

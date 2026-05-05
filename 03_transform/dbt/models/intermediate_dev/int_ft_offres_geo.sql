@@ -1,10 +1,16 @@
 with offers as (
     select distinct
         cast(id as string) as offer_id,
-        -- On utilise les colonnes avec double underscore __ (standard SQLite issu du loader)
-        nullif(trim("lieuTravail__commune"), '') as commune_code,
-        nullif(trim("lieuTravail__libelle"), '') as commune_name,
-        nullif(trim("lieuTravail__codePostal"), '') as postal_code
+        {% if target.type == 'bigquery' %}
+        nullif(trim(lieuTravail.commune), '') as commune_code,
+        nullif(trim(lieuTravail.libelle), '') as commune_name,
+        nullif(trim(lieuTravail.codePostal), '') as postal_code
+        {% else %}
+        -- SQLite local: colonnes aplaties avec "__"
+        nullif(trim({{ adapter.quote('lieuTravail__commune') }}), '') as commune_code,
+        nullif(trim({{ adapter.quote('lieuTravail__libelle') }}), '') as commune_name,
+        nullif(trim({{ adapter.quote('lieuTravail__codePostal') }}), '') as postal_code
+        {% endif %}
     from {{ source('france-travail', 'staging_offres_ft') }}
 ),
 geo_communes as (

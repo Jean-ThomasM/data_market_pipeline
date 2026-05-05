@@ -4,9 +4,17 @@ with base_offres as (
         intitule as job_title,
         dateCreation as created_at,
         typeContrat as contract_type,
-        "salaire__libelle" as salary_label,
+        {% if target.type == 'bigquery' %}
+        salaire.libelle as salary_label,
+        {% else %}
+        {{ adapter.quote('salaire__libelle') }} as salary_label,
+        {% endif %}
         case
-            when "salaire__libelle" is null then 'missing_salary'
+            {% if target.type == 'bigquery' %}
+            when salaire.libelle is null then 'missing_salary'
+            {% else %}
+            when {{ adapter.quote('salaire__libelle') }} is null then 'missing_salary'
+            {% endif %}
             else 'salary_present'
         end as salary_quality_flag
     from {{ source('france-travail', 'staging_offres_ft') }}

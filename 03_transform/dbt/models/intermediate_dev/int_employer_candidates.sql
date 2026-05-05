@@ -1,9 +1,15 @@
 with offers as (
     select distinct
         cast(id as string) as offer_id,
-        nullif(trim("entreprise__nom"), '') as employer_name,
-        nullif(trim("lieuTravail__codePostal"), '') as postal_code,
-        nullif(trim("lieuTravail__commune"), '') as commune_code,
+        {% if target.type == 'bigquery' %}
+        nullif(trim(entreprise.nom), '') as employer_name,
+        nullif(trim(lieuTravail.codePostal), '') as postal_code,
+        nullif(trim(lieuTravail.commune), '') as commune_code,
+        {% else %}
+        nullif(trim({{ adapter.quote('entreprise__nom') }}), '') as employer_name,
+        nullif(trim({{ adapter.quote('lieuTravail__codePostal') }}), '') as postal_code,
+        nullif(trim({{ adapter.quote('lieuTravail__commune') }}), '') as commune_code,
+        {% endif %}
         nullif(trim(codeNAF), '') as naf_code
     from {{ source('france-travail', 'staging_offres_ft') }}
 ),
