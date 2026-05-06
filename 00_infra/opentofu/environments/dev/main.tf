@@ -322,3 +322,39 @@ module "pipeline_global_workflow" {
     google_service_account_iam_member.workflows_service_account_token_creator
   ]
 }
+
+module "n8n_service_account" {
+  source = "../../modules/service_account"
+
+  account_id   = "n8n-runner-${var.environment}"
+  display_name = "n8n Runner ${var.environment}"
+}
+
+module "n8n_service" {
+  source = "../../modules/cloud_run_service"
+
+  project_id = var.project_id
+  region     = var.region
+
+  service_name = "n8n-${var.environment}"
+
+  image = "docker.io/n8nio/n8n:latest"
+
+  service_account_email = module.n8n_service_account.email
+
+  cpu    = "1"
+  memory = "4Gi"
+
+  env_vars = {
+    N8N_PORT     = "5678"
+    N8N_PROTOCOL = "https"
+  }
+}
+
+resource "google_cloud_run_service_iam_member" "n8n_public_access" {
+  project  = var.project_id
+  location = var.region
+  service  = module.n8n_service.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
