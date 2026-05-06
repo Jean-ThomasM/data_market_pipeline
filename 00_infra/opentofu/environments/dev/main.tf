@@ -153,8 +153,7 @@ module "project_services" {
     "workflows.googleapis.com",
     "cloudscheduler.googleapis.com",
     "logging.googleapis.com",
-    "monitoring.googleapis.com",
-    "compute.googleapis.com"
+    "monitoring.googleapis.com"
   ]
 }
 
@@ -290,17 +289,4 @@ module "dbt_job" {
     DBT_TARGET_ENV = var.environment
     GCP_PROJECT_ID = var.project_id
   }
-}
-
-module "n8n_vm" {
-  source = "../../modules/n8n_vm"
-
-  project_id    = var.project_id
-  region        = var.region
-  zone          = var.zone
-  instance_name = "n8n-dev"
-
-  depends_on = [
-    module.project_services
-  ]
 }
