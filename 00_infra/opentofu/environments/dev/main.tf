@@ -343,11 +343,15 @@ module "n8n_service" {
   service_account_email = module.n8n_service_account.email
 
   cpu    = "1"
-  memory = "4Gi"
+  memory = "2Gi"
 
   env_vars = {
-    N8N_PORT     = "5678"
-    N8N_PROTOCOL = "https"
+    N8N_PORT            = "5678"
+    N8N_PROTOCOL        = "https"
+    N8N_HOST            = "n8n-dev-5pko4kkvvq-ew.a.run.app"
+    WEBHOOK_URL         = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
+    N8N_EDITOR_BASE_URL = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
+    N8N_PUSH_BACKEND    = "sse"
   }
 }
 
