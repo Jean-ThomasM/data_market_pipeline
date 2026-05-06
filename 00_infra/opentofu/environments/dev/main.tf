@@ -323,6 +323,12 @@ resource "google_service_account_iam_member" "workflows_service_account_token_cr
   depends_on = [google_project_service_identity.workflows_service_agent]
 }
 
+resource "google_project_iam_member" "pipeline_workflows_invoker" {
+  project = var.project_id
+  role    = "roles/workflows.invoker"
+  member  = "serviceAccount:${module.pipeline_service_account.email}"
+}
+
 module "dbt_service_account" {
   source = "../../modules/service_account"
 
@@ -392,8 +398,10 @@ module "pipeline_global_workflow" {
     module.load_staging_offres_ft_workflow,
     module.load_staging_geo_workflow,
     module.load_staging_adzuna_workflow,
+    module.pipeline_iam,
     module.project_services,
     google_project_service_identity.workflows_service_agent,
-    google_service_account_iam_member.workflows_service_account_token_creator
+    google_service_account_iam_member.workflows_service_account_token_creator,
+    google_project_iam_member.pipeline_workflows_invoker
   ]
 }
