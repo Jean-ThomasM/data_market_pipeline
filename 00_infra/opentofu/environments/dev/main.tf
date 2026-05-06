@@ -153,8 +153,7 @@ module "project_services" {
     "workflows.googleapis.com",
     "cloudscheduler.googleapis.com",
     "logging.googleapis.com",
-    "monitoring.googleapis.com",
-    "compute.googleapis.com"
+    "monitoring.googleapis.com"
   ]
 }
 
@@ -292,15 +291,34 @@ module "dbt_job" {
   }
 }
 
-module "n8n_vm" {
-  source = "../../modules/n8n_vm"
+module "pipeline_global_workflow" {
+  source                = "../../modules/workflow"
+  project_id            = var.project_id
+  region                = var.region
+  name                  = "pipeline-global-${var.environment}"
+  description           = "Orchestre extraction FT/GEO et chargement staging."
+  service_account_email = module.pipeline_service_account.email
 
-  project_id    = var.project_id
-  region        = var.region
-  zone          = var.zone
-  instance_name = "n8n-dev"
+  source_contents = templatefile(
+    "${path.module}/workflows/pipeline_global.yaml.tftpl",
+    {
+      project_id             = var.project_id
+      region                 = var.region
+      environment            = var.environment
+      extract_ft_job_name    = module.extract_job_ft.job_name
+      extract_geo_job_name   = module.extract_job_geo.job_name
+      load_ft_workflow_name  = module.load_staging_offres_ft_workflow.name
+      load_geo_workflow_name = module.load_staging_geo_workflow.name
+    }
+  )
 
   depends_on = [
-    module.project_services
+    module.extract_job_ft,
+    module.extract_job_geo,
+    module.load_staging_offres_ft_workflow,
+    module.load_staging_geo_workflow,
+    module.project_services,
+    google_project_service_identity.workflows_service_agent,
+    google_service_account_iam_member.workflows_service_account_token_creator
   ]
 }
