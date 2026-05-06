@@ -213,6 +213,28 @@ module "extract_job_geo" {
   }
 }
 
+module "extract_job_adzuna" {
+  source = "../../modules/cloud_run_job"
+
+  project_id = var.project_id
+  region     = var.region
+
+  job_name = "extract-adzuna-dev"
+
+  image = "${module.artifact_registry.repository_url}/extract-adzuna:latest"
+
+  service_account_email = module.pipeline_service_account.email
+
+  env_vars = {
+    ENVIRONMENT     = var.environment
+    BUCKET_NAME     = module.data_lake.bucket_name
+    DATASET_ID      = module.staging_dataset.dataset_id
+    GCP_PROJECT_ID  = var.project_id
+    GCS_BUCKET_NAME = module.data_lake.bucket_name
+    STORAGE         = "gcs"
+  }
+}
+
 module "pipeline_iam" {
   source = "../../modules/pipeline_iam"
 
@@ -233,6 +255,20 @@ module "ft_client_key_secret" {
 
   project_id = var.project_id
   secret_id  = "FT_CLIENT_KEY"
+}
+
+module "adzuna_client_id_secret" {
+  source = "../../modules/secret_manager_secret"
+
+  project_id = var.project_id
+  secret_id  = "ADZUNA_API_ID"
+}
+
+module "adzuna_client_key_secret" {
+  source = "../../modules/secret_manager_secret"
+
+  project_id = var.project_id
+  secret_id  = "ADZUNA_API_KEY"
 }
 
 resource "google_project_service_identity" "workflows_service_agent" {
