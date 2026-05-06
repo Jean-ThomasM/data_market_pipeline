@@ -23,6 +23,13 @@ main:
           body: {}
         result: extract_geo_result
 
+    - run_extract_adzuna:
+        call: googleapis.run.v2.projects.locations.jobs.run
+        args:
+          name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${extract_adzuna_job_name}"}
+          body: {}
+        result: extract_adzuna_result
+
     - load_ft:
         call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
         args:
@@ -43,6 +50,16 @@ main:
             run_id: $${run_id}
         result: load_geo_result
 
+    - load_adzuna:
+        call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+        args:
+          workflow_id: "${load_adzuna_workflow_name}"
+          location: "${region}"
+          project_id: "${project_id}"
+          argument:
+            run_id: $${run_id}
+        result: load_adzuna_result
+
     - done:
         return:
           run_id: $${run_id}
@@ -51,3 +68,4 @@ main:
           extract_geo: $${extract_geo_result}
           load_ft: $${load_ft_result}
           load_geo: $${load_geo_result}
+          load_adzuna: $${load_adzuna_result}
