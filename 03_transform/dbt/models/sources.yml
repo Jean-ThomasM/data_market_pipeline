@@ -3,15 +3,15 @@ version: 2
 sources:
   - name: france-travail
     description: "Tables raw issues de l'extraction France Travail."
-    database: "{{ env_var('DBT_SOURCE_DATABASE', env_var('DBT_SQLITE_DATABASE', 'staging_offres_ft')) }}"
-    schema: "{{ env_var('DBT_SOURCE_SCHEMA', env_var('DBT_SQLITE_SCHEMA', 'main')) }}"
+    database: "{{ 'data-market-386959' if target.type == 'bigquery' else 'staging_offres_ft' }}"
+    schema: "{{ 'staging_dev' if target.type == 'bigquery' else 'main' }}"
     tables:
       - name: staging_offres_ft
         
   - name: geo-api
     description: "Tables raw issues de l'API geo (communes, departements, regions, epcis)."
-    database: "{{ env_var('DBT_SOURCE_DATABASE', env_var('DBT_SQLITE_DATABASE', 'staging_offres_ft')) }}"
-    schema: "{{ env_var('DBT_SOURCE_SCHEMA', env_var('DBT_SQLITE_SCHEMA', 'main')) }}"
+    database: "{{ 'data-market-386959' if target.type == 'bigquery' else 'staging_offres_ft' }}"
+    schema: "{{ 'staging_dev' if target.type == 'bigquery' else 'main' }}"
     tables:
       - name: staging_communes
       - name: staging_departements

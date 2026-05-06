@@ -19,7 +19,7 @@ models:
         tests:
           - not_null
 
-  - name: int_ft_offres_silver
+  - name: int_ft_offres
     description: "Table consolidée des offres France Travail enrichie géographiquement."
     columns:
       - name: offer_id

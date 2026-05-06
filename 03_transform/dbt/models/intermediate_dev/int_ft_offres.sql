@@ -3,7 +3,7 @@
     unique_key='offer_id'
 ) }}
 
-with raw_offers as (
+with raw_offers_base as (
     select 
         cast(id as string) as offer_id,
         intitule as job_title,
@@ -33,7 +33,11 @@ with raw_offers as (
         nullif(trim(codeNAF), '') as naf_code,
         secteurActiviteLibelle as industry_label
     from {{ source('france-travail', 'staging_offres_ft') }}
-    where {% if target.type == 'bigquery' %} lieuTravail.commune {% else %} lieuTravail_commune {% endif %} is not null
+),
+
+raw_offers as (
+    select * from raw_offers_base
+    where commune_code is not null
 ),
 
 geo_ref as (
