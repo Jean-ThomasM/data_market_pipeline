@@ -19,4 +19,5 @@ members = [
     "02_extract/france_travail",
     "02_extract/geo",
     "02_extract/sirene",
+    "02_extract/adzuna",
 ]
