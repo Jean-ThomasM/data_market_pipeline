@@ -342,8 +342,8 @@ module "n8n_service" {
 
   service_account_email = module.n8n_service_account.email
 
-  cpu    = "1"
-  memory = "2Gi"
+  cpu    = "2"
+  memory = "4Gi"
 
   env_vars = {
     N8N_PORT            = "5678"
