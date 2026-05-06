@@ -3,11 +3,28 @@ main:
   steps:
     - init:
         assign:
-          - input_args: $${default(args, {})}
-          - run_id: $${default(map.get(input_args, "run_id"), sys.now())}
           - project_id: "${project_id}"
           - region: "${region}"
           - environment: "${environment}"
+
+    - has_args:
+        switch:
+          - condition: $${args != null}
+            next: set_input_args
+        next: set_empty_args
+
+    - set_input_args:
+        assign:
+          - input_args: $${args}
+        next: set_run_id
+
+    - set_empty_args:
+        assign:
+          - input_args: {}
+
+    - set_run_id:
+        assign:
+          - run_id: $${default(map.get(input_args, "run_id"), sys.now())}
 
     - run_extract_ft:
         call: googleapis.run.v2.projects.locations.jobs.run
