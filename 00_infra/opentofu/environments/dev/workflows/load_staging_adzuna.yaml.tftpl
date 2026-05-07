@@ -20,8 +20,37 @@ main:
                 ignoreUnknownValues: true
         result: load_job
 
+    - list_loaded_files:
+        call: googleapis.storage.v1.objects.list
+        args:
+          bucket: "${bucket_name}"
+          prefix: "raw_offres_adzuna/"
+          delimiter: "/"
+        result: loaded_files
+
+    - move_loaded_files_to_done:
+        for:
+          value: loaded_file
+          in: $${default(loaded_files.items, [])}
+          steps:
+            - copy_loaded_file:
+                call: googleapis.storage.v1.objects.copy
+                args:
+                  sourceBucket: "${bucket_name}"
+                  sourceObject: $${text.url_encode(loaded_file.name)}
+                  destinationBucket: "${bucket_name}"
+                  destinationObject: $${text.url_encode(text.replace_all(loaded_file.name, "raw_offres_adzuna/", "raw_offres_adzuna/done/"))}
+                result: copied_file
+
+            - delete_loaded_file:
+                call: googleapis.storage.v1.objects.delete
+                args:
+                  bucket: "${bucket_name}"
+                  object: $${text.url_encode(loaded_file.name)}
+
     - return_result:
         return:
           job_id: $${load_job.jobReference.jobId}
           source_uri: "gs://${bucket_name}/raw_offres_adzuna/*.ndjson"
+          done_prefix: "gs://${bucket_name}/raw_offres_adzuna/done/"
           destination_table: "${project_id}.${dataset_id}.${table_id}"
