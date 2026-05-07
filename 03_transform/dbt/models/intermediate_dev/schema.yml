@@ -35,3 +35,12 @@ models:
         description: "Flag indiquant la présence d'informations de salaire (0 ou 1)."
       - name: is_geo_matched
         description: "Flag indiquant si l'offre a été matchée avec le référentiel GÉO (0 ou 1)."
+
+  - name: int_adzuna_offres
+    description: "Table consolidée des offres Adzuna enrichie géographiquement."
+    columns:
+      - name: offer_id
+        description: "ID unique de l'offre (Adzuna ID)."
+        tests:
+          - not_null
+          - unique

@@ -74,7 +74,7 @@ final as (
 
         -- Flags de qualité
         case when o.salary_label is null then 0 else 1 end as has_salary_info,
-        case when g.commune_code is null then 0 else 1 end as is_geo_matched
+        case when upper(o.job_title) like '%ALTERNANCE%' then 1 else 0 end as is_alternance
 
     from raw_offers o
     inner join geo_ref g
