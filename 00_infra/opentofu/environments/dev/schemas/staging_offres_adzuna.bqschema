@@ -1,6 +1,5 @@
 [
   {
-<<<<<<< HEAD
     "name": "id",
     "type": "STRING",
     "mode": "NULLABLE"
@@ -41,27 +40,17 @@
     "mode": "NULLABLE"
   },
   {
-=======
->>>>>>> feature/iac
     "name": "contract_type",
     "type": "STRING",
     "mode": "NULLABLE"
   },
   {
     "name": "salary_min",
-<<<<<<< HEAD
     "type": "FLOAT",
     "mode": "NULLABLE"
   },
   {
     "name": "salary_max",
-=======
-    "type": "INTEGER",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "longitude",
->>>>>>> feature/iac
     "type": "FLOAT",
     "mode": "NULLABLE"
   },
@@ -71,13 +60,8 @@
     "mode": "NULLABLE"
   },
   {
-<<<<<<< HEAD
     "name": "longitude",
     "type": "FLOAT",
-=======
-    "name": "_CLASS_",
-    "type": "STRING",
->>>>>>> feature/iac
     "mode": "NULLABLE"
   },
   {
@@ -89,51 +73,10 @@
         "name": "display_name",
         "type": "STRING",
         "mode": "NULLABLE"
-<<<<<<< HEAD
-=======
-      },
-      {
-        "name": "_CLASS_",
-        "type": "STRING",
-        "mode": "NULLABLE"
-      },
-      {
-        "name": "redirect_url",
-        "type": "STRING",
-        "mode": "NULLABLE"
->>>>>>> feature/iac
       }
     ]
   },
   {
-<<<<<<< HEAD
-=======
-    "name": "created",
-    "type": "TIMESTAMP",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "contract_time",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "id",
-    "type": "INTEGER",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "adref",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "title",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
->>>>>>> feature/iac
     "name": "location",
     "type": "RECORD",
     "mode": "NULLABLE",
@@ -144,14 +87,6 @@
         "mode": "NULLABLE"
       },
       {
-<<<<<<< HEAD
-=======
-        "name": "_CLASS_",
-        "type": "STRING",
-        "mode": "NULLABLE"
-      },
-      {
->>>>>>> feature/iac
         "name": "area",
         "type": "STRING",
         "mode": "REPEATED"
@@ -159,27 +94,11 @@
     ]
   },
   {
-<<<<<<< HEAD
-=======
-    "name": "description",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
->>>>>>> feature/iac
     "name": "category",
     "type": "RECORD",
     "mode": "NULLABLE",
     "fields": [
       {
-<<<<<<< HEAD
-=======
-        "name": "_CLASS_",
-        "type": "STRING",
-        "mode": "NULLABLE"
-      },
-      {
->>>>>>> feature/iac
         "name": "tag",
         "type": "STRING",
         "mode": "NULLABLE"
@@ -190,18 +109,5 @@
         "mode": "NULLABLE"
       }
     ]
-<<<<<<< HEAD
-=======
-  },
-  {
-    "name": "salary_max",
-    "type": "INTEGER",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "salary_is_predicted",
-    "type": "INTEGER",
-    "mode": "NULLABLE"
->>>>>>> feature/iac
   }
 ]
