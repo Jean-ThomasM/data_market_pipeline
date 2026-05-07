@@ -7,7 +7,7 @@
       "typeVersion": 1,
       "position": [
         0,
-        -16
+        -64
       ],
       "id": "3bea103a-1a5c-4051-b9b8-f5ba50bb2df1",
       "name": "When clicking ‘Execute workflow’"
@@ -22,7 +22,7 @@
       "typeVersion": 2.6,
       "position": [
         224,
-        80
+        128
       ],
       "id": "2f4b5d35-ad6e-4f85-a042-78a86931700f",
       "name": "créer la table entreprises",
@@ -44,10 +44,31 @@
       "typeVersion": 2.6,
       "position": [
         224,
-        -112
+        -64
       ],
       "id": "412a0071-1e2c-4767-afcc-03766b7c5f89",
       "name": "nombre de ligne dans entreprise",
+      "credentials": {
+        "postgres": {
+          "id": "sWiNoflceqTv63Gz",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select *\n  from entreprises\n where 1=1\n   and denomination_unite_legale ilike '%enedis%'\n limit 50",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        224,
+        -256
+      ],
+      "id": "7fb387b0-d01f-412c-8606-9e0ea6c4e89a",
+      "name": "recherche",
       "credentials": {
         "postgres": {
           "id": "sWiNoflceqTv63Gz",
@@ -70,8 +91,18 @@
             "node": "créer la table entreprises",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "recherche",
+            "type": "main",
+            "index": 0
           }
         ]
+      ]
+    },
+    "nombre de ligne dans entreprise": {
+      "main": [
+        []
       ]
     }
   },
@@ -80,7 +111,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "f2d627fd-9b85-44b0-963c-cc71ffbe564e",
+  "versionId": "5874e143-757e-4a54-8690-7f47eaf398c6",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "c5a3a714df08ee5dcc31d1303fb4481809c43e74a69462e77c93286020b89994"
