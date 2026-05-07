@@ -33,10 +33,7 @@ output "artifact_registry_repository_url" {
 output "load_staging_offres_ft_workflow_name" {
   value = module.load_staging_offres_ft_workflow.name
 }
-<<<<<<< HEAD
-=======
 
 output "n8n_url" {
   value = module.n8n_service.url
 }
->>>>>>> feature/iac
