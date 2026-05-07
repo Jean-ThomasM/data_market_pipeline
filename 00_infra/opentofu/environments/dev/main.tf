@@ -373,12 +373,17 @@ module "pipeline_global_workflow" {
   project_id            = var.project_id
   region                = var.region
   name                  = "pipeline-global-${var.environment}"
+<<<<<<< HEAD
   description           = "Orchestre extraction FT/GEO/ADZUNA et chargement staging."
+=======
+  description           = "Orchestre extraction FT/GEO et chargement staging."
+>>>>>>> feature/iac
   service_account_email = module.pipeline_service_account.email
 
   source_contents = templatefile(
     "${path.module}/workflows/pipeline_global.yaml.tftpl",
     {
+<<<<<<< HEAD
       project_id                = var.project_id
       region                    = var.region
       environment               = var.environment
@@ -388,12 +393,22 @@ module "pipeline_global_workflow" {
       load_ft_workflow_name     = module.load_staging_offres_ft_workflow.name
       load_geo_workflow_name    = module.load_staging_geo_workflow.name
       load_adzuna_workflow_name = module.load_staging_adzuna_workflow.name
+=======
+      project_id             = var.project_id
+      region                 = var.region
+      environment            = var.environment
+      extract_ft_job_name    = module.extract_job_ft.job_name
+      extract_geo_job_name   = module.extract_job_geo.job_name
+      load_ft_workflow_name  = module.load_staging_offres_ft_workflow.name
+      load_geo_workflow_name = module.load_staging_geo_workflow.name
+>>>>>>> feature/iac
     }
   )
 
   depends_on = [
     module.extract_job_ft,
     module.extract_job_geo,
+<<<<<<< HEAD
     module.extract_job_adzuna,
     module.load_staging_offres_ft_workflow,
     module.load_staging_geo_workflow,
@@ -403,5 +418,52 @@ module "pipeline_global_workflow" {
     google_project_service_identity.workflows_service_agent,
     google_service_account_iam_member.workflows_service_account_token_creator,
     google_project_iam_member.pipeline_workflows_invoker
+=======
+    module.load_staging_offres_ft_workflow,
+    module.load_staging_geo_workflow,
+    module.project_services,
+    google_project_service_identity.workflows_service_agent,
+    google_service_account_iam_member.workflows_service_account_token_creator
+>>>>>>> feature/iac
   ]
+}
+
+module "n8n_service_account" {
+  source = "../../modules/service_account"
+
+  account_id   = "n8n-runner-${var.environment}"
+  display_name = "n8n Runner ${var.environment}"
+}
+
+module "n8n_service" {
+  source = "../../modules/cloud_run_service"
+
+  project_id = var.project_id
+  region     = var.region
+
+  service_name = "n8n-${var.environment}"
+
+  image = "docker.io/n8nio/n8n:latest"
+
+  service_account_email = module.n8n_service_account.email
+
+  cpu    = "2"
+  memory = "4Gi"
+
+  env_vars = {
+    N8N_PORT            = "5678"
+    N8N_PROTOCOL        = "https"
+    N8N_HOST            = "n8n-dev-5pko4kkvvq-ew.a.run.app"
+    WEBHOOK_URL         = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
+    N8N_EDITOR_BASE_URL = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
+    N8N_PUSH_BACKEND    = "sse"
+  }
+}
+
+resource "google_cloud_run_service_iam_member" "n8n_public_access" {
+  project  = var.project_id
+  location = var.region
+  service  = module.n8n_service.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
 }
