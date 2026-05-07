@@ -373,17 +373,12 @@ module "pipeline_global_workflow" {
   project_id            = var.project_id
   region                = var.region
   name                  = "pipeline-global-${var.environment}"
-<<<<<<< HEAD
   description           = "Orchestre extraction FT/GEO/ADZUNA et chargement staging."
-=======
-  description           = "Orchestre extraction FT/GEO et chargement staging."
->>>>>>> feature/iac
   service_account_email = module.pipeline_service_account.email
 
   source_contents = templatefile(
     "${path.module}/workflows/pipeline_global.yaml.tftpl",
     {
-<<<<<<< HEAD
       project_id                = var.project_id
       region                    = var.region
       environment               = var.environment
@@ -393,22 +388,12 @@ module "pipeline_global_workflow" {
       load_ft_workflow_name     = module.load_staging_offres_ft_workflow.name
       load_geo_workflow_name    = module.load_staging_geo_workflow.name
       load_adzuna_workflow_name = module.load_staging_adzuna_workflow.name
-=======
-      project_id             = var.project_id
-      region                 = var.region
-      environment            = var.environment
-      extract_ft_job_name    = module.extract_job_ft.job_name
-      extract_geo_job_name   = module.extract_job_geo.job_name
-      load_ft_workflow_name  = module.load_staging_offres_ft_workflow.name
-      load_geo_workflow_name = module.load_staging_geo_workflow.name
->>>>>>> feature/iac
     }
   )
 
   depends_on = [
     module.extract_job_ft,
     module.extract_job_geo,
-<<<<<<< HEAD
     module.extract_job_adzuna,
     module.load_staging_offres_ft_workflow,
     module.load_staging_geo_workflow,
@@ -418,13 +403,6 @@ module "pipeline_global_workflow" {
     google_project_service_identity.workflows_service_agent,
     google_service_account_iam_member.workflows_service_account_token_creator,
     google_project_iam_member.pipeline_workflows_invoker
-=======
-    module.load_staging_offres_ft_workflow,
-    module.load_staging_geo_workflow,
-    module.project_services,
-    google_project_service_identity.workflows_service_agent,
-    google_service_account_iam_member.workflows_service_account_token_creator
->>>>>>> feature/iac
   ]
 }
 
