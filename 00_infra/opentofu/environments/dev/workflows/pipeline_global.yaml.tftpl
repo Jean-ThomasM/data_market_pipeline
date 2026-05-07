@@ -3,16 +3,10 @@ main:
   steps:
     - init:
         assign:
-<<<<<<< HEAD
-=======
-          - input_args: $${default(args, {})}
-          - run_id: $${default(map.get(input_args, "run_id"), sys.now())}
->>>>>>> feature/iac
           - project_id: "${project_id}"
           - region: "${region}"
           - environment: "${environment}"
 
-<<<<<<< HEAD
     - has_args:
         switch:
           - condition: $${args != null}
@@ -32,8 +26,6 @@ main:
         assign:
           - run_id: $${default(map.get(input_args, "run_id"), sys.now())}
 
-=======
->>>>>>> feature/iac
     - run_extract_ft:
         call: googleapis.run.v2.projects.locations.jobs.run
         args:
@@ -48,7 +40,6 @@ main:
           body: {}
         result: extract_geo_result
 
-<<<<<<< HEAD
     - run_extract_adzuna:
         call: googleapis.run.v2.projects.locations.jobs.run
         args:
@@ -56,8 +47,6 @@ main:
           body: {}
         result: extract_adzuna_result
 
-=======
->>>>>>> feature/iac
     - load_ft:
         call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
         args:
@@ -78,7 +67,6 @@ main:
             run_id: $${run_id}
         result: load_geo_result
 
-<<<<<<< HEAD
     - load_adzuna:
         call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
         args:
@@ -89,8 +77,6 @@ main:
             run_id: $${run_id}
         result: load_adzuna_result
 
-=======
->>>>>>> feature/iac
     - done:
         return:
           run_id: $${run_id}
@@ -99,7 +85,4 @@ main:
           extract_geo: $${extract_geo_result}
           load_ft: $${load_ft_result}
           load_geo: $${load_geo_result}
-<<<<<<< HEAD
           load_adzuna: $${load_adzuna_result}
-=======
->>>>>>> feature/iac
