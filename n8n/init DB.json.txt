@@ -1,0 +1,90 @@
+{
+  "name": "init DB",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -16
+      ],
+      "id": "3bea103a-1a5c-4051-b9b8-f5ba50bb2df1",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "CREATE TABLE entreprises (\n    siren VARCHAR(9) NOT NULL,\n    siret VARCHAR(14) NOT NULL,\n    denomination_unite_legale TEXT,\n    naf VARCHAR(10),\n\n    CONSTRAINT pk_entreprises PRIMARY KEY (siret)\n);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        224,
+        80
+      ],
+      "id": "2f4b5d35-ad6e-4f85-a042-78a86931700f",
+      "name": "créer la table entreprises",
+      "credentials": {
+        "postgres": {
+          "id": "sWiNoflceqTv63Gz",
+          "name": "Postgres account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select count(1)\n  from entreprises",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        224,
+        -112
+      ],
+      "id": "412a0071-1e2c-4767-afcc-03766b7c5f89",
+      "name": "nombre de ligne dans entreprise",
+      "credentials": {
+        "postgres": {
+          "id": "sWiNoflceqTv63Gz",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "nombre de ligne dans entreprise",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "créer la table entreprises",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f2d627fd-9b85-44b0-963c-cc71ffbe564e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c5a3a714df08ee5dcc31d1303fb4481809c43e74a69462e77c93286020b89994"
+  },
+  "id": "Cx95e1vA9sHJVHQk",
+  "tags": []
+}

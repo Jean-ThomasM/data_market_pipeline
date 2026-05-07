@@ -1,0 +1,2874 @@
+{
+  "name": "www.societe.com by bucket",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.for_http }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        560,
+        768
+      ],
+      "id": "3235cc68-16eb-4f3b-accf-a58c3ed5da88",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "div",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "dl",
+              "cssSelector": "dl",
+              "returnValue": "html",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1232,
+        768
+      ],
+      "id": "a796976d-c066-49f8-863e-c21a2459844f",
+      "name": "HTML1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "dl",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        768
+      ],
+      "id": "3060ae9f-c235-4eb4-b211-6edf3b78226c",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        768
+      ],
+      "id": "61e09f3a-9091-415b-a286-07200ee52ff4",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "dl",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "dt",
+              "cssSelector": "dt"
+            },
+            {
+              "key": "dd",
+              "cssSelector": "dd",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        2096,
+        768
+      ],
+      "id": "b6ab9541-0eec-49cb-9185-f0eced107017",
+      "name": "HTML2"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "dd",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "template",
+              "cssSelector": "template"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        2320,
+        768
+      ],
+      "id": "e023ae81-e3e7-41a5-8004-67aeb583c186",
+      "name": "HTML3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "605f05c2-d554-4cd2-8373-5432b923f69d",
+              "name": "dt",
+              "value": "={{ $('HTML2').item.json.dt }}",
+              "type": "string"
+            },
+            {
+              "id": "3f5dfafb-8504-4f60-873f-e4f572f731a8",
+              "name": "template",
+              "value": "={{ $json.template }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2544,
+        768
+      ],
+      "id": "f8c1dad2-c1af-4a9a-aad8-13773c488e8f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "da1bf422-5dd0-4dcc-95b2-101c5a147cb3",
+              "leftValue": "={{ $json.dt }}",
+              "rightValue": "Forme juridique",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2768,
+        768
+      ],
+      "id": "54303567-323d-4621-a67d-44252ccbd0b2",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "09714e12-9018-4aae-8da2-e53cda80a0ab",
+              "leftValue": "={{ $json.dt }}",
+              "rightValue": "Capital social",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2992,
+        960
+      ],
+      "id": "8cfeb444-0b7a-4f06-a436-2702ce0b8d9c",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "numberInputs": 10
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3664,
+        1424
+      ],
+      "id": "ea147a4b-9bb5-49fa-9607-fd095bbbf580",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "10c3df97-56ba-4425-8177-feeade4940e0",
+              "name": "Forme juridique",
+              "value": "={{ $('Edit Fields').item.json.template }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3440,
+        768
+      ],
+      "id": "6670b6e9-9d9c-41f7-aa53-999bd9d699e2",
+      "name": "Forme juridique"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f3001bc2-f24c-4143-ab91-4331f02bca5c",
+              "name": "Capital",
+              "value": "={{ $json.template }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3440,
+        960
+      ],
+      "id": "9f2b6060-b9ad-443d-b087-6884de4d73e1",
+      "name": "Capital"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "article",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "div",
+              "cssSelector": "div",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        784,
+        1248
+      ],
+      "id": "81dd5099-f3ed-4682-a7f1-883d50202858",
+      "name": "HTML5"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "div",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        1248
+      ],
+      "id": "94ffb3e2-0617-4745-90ad-d1067ea7d1f1",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "div",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "div",
+              "cssSelector": "div",
+              "returnValue": "html",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1008,
+        1248
+      ],
+      "id": "1eaf6561-ba11-485b-b1f8-12d3dcac5d39",
+      "name": "HTML6"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "div",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "dt",
+              "cssSelector": "dt"
+            },
+            {
+              "key": "dd",
+              "cssSelector": "dd",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1456,
+        1248
+      ],
+      "id": "a9e93330-b605-4d63-bb91-a65864568453",
+      "name": "HTML7"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "605f05c2-d554-4cd2-8373-5432b923f69d",
+              "name": "dt",
+              "value": "={{ $('HTML7').item.json.dt }}",
+              "type": "string"
+            },
+            {
+              "id": "3f5dfafb-8504-4f60-873f-e4f572f731a8",
+              "name": "template",
+              "value": "={{ $json.template }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2544,
+        1248
+      ],
+      "id": "de0c25b0-4a2f-4d41-a56f-4a6f96de580c",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "da1bf422-5dd0-4dcc-95b2-101c5a147cb3",
+              "leftValue": "={{ $json.dt }}",
+              "rightValue": "Activité principale déclarée",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2768,
+        1248
+      ],
+      "id": "22c4ff13-383d-4219-b382-0e6625eba667",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "09714e12-9018-4aae-8da2-e53cda80a0ab",
+              "leftValue": "={{ $json.dt }}",
+              "rightValue": "Type d'activité",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2992,
+        1344
+      ],
+      "id": "5bd4819d-4284-4a88-a1f0-ec2b8cb7e0c8",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "dd",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "template",
+              "cssSelector": "template"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        2320,
+        1248
+      ],
+      "id": "1a7ee6c3-cc9e-400a-b228-7746a403d8b6",
+      "name": "HTML8"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f1ac59b6-d99e-4466-807f-6a65957b3b04",
+              "leftValue": "={{ $json.dd }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2096,
+        1248
+      ],
+      "id": "d5ec4977-6e7f-4495-9b51-001a78638b91",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "09714e12-9018-4aae-8da2-e53cda80a0ab",
+              "leftValue": "={{ $json.dt }}",
+              "rightValue": "Convention collective déduite",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3216,
+        1536
+      ],
+      "id": "05e78b3a-5cc9-4e85-8f68-25d0e0158dd4",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "max",
+              "field": "Forme juridique"
+            },
+            {
+              "aggregation": "max",
+              "field": "Capital"
+            },
+            {
+              "aggregation": "max",
+              "field": "Activité principale déclarée"
+            },
+            {
+              "aggregation": "max",
+              "field": "Type d'activité"
+            },
+            {
+              "aggregation": "max",
+              "field": "Convention collective déduite"
+            },
+            {
+              "aggregation": "max",
+              "field": "Chiffre d'affaires"
+            },
+            {
+              "aggregation": "max",
+              "field": "Résultats net"
+            },
+            {
+              "aggregation": "max",
+              "field": "Bilan carbone"
+            },
+            {
+              "aggregation": "max",
+              "field": "data"
+            },
+            {
+              "aggregation": "max",
+              "field": "company_name"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        3888,
+        1536
+      ],
+      "id": "c0c2f729-fdcc-49ca-802a-5f1ee007dc7e",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "article",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "span",
+              "cssSelector": "span",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        2320,
+        1728
+      ],
+      "id": "87612b8f-da88-409c-97e6-b11298bb3fa4",
+      "name": "HTML10"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "span",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2544,
+        1728
+      ],
+      "id": "4a543548-31ca-41c0-a34d-9eeae3a1e141",
+      "name": "Split Out2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a6358003-b12c-488e-a1aa-f38fffed8df6",
+              "leftValue": "={{ $json.span }}",
+              "rightValue": "1",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            },
+            {
+              "id": "08fcd5d8-1757-4dc9-9985-a262e441100e",
+              "leftValue": "={{ $json.span }}",
+              "rightValue": "2",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            },
+            {
+              "id": "ebd9cc12-fc86-4084-862c-0fdb3e6dc460",
+              "leftValue": "={{ $json.span }}",
+              "rightValue": "3",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            },
+            {
+              "id": "3d65c780-831a-4fba-a879-5f7486854a60",
+              "leftValue": "={{ $json.span }}",
+              "rightValue": "4",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            },
+            {
+              "id": "b82dccf0-aa9c-4362-bb71-2067ceb96f3c",
+              "leftValue": "={{ $json.span }}",
+              "rightValue": "5",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            },
+            {
+              "id": "7843d104-aab8-4827-90e5-614edf8db942",
+              "leftValue": "={{ $json.span }}",
+              "rightValue": "6",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            },
+            {
+              "id": "3060ece6-2063-4fc3-9ad0-fc76888ef530",
+              "leftValue": "={{ $json.span }}",
+              "rightValue": "7",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            },
+            {
+              "id": "c6da1a68-28ba-4281-8a32-7d4bb3394cf2",
+              "leftValue": "={{ $json.span }}",
+              "rightValue": "8",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            },
+            {
+              "id": "72ada330-7573-4208-9970-ee807f232c32",
+              "leftValue": "={{ $json.span }}",
+              "rightValue": "9",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2768,
+        1728
+      ],
+      "id": "599b900c-017b-4bba-a30e-88223d5ec0be",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "article",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "span",
+              "cssSelector": "span",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        2544,
+        1920
+      ],
+      "id": "c159695e-85e9-4f92-ba00-7c0dceb5ef44",
+      "name": "HTML12"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "span",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2768,
+        1920
+      ],
+      "id": "2329d49a-a914-483e-8352-94b0f80015d1",
+      "name": "Split Out3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        2992,
+        1728
+      ],
+      "id": "7ba83f5e-04d4-4e30-81b1-1308dbabffa1",
+      "name": "Limit"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        3216,
+        1920
+      ],
+      "id": "41fda4a5-c9bd-4f1d-84ab-83f738131322",
+      "name": "Limit1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        4112,
+        1536
+      ],
+      "id": "ab622430-c9f7-4516-be70-7bdb6bc70e4f",
+      "name": "Limit2"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items\n  // remove items containing %\n  .filter(item => !item.json.span.includes(\"%\"))\n  .map(item => {\n    let value = item.json.span;\n\n    // remove spaces\n    value = value.replace(/\\s/g, \"\");\n\n    // convert French decimal comma to dot\n    value = value.replace(\",\", \".\");\n\n    // convert to number\n    const numericValue = Number(value);\n\n    return {\n      json: {\n        value: numericValue\n      }\n    };\n  });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2992,
+        1920
+      ],
+      "id": "40b4089f-4416-4ad2-84c1-4c8c43a3c315",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  let value = item.json.span;\n\n  // remove spaces and %\n  value = value.replace(/\\s/g, \"\").replace(\"%\", \"\");\n\n  // convert French decimal comma to dot\n  value = value.replace(\",\", \".\");\n\n  // convert to number\n  const numericValue = Number(value);\n\n  return {\n    json: {\n      value: numericValue\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3216,
+        960
+      ],
+      "id": "c5b330fc-ebe9-465c-b98c-c82dad9af44d",
+      "name": "Code in JavaScript1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f3001bc2-f24c-4143-ab91-4331f02bca5c",
+              "name": "Type d'activité",
+              "value": "={{ $json.template }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3440,
+        1344
+      ],
+      "id": "c610f487-5301-4268-b0c2-4c3b3ca60a45",
+      "name": "Type d'activité"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "003c783b-891b-442f-a8fc-1383199954c5",
+              "name": "Chiffre d'affaires",
+              "value": "={{ $json.span }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3440,
+        1728
+      ],
+      "id": "72b67037-5b71-4787-9e5a-8f26a5aa276b",
+      "name": "Chiffre d'affaires"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f3001bc2-f24c-4143-ab91-4331f02bca5c",
+              "name": "Convention collective déduite",
+              "value": "={{ $json.template }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3440,
+        1536
+      ],
+      "id": "47b84e36-e898-4541-adaf-96de68695aed",
+      "name": "Convention collective déduite"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "003c783b-891b-442f-a8fc-1383199954c5",
+              "name": "Résultats net",
+              "value": "={{ $json.value }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3440,
+        1920
+      ],
+      "id": "fb2e9c4e-efc1-4884-9397-164c2d7ba691",
+      "name": "Résultats net"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items\n  // remove items containing %\n  .filter(item => !item.json.span.includes(\"%\"))\n  .map(item => {\n    let value = item.json.span;\n\n    // remove spaces\n    value = value.replace(/\\s/g, \"\");\n\n    // convert French decimal comma to dot\n    value = value.replace(\",\", \".\");\n\n    // convert to number\n    const numericValue = Number(value);\n\n    return {\n      json: {\n        value: numericValue\n      }\n    };\n  });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3216,
+        1728
+      ],
+      "id": "4e7dabfa-757f-4cfe-be18-7c91c1b8c93d",
+      "name": "Code in JavaScript2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "article",
+              "cssSelector": "li[data-type=\"revenue\"]",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        1728
+      ],
+      "id": "f2b7c3e4-9929-49dc-9726-cdff43b9f0e1",
+      "name": "CA"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "article",
+              "cssSelector": "li[data-type=\"netIncome\"]",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        1920
+      ],
+      "id": "89b06596-89e9-4e58-baff-6572496eac4a",
+      "name": "R net"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "10c3df97-56ba-4425-8177-feeade4940e0",
+              "name": "Activité principale déclarée",
+              "value": "={{ $('Edit Fields1').item.json.template }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3440,
+        1152
+      ],
+      "id": "ff5f3372-c01a-48ea-952b-36f1b49fd44c",
+      "name": "Activité principale déclarée"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "div",
+              "cssSelector": "div.co-legal-board",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1008,
+        768
+      ],
+      "id": "7c6ad10f-82e1-4df0-8650-6635fb9973b3",
+      "name": "forme juridique - capital"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "div",
+              "cssSelector": "div.ui-tag",
+              "returnValue": "attribute"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        2112
+      ],
+      "id": "cf2a2d62-95f4-455a-aa0f-50d7975e6cbd",
+      "name": "BC"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a55386f1-8564-4d55-8db7-4497da3ac418",
+              "name": "Bilan carbone",
+              "value": "={{ $json.div['data-score'] }} tCO2e",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3440,
+        2112
+      ],
+      "id": "8dc69c67-61c6-41f8-a2ad-05a4289ebfcf",
+      "name": "Bilan carbone"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "article",
+              "cssSelector": "article.ui-wrap",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        1248
+      ],
+      "id": "d20e197a-8664-4203-898a-085dfecc630e",
+      "name": "activité"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "ul",
+              "cssSelector": "ul[id=\"coSovereigntyBoard\"]",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        2288
+      ],
+      "id": "51122f84-a544-44e0-ac71-e93f312fec62",
+      "name": "SdS secteur"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "ul",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "li",
+              "cssSelector": "li",
+              "returnValue": "html",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        2320,
+        2288
+      ],
+      "id": "ac67917e-31bb-473e-a03a-e484440a0f89",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "li",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2544,
+        2288
+      ],
+      "id": "84028cb2-31e4-4f59-a728-5ac88996d8dc",
+      "name": "Split Out4"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "li",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "div",
+              "cssSelector": "div",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        2768,
+        2288
+      ],
+      "id": "c149fdfd-5f4b-45cb-83d2-09b3ed23349f",
+      "name": "HTML4"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items\n  .map((item) => {\n    const values = item.json.div;\n\n    if (!Array.isArray(values)) {\n      return null;\n    }\n\n    const cleanedValues = values\n      .map((value) => String(value).trim())\n      .filter((value) => value !== \"\");\n\n    const label = cleanedValues.find(\n      (value) => !/^\\d+\\/100$/.test(value) && value !== \"--/100\"\n    );\n\n    const score = cleanedValues.find((value) => /^\\d+\\/100$/.test(value));\n\n    if (!label || !score) {\n      return null;\n    }\n\n    return {\n      json: {\n        label: `${label} du secteur`,\n        score,\n      },\n    };\n  })\n  .filter((item) => item !== null);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2992,
+        2288
+      ],
+      "id": "e366afa2-119c-4e9b-b474-6e77bc1464f1",
+      "name": "Score de souveraineté du secteur"
+    },
+    {
+      "parameters": {
+        "aggregate": "={{ $json.label }}{{ $json.score }}",
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3440,
+        2368
+      ],
+      "id": "18a3e5b4-e627-4d24-818c-cc66a735f580",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const year = item.json[\"y-2\"];\n  const scores = (item.json[\"data-scores\"] || \"\").split(\";\");\n\n  return {\n    json: {\n      \"Année score\": year,\n      \"Score territorial\": scores[0] || null,\n      \"Score social\": scores[1] || null,\n      \"Score fiscal\": scores[2] || null\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2992,
+        2448
+      ],
+      "id": "6592d498-7701-422c-9a8c-b260d9a50adf",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "select",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "option",
+              "cssSelector": "option",
+              "returnValue": "attribute",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1008,
+        2448
+      ],
+      "id": "08331022-cae5-49d4-ac2f-bc2a6aaffe99",
+      "name": "HTML14"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "option",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        2448
+      ],
+      "id": "26f5de8b-be50-4ff2-8f17-d11e3d1a132e",
+      "name": "Split Out6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "baf779ee-aa1b-48de-b78c-91ea805db8cc",
+              "leftValue": "={{ $('Split Out6').item.json.value }}",
+              "rightValue": "={{ $json['y-2'] }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2544,
+        2448
+      ],
+      "id": "1f348f8c-a481-43df-b951-1372d127b37b",
+      "name": "If7"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        2448
+      ],
+      "id": "442d105c-af51-4278-89eb-f0a9c6051093",
+      "name": "currentDate"
+    },
+    {
+      "parameters": {
+        "operation": "addToDate",
+        "magnitude": "={{ $json.currentDate }}",
+        "timeUnit": "years",
+        "duration": -2,
+        "outputFieldName": "y-2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        2096,
+        2448
+      ],
+      "id": "f079b8a1-c6ed-4107-92e8-9f8fb0602844",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json['y-2'] }}",
+        "format": "=yyyy",
+        "outputFieldName": "y-2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        2320,
+        2448
+      ],
+      "id": "c4f62803-2bde-4993-8a80-083a17e8a9b0",
+      "name": "Date & Time1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4d0b64e5-2368-49bf-ac5d-36805b75b87a",
+              "name": "data-score",
+              "value": "={{ $('Split Out6').item.json['data-score'] }}",
+              "type": "string"
+            },
+            {
+              "id": "b27fbbd2-7372-4d3c-b0b3-036167a47749",
+              "name": "data-scores",
+              "value": "={{ $('Split Out6').item.json['data-scores'] }}",
+              "type": "string"
+            },
+            {
+              "id": "709013aa-85f3-4d24-9c3f-bd195a1c0128",
+              "name": "y-2",
+              "value": "={{ $json['y-2'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2768,
+        2448
+      ],
+      "id": "07fa6abd-cd86-4f71-8b2d-4d04193904e1",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3216,
+        2368
+      ],
+      "id": "993287bc-1856-4a5f-9610-a8a6a7071ca8",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        4320,
+        1536
+      ],
+      "id": "6d97b3e5-9201-4c25-983f-e4e1edefb658",
+      "name": "scrapped_at"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        224
+      ],
+      "id": "4793f678-5cfc-43c2-944b-ca8146b4a153",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        560,
+        416
+      ],
+      "id": "3acc71b7-2e01-45e8-93b8-3246a0767d28",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "select",
+              "cssSelector": "select[data-co-score]",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        2448
+      ],
+      "id": "aae6bdca-07fc-48f4-b9a6-7112d85704b6",
+      "name": "autre"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "h1",
+              "cssSelector": "h1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        2608
+      ],
+      "id": "223ce91f-185d-461c-8da7-104349c14ed0",
+      "name": "raison social"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "83028a4e-5265-44eb-997a-fa2da2c58a30",
+              "name": "company_name",
+              "value": "={{ $json.h1 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3440,
+        2608
+      ],
+      "id": "ec51e6b1-b7ca-43f5-8ae7-56949b1e87ab",
+      "name": "company name"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1232,
+        320
+      ],
+      "id": "0a8fabe5-8609-47ab-ba9b-58d4a6785344",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        320
+      ],
+      "id": "8f0e110d-f500-4eb8-bd33-b923510837aa",
+      "name": "Split Out5"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        4768,
+        320
+      ],
+      "id": "b78456b4-ed98-458c-a7c9-b53ada4768e9",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        544
+      ],
+      "id": "5ba7888f-840b-4156-a578-daa4514ad43b",
+      "placeholder": true
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2544,
+        544
+      ],
+      "id": "92c58b31-068f-460d-882e-a1ae6569f2ad",
+      "name": "Wait",
+      "webhookId": "f85887a0-1429-49df-9f52-b3709b2fc38e"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/files/input/input.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        320
+      ],
+      "id": "3e27fd25-0101-4c62-9428-ce5e46ea0f65",
+      "name": "INPUT"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "/files/output/output.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        5472,
+        240
+      ],
+      "id": "2595f683-ab0a-47c2-870a-f83319096536",
+      "name": "OUTPUT"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        5248,
+        240
+      ],
+      "id": "d7f8858e-202b-433d-8c1e-826f84aace36",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "39c0b9be-4705-4392-b62f-2e10931cf363",
+              "name": "company_name",
+              "value": "={{ $('Limit2').item.json.max_company_name }}",
+              "type": "string"
+            },
+            {
+              "id": "f0c540b5-f3bb-43ad-850b-71caaf626c0f",
+              "name": "url",
+              "value": "={{ $('Loop Over Items').item.json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "5350539e-8105-4652-820e-b1c135c4587a",
+              "name": "legal_form",
+              "value": "={{ $('Summarize').item.json.max_Forme_juridique }}",
+              "type": "string"
+            },
+            {
+              "id": "d5469e59-1025-49c1-880b-66bf94225d3b",
+              "name": "capital",
+              "value": "={{ $('Summarize').item.json.max_Capital }}",
+              "type": "string"
+            },
+            {
+              "id": "b9347562-3b25-4cb5-9f5a-1b2464d073ba",
+              "name": "stated_primary_business_activity",
+              "value": "={{ $('Summarize').item.json['max_Activité_principale_déclarée'] }}",
+              "type": "string"
+            },
+            {
+              "id": "c97538b9-fd4d-49ad-b077-85f5ef6ba741",
+              "name": "type_of_business",
+              "value": "={{ $('Summarize').item.json['max_Type_d\\'activité'] }}",
+              "type": "string"
+            },
+            {
+              "id": "3c7026bb-afac-4be5-94e0-3b9f1badf103",
+              "name": "collective_bargaining_agreement",
+              "value": "={{ $('Summarize').item.json['max_Convention_collective_déduite'] }}",
+              "type": "string"
+            },
+            {
+              "id": "d90b51c1-4e60-4a10-888b-dacdf6badf5e",
+              "name": "revenue",
+              "value": "={{ $('Summarize').item.json['max_Chiffre_d\\'affaires'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ce8b0998-2276-4980-be7c-02925393254a",
+              "name": "net_results",
+              "value": "={{ $('Summarize').item.json['max_Résultats_net'] }}",
+              "type": "number"
+            },
+            {
+              "id": "c844aec2-751c-4a0e-9c08-a84e4323dfcd",
+              "name": "carbon_footprint",
+              "value": "={{ $('Summarize').item.json.max_Bilan_carbone }}",
+              "type": "string"
+            },
+            {
+              "id": "ba2de78b-e2dd-4392-86da-b4230e131c8c",
+              "name": "other_reports",
+              "value": "={{ $('Summarize').item.json.max_data }}",
+              "type": "array"
+            },
+            {
+              "id": "0f19acd9-2e84-4dc6-a05f-2fddd04c82d5",
+              "name": "scrapped_at",
+              "value": "={{ $('scrapped_at').item.json.currentDate }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4544,
+        1536
+      ],
+      "id": "b3f6afa6-26b8-4977-b9bf-5a94ae7d9855",
+      "name": "prepare json"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b830a502-574f-4582-96f2-1e98992f1503",
+              "name": "start_url",
+              "value": "https://www.societe.com/societe/",
+              "type": "string"
+            },
+            {
+              "id": "94a6323a-d61f-40bc-9d84-0e2be2cc417b",
+              "name": "end_url",
+              "value": ".html",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        784,
+        320
+      ],
+      "id": "2068515e-00fe-44db-ad7a-3ef23fcada2c",
+      "name": "ini"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT REGEXP_REPLACE(LOWER(denomination_unite_legale), '\\s+', '-', 'g')\n  || '-' || siren AS url\n  FROM entreprises\n WHERE 1 = 1\n   AND denomination_unite_legale ILIKE '{{ $json.url }}'\n LIMIT 100;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1904,
+        320
+      ],
+      "id": "d2b02dfe-0944-4642-b89b-a8de4acfaf55",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "sWiNoflceqTv63Gz",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dd1eb034-fa82-458e-97f6-0904dbf07bb5",
+              "name": "for_http",
+              "value": "={{ $('ini').item.json.start_url }}{{ $json.url }}{{ $('ini').item.json.end_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2128,
+        320
+      ],
+      "id": "7ee87499-ab7e-4abe-8e82-3df48d66df81",
+      "name": "for_http"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        2352,
+        320
+      ],
+      "id": "e888f13a-90c2-4a53-b75e-0ed4e5a3cbfe",
+      "name": "Limit3",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const name = item.json.denomination_unite_legale || \"\";\n\n  // Transformer en format %WORD1%WORD2%...\n  const formatted = \"\" + name\n    .trim()\n    .replace(/\\s+/g, \"%\") + \"\";\n\n  return {\n    json: {\n      url: formatted\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        320
+      ],
+      "id": "38d10592-bcd1-4c66-a900-92f84a97518b",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "path": "ec3fd952-7b94-4e06-a06a-98c106f229b3",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1216,
+        64
+      ],
+      "id": "2257b6a9-f7bf-4847-ad80-9602b8fdf051",
+      "name": "Webhook",
+      "webhookId": "ec3fd952-7b94-4e06-a06a-98c106f229b3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0efd432b-b98e-4e79-adef-a8b23dcbcb88",
+              "name": "denomination_unite_legales",
+              "value": "={{ $json.query.denomination_unite_legales }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1424,
+        64
+      ],
+      "id": "0c36b65b-3282-4b1d-9c7a-7c494684d848",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        5248,
+        0
+      ],
+      "id": "dffeaad0-c89f-4eab-b8fe-6fdf2938628c",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Entrée attendue: [{ json: { urls: \"url1;url2;url3\" } }]\nconst output = [];\n\nfor (const item of $input.all()) {\n  const raw = item.json.denomination_unite_legales || \"\";\n\n  const denomination_unite_legales = raw\n    .split(\"|\")\n    .map(u => u.trim())\n    .filter(u => u.length > 0);\n\n  for (const denomination_unite_legale of denomination_unite_legales) {\n    output.push({\n      json: { denomination_unite_legale }\n    });\n  }\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1632,
+        64
+      ],
+      "id": "cafd16e9-09c2-4526-8b7e-697f75059386",
+      "name": "Code in JavaScript5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML1": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "forme juridique - capital",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "activité",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "CA",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "R net",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "BC",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "SdS secteur",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "autre",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "raison social",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "HTML2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML2": {
+      "main": [
+        [
+          {
+            "node": "HTML3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Forme juridique",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Forme juridique": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capital": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTML5": {
+      "main": [
+        [
+          {
+            "node": "HTML6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML6": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML7": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Activité principale déclarée",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Type d'activité",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "HTML7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "HTML8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML8": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Convention collective déduite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Limit2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML10": {
+      "main": [
+        [
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out2": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML12": {
+      "main": [
+        [
+          {
+            "node": "Split Out3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit1": {
+      "main": [
+        [
+          {
+            "node": "Résultats net",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit2": {
+      "main": [
+        [
+          {
+            "node": "scrapped_at",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Limit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Type d'activité": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Chiffre d'affaires": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "Convention collective déduite": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Résultats net": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Capital",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Chiffre d'affaires",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CA": {
+      "main": [
+        [
+          {
+            "node": "HTML10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "R net": {
+      "main": [
+        [
+          {
+            "node": "HTML12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Activité principale déclarée": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "forme juridique - capital": {
+      "main": [
+        [
+          {
+            "node": "HTML1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BC": {
+      "main": [
+        [
+          {
+            "node": "Bilan carbone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bilan carbone": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 7
+          }
+        ]
+      ]
+    },
+    "activité": {
+      "main": [
+        [
+          {
+            "node": "HTML5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SdS secteur": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Split Out4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out4": {
+      "main": [
+        [
+          {
+            "node": "HTML4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML4": {
+      "main": [
+        [
+          {
+            "node": "Score de souveraineté du secteur",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score de souveraineté du secteur": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 8
+          }
+        ]
+      ]
+    },
+    "HTML14": {
+      "main": [
+        [
+          {
+            "node": "Split Out6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out6": {
+      "main": [
+        [
+          {
+            "node": "currentDate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "currentDate": {
+      "main": [
+        [
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "Date & Time1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time1": {
+      "main": [
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrapped_at": {
+      "main": [
+        [
+          {
+            "node": "prepare json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "autre": {
+      "main": [
+        [
+          {
+            "node": "HTML14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "ini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "raison social": {
+      "main": [
+        [
+          {
+            "node": "company name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "company name": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 9
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Split Out5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out5": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INPUT": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "OUTPUT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare json": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "ini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ini": {
+      "main": [
+        [
+          {
+            "node": "INPUT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "for_http",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "for_http": {
+      "main": [
+        [
+          {
+            "node": "Limit3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "dfe65d25-c900-46c2-bfb3-02e5dfce2978",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c5a3a714df08ee5dcc31d1303fb4481809c43e74a69462e77c93286020b89994"
+  },
+  "id": "VntZkDeXwnZGPkcS",
+  "tags": []
+}
