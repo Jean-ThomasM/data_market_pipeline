@@ -21,3 +21,15 @@ resource "google_project_iam_member" "pipeline_secret_accessor" {
   role    = "roles/secretmanager.secretAccessor"
   member  = "serviceAccount:${var.service_account_email}"
 }
+
+resource "google_project_iam_member" "pipeline_run_jobs_executor" {
+  project = var.project_id
+  role    = "roles/run.jobsExecutor"
+  member  = "serviceAccount:${var.service_account_email}"
+}
+
+resource "google_project_iam_member" "pipeline_run_viewer" {
+  project = var.project_id
+  role    = "roles/run.viewer"
+  member  = "serviceAccount:${var.service_account_email}"
+}

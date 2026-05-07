@@ -40,6 +40,15 @@ module "staging_offres_ft_table" {
   schema     = file("${path.module}/schemas/staging_offres_ft.bqschema")
 }
 
+module "staging_offres_adzuna_table" {
+  source = "../../modules/bigquery_table"
+
+  project_id = var.project_id
+  dataset_id = module.staging_dataset.dataset_id
+  table_id   = "staging_offres_adzuna"
+  schema     = file("${path.module}/schemas/staging_offres_adzuna.bqschema")
+}
+
 module "regions_table" {
   source = "../../modules/bigquery_table"
 
@@ -95,6 +104,32 @@ module "load_staging_offres_ft_workflow" {
   )
 
   depends_on = [
+    module.project_services,
+    google_project_service_identity.workflows_service_agent,
+    google_service_account_iam_member.workflows_service_account_token_creator
+  ]
+}
+
+module "load_staging_adzuna_workflow" {
+  source = "../../modules/workflow"
+
+  project_id            = var.project_id
+  region                = var.region
+  name                  = "load-staging-adzuna-${var.environment}"
+  description           = "Charge les offres Adzuna depuis GCS vers BigQuery."
+  service_account_email = module.pipeline_service_account.email
+  source_contents = templatefile(
+    "${path.module}/workflows/load_staging_adzuna.yaml.tftpl",
+    {
+      project_id  = var.project_id
+      dataset_id  = module.staging_dataset.dataset_id
+      table_id    = module.staging_offres_adzuna_table.table_id
+      bucket_name = module.data_lake.bucket_name
+    }
+  )
+
+  depends_on = [
+    module.staging_offres_adzuna_table,
     module.project_services,
     google_project_service_identity.workflows_service_agent,
     google_service_account_iam_member.workflows_service_account_token_creator
@@ -213,6 +248,28 @@ module "extract_job_geo" {
   }
 }
 
+module "extract_job_adzuna" {
+  source = "../../modules/cloud_run_job"
+
+  project_id = var.project_id
+  region     = var.region
+
+  job_name = "extract-adzuna-dev"
+
+  image = "${module.artifact_registry.repository_url}/extract-adzuna:latest"
+
+  service_account_email = module.pipeline_service_account.email
+
+  env_vars = {
+    ENVIRONMENT     = var.environment
+    BUCKET_NAME     = module.data_lake.bucket_name
+    DATASET_ID      = module.staging_dataset.dataset_id
+    GCP_PROJECT_ID  = var.project_id
+    GCS_BUCKET_NAME = module.data_lake.bucket_name
+    STORAGE         = "gcs"
+  }
+}
+
 module "pipeline_iam" {
   source = "../../modules/pipeline_iam"
 
@@ -235,6 +292,20 @@ module "ft_client_key_secret" {
   secret_id  = "FT_CLIENT_KEY"
 }
 
+module "adzuna_client_id_secret" {
+  source = "../../modules/secret_manager_secret"
+
+  project_id = var.project_id
+  secret_id  = "ADZUNA_API_ID"
+}
+
+module "adzuna_client_key_secret" {
+  source = "../../modules/secret_manager_secret"
+
+  project_id = var.project_id
+  secret_id  = "ADZUNA_API_KEY"
+}
+
 resource "google_project_service_identity" "workflows_service_agent" {
   provider = google-beta
 
@@ -250,6 +321,12 @@ resource "google_service_account_iam_member" "workflows_service_account_token_cr
   member             = "serviceAccount:service-${data.google_project.current.number}@gcp-sa-workflows.iam.gserviceaccount.com"
 
   depends_on = [google_project_service_identity.workflows_service_agent]
+}
+
+resource "google_project_iam_member" "pipeline_workflows_invoker" {
+  project = var.project_id
+  role    = "roles/workflows.invoker"
+  member  = "serviceAccount:${module.pipeline_service_account.email}"
 }
 
 module "dbt_service_account" {
@@ -296,12 +373,27 @@ module "pipeline_global_workflow" {
   project_id            = var.project_id
   region                = var.region
   name                  = "pipeline-global-${var.environment}"
+<<<<<<< HEAD
+  description           = "Orchestre extraction FT/GEO/ADZUNA et chargement staging."
+=======
   description           = "Orchestre extraction FT/GEO et chargement staging."
+>>>>>>> feature/iac
   service_account_email = module.pipeline_service_account.email
 
   source_contents = templatefile(
     "${path.module}/workflows/pipeline_global.yaml.tftpl",
     {
+<<<<<<< HEAD
+      project_id                = var.project_id
+      region                    = var.region
+      environment               = var.environment
+      extract_ft_job_name       = module.extract_job_ft.job_name
+      extract_geo_job_name      = module.extract_job_geo.job_name
+      extract_adzuna_job_name   = module.extract_job_adzuna.job_name
+      load_ft_workflow_name     = module.load_staging_offres_ft_workflow.name
+      load_geo_workflow_name    = module.load_staging_geo_workflow.name
+      load_adzuna_workflow_name = module.load_staging_adzuna_workflow.name
+=======
       project_id             = var.project_id
       region                 = var.region
       environment            = var.environment
@@ -309,17 +401,30 @@ module "pipeline_global_workflow" {
       extract_geo_job_name   = module.extract_job_geo.job_name
       load_ft_workflow_name  = module.load_staging_offres_ft_workflow.name
       load_geo_workflow_name = module.load_staging_geo_workflow.name
+>>>>>>> feature/iac
     }
   )
 
   depends_on = [
     module.extract_job_ft,
     module.extract_job_geo,
+<<<<<<< HEAD
+    module.extract_job_adzuna,
+    module.load_staging_offres_ft_workflow,
+    module.load_staging_geo_workflow,
+    module.load_staging_adzuna_workflow,
+    module.pipeline_iam,
+    module.project_services,
+    google_project_service_identity.workflows_service_agent,
+    google_service_account_iam_member.workflows_service_account_token_creator,
+    google_project_iam_member.pipeline_workflows_invoker
+=======
     module.load_staging_offres_ft_workflow,
     module.load_staging_geo_workflow,
     module.project_services,
     google_project_service_identity.workflows_service_agent,
     google_service_account_iam_member.workflows_service_account_token_creator
+>>>>>>> feature/iac
   ]
 }
 
