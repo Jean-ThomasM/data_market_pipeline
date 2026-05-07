@@ -1,16 +1,56 @@
 [
   {
+    "name": "id",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "title",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "description",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "created",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "redirect_url",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "adref",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "salary_is_predicted",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "contract_time",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
     "name": "contract_type",
     "type": "STRING",
     "mode": "NULLABLE"
   },
   {
     "name": "salary_min",
-    "type": "INTEGER",
+    "type": "FLOAT",
     "mode": "NULLABLE"
   },
   {
-    "name": "longitude",
+    "name": "salary_max",
     "type": "FLOAT",
     "mode": "NULLABLE"
   },
@@ -20,8 +60,8 @@
     "mode": "NULLABLE"
   },
   {
-    "name": "_CLASS_",
-    "type": "STRING",
+    "name": "longitude",
+    "type": "FLOAT",
     "mode": "NULLABLE"
   },
   {
@@ -33,43 +73,8 @@
         "name": "display_name",
         "type": "STRING",
         "mode": "NULLABLE"
-      },
-      {
-        "name": "_CLASS_",
-        "type": "STRING",
-        "mode": "NULLABLE"
-      },
-      {
-        "name": "redirect_url",
-        "type": "STRING",
-        "mode": "NULLABLE"
       }
     ]
-  },
-  {
-    "name": "created",
-    "type": "TIMESTAMP",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "contract_time",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "id",
-    "type": "INTEGER",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "adref",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "title",
-    "type": "STRING",
-    "mode": "NULLABLE"
   },
   {
     "name": "location",
@@ -82,11 +87,6 @@
         "mode": "NULLABLE"
       },
       {
-        "name": "_CLASS_",
-        "type": "STRING",
-        "mode": "NULLABLE"
-      },
-      {
         "name": "area",
         "type": "STRING",
         "mode": "REPEATED"
@@ -94,20 +94,10 @@
     ]
   },
   {
-    "name": "description",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
     "name": "category",
     "type": "RECORD",
     "mode": "NULLABLE",
     "fields": [
-      {
-        "name": "_CLASS_",
-        "type": "STRING",
-        "mode": "NULLABLE"
-      },
       {
         "name": "tag",
         "type": "STRING",
@@ -119,15 +109,5 @@
         "mode": "NULLABLE"
       }
     ]
-  },
-  {
-    "name": "salary_max",
-    "type": "INTEGER",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "salary_is_predicted",
-    "type": "INTEGER",
-    "mode": "NULLABLE"
   }
 ]
