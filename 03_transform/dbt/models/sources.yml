@@ -3,15 +3,15 @@ version: 2
 sources:
   - name: france-travail
     description: "Tables raw issues de l'extraction France Travail."
-    database: "{{ 'data-market-386959' if target.type == 'bigquery' else 'staging_offres_ft' }}"
-    schema: "{{ 'staging_dev' if target.type == 'bigquery' else 'main' }}"
+    database: "{{ target.project if target.type == 'bigquery' else target.database }}"
+    schema: "{{ target.schema }}"
     tables:
       - name: staging_offres_ft
         
   - name: geo-api
     description: "Tables raw issues de l'API geo (communes, departements, regions, epcis)."
-    database: "{{ 'data-market-386959' if target.type == 'bigquery' else 'staging_offres_ft' }}"
-    schema: "{{ 'staging_dev' if target.type == 'bigquery' else 'main' }}"
+    database: "{{ target.project if target.type == 'bigquery' else target.database }}"
+    schema: "{{ target.schema }}"
     tables:
       - name: staging_communes
       - name: staging_departements
@@ -20,7 +20,7 @@ sources:
 
   - name: adzuna
     description: "Tables raw issues de l'extraction Adzuna."
-    database: "{{ 'data-market-386959' if target.type == 'bigquery' else 'staging_offres_ft' }}"
-    schema: "{{ 'staging_dev' if target.type == 'bigquery' else 'main' }}"
+    database: "{{ target.project if target.type == 'bigquery' else target.database }}"
+    schema: "{{ target.schema }}"
     tables:
       - name: staging_offres_adzuna

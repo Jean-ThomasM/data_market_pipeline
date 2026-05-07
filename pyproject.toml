@@ -10,6 +10,8 @@ dependencies = []
 dev = [
     "pre-commit>=4.5.1",
     "ruff>=0.15.9",
+    "sqlfluff>=3.3.0",
+    "sqlfluff-templater-dbt>=3.3.0",
 ]
 
 [tool.uv.workspace]

@@ -27,7 +27,7 @@ data_market_pipeline:
       database: "staging_offres_ft"
       schema: "main"
       schemas_and_paths:
-        main: "C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform/staging_offres_ft.sqlite"
-        intermediate_dev: "C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform/main_intermediate_dev.db"
-        staging_dev: "C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform/main_intermediate_dev.db"
-      schema_directory: "C:/Users/elie.lecas/Documents/Code/DATAINGE/data_market_pipeline/03_transform"
+        main: "staging_offres_ft.sqlite"
+        intermediate_dev: "main_intermediate_dev.db"
+        staging_dev: "main_intermediate_dev.db"
+      schema_directory: ".."

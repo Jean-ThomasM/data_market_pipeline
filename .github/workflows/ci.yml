@@ -39,5 +39,13 @@ jobs:
       - name: Installer les dépendances
         run: uv sync --all-extras --dev
 
-      - name: Linter le code
+      - name: Linter le code Python (Ruff)
         run: uv run ruff check .
+
+      - name: Dbt - Verification du graphe et de la syntaxe
+        run: |
+          uv run dbt parse --project-dir 03_transform/dbt --profiles-dir 03_transform/dbt --target local
+
+      - name: Dbt - Linter SQL (SQLFluff)
+        run: |
+          uv run sqlfluff lint 03_transform/dbt/models --dialect bigquery
