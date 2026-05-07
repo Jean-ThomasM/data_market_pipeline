@@ -31,6 +31,13 @@ module "marts_dataset" {
   location   = var.bigquery_location
 }
 
+module "finops_dataset" {
+  source = "../../modules/bigquery_dataset"
+
+  dataset_id = "finops_${var.environment}"
+  location   = var.bigquery_location
+}
+
 module "staging_offres_ft_table" {
   source = "../../modules/bigquery_table"
 
