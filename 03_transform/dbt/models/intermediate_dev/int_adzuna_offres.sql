@@ -4,7 +4,7 @@
 ) }}
 
 with raw_adzuna as (
-    select
+    select distinct
         cast(id as string) as offer_id,
         title as job_title,
         description as job_description,
@@ -119,7 +119,8 @@ final as (
         a.location_display_name as original_location,
         
         -- Flags de qualité
-        case when a.salary_min is null and a.salary_max is null then 0 else 1 end as has_salary_info
+        case when a.salary_min is null and a.salary_max is null then 0 else 1 end as has_salary_info,
+        case when upper(a.job_title) like '%ALTERNANCE%' then 1 else 0 end as is_alternance
         
     from adzuna_transformed a
     inner join geo_ref g
