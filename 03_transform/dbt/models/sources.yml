@@ -17,3 +17,10 @@ sources:
       - name: staging_departements
       - name: staging_regions
       - name: staging_epcis
+
+  - name: adzuna
+    description: "Tables raw issues de l'extraction Adzuna."
+    database: "{{ 'data-market-386959' if target.type == 'bigquery' else 'staging_offres_ft' }}"
+    schema: "{{ 'staging_dev' if target.type == 'bigquery' else 'main' }}"
+    tables:
+      - name: staging_offres_adzuna
