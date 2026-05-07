@@ -3,51 +3,88 @@ main:
   steps:
     - init:
         assign:
-          - input_args: $${default(args, {})}
-          - run_id: $${default(map.get(input_args, "run_id"), sys.now())}
           - project_id: "${project_id}"
           - region: "${region}"
           - environment: "${environment}"
 
-    - run_extract_ft:
-        call: googleapis.run.v2.projects.locations.jobs.run
-        args:
-          name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${extract_ft_job_name}"}
-          body: {}
-        result: extract_ft_result
+    - check_args:
+        switch:
+          - condition: $${args != null}
+            next: set_input_args
+        next: set_empty_args
 
-    - run_extract_geo:
-        call: googleapis.run.v2.projects.locations.jobs.run
-        args:
-          name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${extract_geo_job_name}"}
-          body: {}
-        result: extract_geo_result
+    - set_input_args:
+        assign:
+          - input_args: $${args}
+        next: set_run_id
 
-    - load_ft:
-        call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
-        args:
-          workflow_id: "${load_ft_workflow_name}"
-          location: "${region}"
-          project_id: "${project_id}"
-          argument:
-            run_id: $${run_id}
-        result: load_ft_result
+    - set_empty_args:
+        assign:
+          - input_args: {}
 
-    - load_geo:
-        call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
-        args:
-          workflow_id: "${load_geo_workflow_name}"
-          location: "${region}"
-          project_id: "${project_id}"
-          argument:
-            run_id: $${run_id}
-        result: load_geo_result
+    - set_run_id:
+        assign:
+          - run_id: $${default(map.get(input_args, "run_id"), sys.now())}
+
+    - run_parallel_pipelines:
+        parallel:
+          shared: [run_id, project_id, region, input_args]
+          branches:
+            - ft_branch:
+                steps:
+                  - run_extract_ft:
+                      call: googleapis.run.v2.projects.locations.jobs.run
+                      args:
+                        name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${extract_ft_job_name}"}
+                      result: ft_ext
+                  - load_ft:
+                      call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+                      args:
+                        workflow_id: "${load_ft_workflow_name}"
+                        location: "${region}"
+                        project_id: "${project_id}"
+                        argument:
+                          run_id: $${run_id}
+                          parent_args: $${input_args}
+                      result: ft_load
+
+            - geo_branch:
+                steps:
+                  - run_extract_geo:
+                      call: googleapis.run.v2.projects.locations.jobs.run
+                      args:
+                        name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${extract_geo_job_name}"}
+                      result: geo_ext
+                  - load_geo:
+                      call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+                      args:
+                        workflow_id: "${load_geo_workflow_name}"
+                        location: "${region}"
+                        project_id: "${project_id}"
+                        argument:
+                          run_id: $${run_id}
+                          parent_args: $${input_args}
+                      result: geo_load
+
+            - adzuna_branch:
+                steps:
+                  - run_extract_adzuna:
+                      call: googleapis.run.v2.projects.locations.jobs.run
+                      args:
+                        name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${extract_adzuna_job_name}"}
+                      result: adz_ext
+                  - load_adzuna:
+                      call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+                      args:
+                        workflow_id: "${load_adzuna_workflow_name}"
+                        location: "${region}"
+                        project_id: "${project_id}"
+                        argument:
+                          run_id: $${run_id}
+                          parent_args: $${input_args}
+                      result: adz_load
 
     - done:
         return:
           run_id: $${run_id}
-          environment: $${environment}
-          extract_ft: $${extract_ft_result}
-          extract_geo: $${extract_geo_result}
-          load_ft: $${load_ft_result}
-          load_geo: $${load_geo_result}
+          status: "PARALLEL_COMPLETED"

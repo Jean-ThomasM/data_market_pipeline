@@ -73,6 +73,34 @@ main:
                 writeDisposition: "WRITE_TRUNCATE"
         result: load_epcis_job
 
+    - list_loaded_files:
+        call: googleapis.storage.v1.objects.list
+        args:
+          bucket: "${bucket_name}"
+          prefix: "raw_geo/"
+          delimiter: "/"
+        result: loaded_files
+
+    - move_loaded_files_to_done:
+        for:
+          value: loaded_file
+          in: $${default(loaded_files.items, [])}
+          steps:
+            - copy_loaded_file:
+                call: googleapis.storage.v1.objects.copy
+                args:
+                  sourceBucket: "${bucket_name}"
+                  sourceObject: $${text.url_encode(loaded_file.name)}
+                  destinationBucket: "${bucket_name}"
+                  destinationObject: $${text.url_encode(text.replace_all(loaded_file.name, "raw_geo/", "raw_geo/done/"))}
+                result: copied_file
+
+            - delete_loaded_file:
+                call: googleapis.storage.v1.objects.delete
+                args:
+                  bucket: "${bucket_name}"
+                  object: $${text.url_encode(loaded_file.name)}
+
     - return_result:
         return:
           regions_job_id: $${load_regions_job.jobReference.jobId}
@@ -81,3 +109,4 @@ main:
           epcis_job_id: $${load_epcis_job.jobReference.jobId}
           dataset_id: "${dataset_id}"
           source_prefix: "gs://${bucket_name}/raw_geo/"
+          done_prefix: "gs://${bucket_name}/raw_geo/done/"

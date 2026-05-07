@@ -1,7 +1,7 @@
 main:
   params: [args]
   steps:
-    - load_staging_offres_ft:
+    - load_staging_offres_adzuna:
         call: googleapis.bigquery.v2.jobs.insert
         args:
           projectId: "${project_id}"
@@ -13,7 +13,7 @@ main:
                   datasetId: "${dataset_id}"
                   tableId: "${table_id}"
                 sourceUris:
-                  - "gs://${bucket_name}/raw_offres/*.ndjson"
+                  - "gs://${bucket_name}/raw_offres_adzuna/*.ndjson"
                 sourceFormat: "NEWLINE_DELIMITED_JSON"
                 createDisposition: "CREATE_NEVER"
                 writeDisposition: "WRITE_TRUNCATE"
@@ -24,7 +24,7 @@ main:
         call: googleapis.storage.v1.objects.list
         args:
           bucket: "${bucket_name}"
-          prefix: "raw_offres/"
+          prefix: "raw_offres_adzuna/"
           delimiter: "/"
         result: loaded_files
 
@@ -39,7 +39,7 @@ main:
                   sourceBucket: "${bucket_name}"
                   sourceObject: $${text.url_encode(loaded_file.name)}
                   destinationBucket: "${bucket_name}"
-                  destinationObject: $${text.url_encode(text.replace_all(loaded_file.name, "raw_offres/", "raw_offres/done/"))}
+                  destinationObject: $${text.url_encode(text.replace_all(loaded_file.name, "raw_offres_adzuna/", "raw_offres_adzuna/done/"))}
                 result: copied_file
 
             - delete_loaded_file:
@@ -51,6 +51,6 @@ main:
     - return_result:
         return:
           job_id: $${load_job.jobReference.jobId}
-          source_uri: "gs://${bucket_name}/raw_offres/*.ndjson"
-          done_prefix: "gs://${bucket_name}/raw_offres/done/"
+          source_uri: "gs://${bucket_name}/raw_offres_adzuna/*.ndjson"
+          done_prefix: "gs://${bucket_name}/raw_offres_adzuna/done/"
           destination_table: "${project_id}.${dataset_id}.${table_id}"
