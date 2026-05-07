@@ -188,7 +188,8 @@ module "project_services" {
     "workflows.googleapis.com",
     "cloudscheduler.googleapis.com",
     "logging.googleapis.com",
-    "monitoring.googleapis.com"
+    "monitoring.googleapis.com",
+    "sqladmin.googleapis.com"
   ]
 }
 
@@ -420,28 +421,95 @@ module "n8n_service" {
   region     = var.region
 
   service_name = "n8n-${var.environment}"
-
-  image = "docker.io/n8nio/n8n:latest"
+  image        = "docker.io/n8nio/n8n:latest"
 
   service_account_email = module.n8n_service_account.email
 
-  cpu    = "2"
-  memory = "4Gi"
+  port   = 5678
+  cpu    = "1"
+  memory = "2Gi"
+
+  manual_instance_count = 1
 
   env_vars = {
-    N8N_PORT            = "5678"
-    N8N_PROTOCOL        = "https"
-    N8N_HOST            = "n8n-dev-5pko4kkvvq-ew.a.run.app"
-    WEBHOOK_URL         = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
-    N8N_EDITOR_BASE_URL = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
-    N8N_PUSH_BACKEND    = "sse"
+    DB_TYPE                     = "postgresdb"
+    DB_POSTGRESDB_DATABASE      = "n8n"
+    DB_POSTGRESDB_USER          = "n8n"
+    DB_POSTGRESDB_HOST          = "/cloudsql/${module.n8n_postgres.connection_name}"
+    DB_POSTGRESDB_PORT          = "5432"
+    N8N_PORT                    = "5678"
+    N8N_PROTOCOL                = "https"
+    GENERIC_TIMEZONE            = "Europe/Paris"
+    N8N_SECURE_COOKIE           = "true"
+    N8N_ENDPOINT_HEALTH         = "health"
+    N8N_RUNNERS_ENABLED         = "false"
+    N8N_RESTRICT_FILE_ACCESS_TO = "/tmp"
+    N8N_HOST                    = "TON_URL_SANS_HTTPS"
+    N8N_EDITOR_BASE_URL         = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
+    WEBHOOK_URL                 = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
   }
+
+  secret_env_vars = {
+    DB_POSTGRESDB_PASSWORD = {
+      secret  = module.n8n_db_password_secret.secret_id
+      version = "latest"
+    }
+
+    N8N_ENCRYPTION_KEY = {
+      secret  = module.n8n_encryption_key_secret.secret_id
+      version = "latest"
+    }
+  }
+
+  cloud_sql_instances = [
+    module.n8n_postgres.connection_name
+  ]
 }
 
 resource "google_cloud_run_service_iam_member" "n8n_public_access" {
   project  = var.project_id
   location = var.region
   service  = module.n8n_service.name
-  role     = "roles/run.invoker"
-  member   = "allUsers"
+
+  role   = "roles/run.invoker"
+  member = "allUsers"
+}
+
+module "n8n_postgres" {
+  source = "../../modules/cloud_sql_postgres"
+
+  project_id = var.project_id
+  region     = var.region
+
+  instance_name = "n8n-postgres-${var.environment}"
+
+  database_name     = "n8n"
+  database_user     = "n8n"
+  database_password = var.n8n_db_password
+}
+
+module "n8n_db_password_secret" {
+  source = "../../modules/secret_manager_secret"
+
+  project_id = var.project_id
+  secret_id  = "n8n-db-password-${var.environment}"
+}
+
+module "n8n_encryption_key_secret" {
+  source = "../../modules/secret_manager_secret"
+
+  project_id = var.project_id
+  secret_id  = "n8n-encryption-key-${var.environment}"
+}
+
+resource "google_project_iam_member" "n8n_cloudsql_client" {
+  project = var.project_id
+  role    = "roles/cloudsql.client"
+  member  = "serviceAccount:${module.n8n_service_account.email}"
+}
+
+resource "google_project_iam_member" "n8n_secret_accessor" {
+  project = var.project_id
+  role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${module.n8n_service_account.email}"
 }

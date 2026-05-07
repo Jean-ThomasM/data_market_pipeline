@@ -35,5 +35,6 @@ output "load_staging_offres_ft_workflow_name" {
 }
 
 output "n8n_url" {
-  value = module.n8n_service.url
+  description = "n8n Cloud Run URL"
+  value       = module.n8n_service.url
 }
