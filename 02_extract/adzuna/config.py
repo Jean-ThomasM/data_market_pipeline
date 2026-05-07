@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def build_default_search_params() -> list[dict[str, str]]:
     return [
-        {"what": "data"},
+        {"what": "data+engineer"},
     ]
 
 
