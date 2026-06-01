@@ -9,8 +9,25 @@ dependencies = []
 [dependency-groups]
 dev = [
     "pre-commit>=4.5.1",
+    "pytest>=8.3.5",
+    "pytest-mock>=3.14.0",
     "ruff>=0.15.9",
 ]
+
+[tool.ruff]
+exclude = ["_old", "_developpements"]
+
+[tool.pytest.ini_options]
+norecursedirs = [
+    "_old",
+    ".venv",
+    "00_infra",
+    "01_shared",
+    "03_transform",
+    "n8n",
+    ".opencode",
+]
+testpaths = ["tests"]
 
 [tool.uv.workspace]
 members = [
