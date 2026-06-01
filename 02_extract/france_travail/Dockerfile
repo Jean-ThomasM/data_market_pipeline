@@ -24,7 +24,6 @@ COPY 02_extract/france_travail/auth.py 02_extract/france_travail/auth.py
 COPY 02_extract/france_travail/config.py 02_extract/france_travail/config.py
 COPY 02_extract/france_travail/main.py 02_extract/france_travail/main.py
 COPY 02_extract/france_travail/scraper.py 02_extract/france_travail/scraper.py
-COPY 02_extract/france_travail/utils.py 02_extract/france_travail/utils.py
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package france-travail
@@ -44,6 +43,5 @@ COPY --from=builder /app/02_extract/france_travail/config.py /app/02_extract/fra
 COPY --from=builder /app/02_extract/france_travail/main.py /app/02_extract/france_travail/main.py
 COPY --from=builder /app/02_extract/france_travail/scraper.py /app/02_extract/france_travail/scraper.py
 COPY --from=builder /app/01_shared/shared /app/01_shared/shared
-COPY --from=builder /app/02_extract/france_travail/utils.py /app/02_extract/france_travail/utils.py
 
 CMD ["python", "main.py"]
