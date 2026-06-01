@@ -15,7 +15,6 @@ members = [
     "france-travail",
     "geo",
     "shared",
-    "sirene",
 ]
 
 [[package]]
@@ -746,11 +745,6 @@ requires-dist = [
     { name = "google-cloud-secret-manager", specifier = ">=2.27.0" },
     { name = "google-cloud-storage", specifier = ">=3.10.1" },
 ]
-
-[[package]]
-name = "sirene"
-version = "0.1.0"
-source = { virtual = "02_extract/sirene" }
 
 [[package]]
 name = "typing-extensions"

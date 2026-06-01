@@ -93,6 +93,15 @@ module "epcis_table" {
   schema     = file("${path.module}/schemas/epcis.bqschema")
 }
 
+module "staging_sirene_table" {
+  source = "../../modules/bigquery_table"
+
+  project_id = var.project_id
+  dataset_id = module.staging_dataset.dataset_id
+  table_id   = "staging_sirene"
+  schema     = file("${path.module}/schemas/staging_sirene.bqschema")
+}
+
 module "load_staging_offres_ft_workflow" {
   source = "../../modules/workflow"
 
@@ -172,6 +181,31 @@ module "load_staging_geo_workflow" {
   ]
 }
 
+module "load_staging_sirene_workflow" {
+  source = "../../modules/workflow"
+
+  project_id            = var.project_id
+  region                = var.region
+  name                  = "load-staging-sirene-${var.environment}"
+  description           = "Charge les données Sirene depuis GCS vers BigQuery."
+  service_account_email = module.pipeline_service_account.email
+  source_contents = templatefile(
+    "${path.module}/workflows/load_staging_sirene.yaml.tftpl",
+    {
+      project_id   = var.project_id
+      dataset_id   = module.staging_dataset.dataset_id
+      bucket_name  = module.data_lake.bucket_name
+    }
+  )
+
+  depends_on = [
+    module.staging_sirene_table,
+    module.project_services,
+    google_project_service_identity.workflows_service_agent,
+    google_service_account_iam_member.workflows_service_account_token_creator
+  ]
+}
+
 module "pipeline_service_account" {
   source = "../../modules/service_account"
 
@@ -196,7 +230,8 @@ module "project_services" {
     "workflows.googleapis.com",
     "cloudscheduler.googleapis.com",
     "logging.googleapis.com",
-    "monitoring.googleapis.com"
+    "monitoring.googleapis.com",
+    "sqladmin.googleapis.com"
   ]
 }
 
@@ -381,7 +416,7 @@ module "pipeline_global_workflow" {
   project_id            = var.project_id
   region                = var.region
   name                  = "pipeline-global-${var.environment}"
-  description           = "Orchestre extraction FT/GEO/ADZUNA et chargement staging."
+  description           = "Orchestre extraction FT/GEO/ADZUNA/SIRENE et chargement staging."
   service_account_email = module.pipeline_service_account.email
 
   source_contents = templatefile(
@@ -390,12 +425,13 @@ module "pipeline_global_workflow" {
       project_id                = var.project_id
       region                    = var.region
       environment               = var.environment
-      extract_ft_job_name       = module.extract_job_ft.job_name
-      extract_geo_job_name      = module.extract_job_geo.job_name
-      extract_adzuna_job_name   = module.extract_job_adzuna.job_name
-      load_ft_workflow_name     = module.load_staging_offres_ft_workflow.name
-      load_geo_workflow_name    = module.load_staging_geo_workflow.name
-      load_adzuna_workflow_name = module.load_staging_adzuna_workflow.name
+      extract_ft_job_name        = module.extract_job_ft.job_name
+      extract_geo_job_name       = module.extract_job_geo.job_name
+      extract_adzuna_job_name    = module.extract_job_adzuna.job_name
+      load_ft_workflow_name      = module.load_staging_offres_ft_workflow.name
+      load_geo_workflow_name     = module.load_staging_geo_workflow.name
+      load_adzuna_workflow_name  = module.load_staging_adzuna_workflow.name
+      load_sirene_workflow_name  = module.load_staging_sirene_workflow.name
     }
   )
 
@@ -406,6 +442,7 @@ module "pipeline_global_workflow" {
     module.load_staging_offres_ft_workflow,
     module.load_staging_geo_workflow,
     module.load_staging_adzuna_workflow,
+    module.load_staging_sirene_workflow,
     module.pipeline_iam,
     module.project_services,
     google_project_service_identity.workflows_service_agent,
