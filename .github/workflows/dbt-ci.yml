@@ -9,9 +9,9 @@ on:
       - integration
 
 env:
-  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
-  GCP_DBT_SA_EMAIL: ${{ secrets.GCP_DBT_SA_EMAIL }}
+  GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  GCP_WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
+  GCP_DBT_SA_EMAIL: ${{ vars.GCP_DBT_SA_EMAIL }}
 
 jobs:
   dbt-run:

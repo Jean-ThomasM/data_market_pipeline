@@ -419,7 +419,7 @@ module "github_workload_identity" {
   project_number        = data.google_project.current.number
   environment           = var.environment
   github_repo           = var.github_repo
-  service_account_email = module.dbt_service_account.email
+  service_account_name  = module.dbt_service_account.name
 }
 
 module "pipeline_global_workflow" {

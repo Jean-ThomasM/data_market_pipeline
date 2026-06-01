@@ -18,7 +18,7 @@ variable "github_repo" {
   type        = string
 }
 
-variable "service_account_email" {
-  description = "Email of the service account to allow GitHub to impersonate"
+variable "service_account_name" {
+  description = "Fully qualified name of the service account (e.g. 'projects/PROJECT_ID/serviceAccounts/EMAIL')"
   type        = string
 }
