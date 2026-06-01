@@ -476,14 +476,21 @@ module "n8n_encryption_key_secret" {
   secret_id  = "n8n-encryption-key-${var.environment}"
 }
 
-resource "google_project_iam_member" "n8n_secret_accessor" {
-  project = var.project_id
-  role    = "roles/secretmanager.secretAccessor"
-  member  = "serviceAccount:${module.n8n_service_account.email}"
-}
-
 resource "google_storage_bucket_iam_member" "n8n_data_lake_viewer" {
   bucket = module.data_lake.bucket_name
   role   = "roles/storage.objectViewer"
   member = "serviceAccount:${module.n8n_service_account.email}"
+}
+
+resource "google_bigquery_dataset_iam_member" "n8n_staging_data_editor" {
+  project    = var.project_id
+  dataset_id = "staging_${var.environment}"
+  role       = "roles/bigquery.dataEditor"
+  member     = "serviceAccount:${module.n8n_service_account.email}"
+}
+
+resource "google_project_iam_member" "n8n_bigquery_job_user" {
+  project = var.project_id
+  role    = "roles/bigquery.jobUser"
+  member  = "serviceAccount:${module.n8n_service_account.email}"
 }
