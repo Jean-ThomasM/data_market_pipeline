@@ -415,11 +415,11 @@ module "dbt_job" {
 module "github_workload_identity" {
   source = "../../modules/workload_identity_federation"
 
-  project_id            = var.project_id
-  project_number        = data.google_project.current.number
-  environment           = var.environment
-  github_repo           = var.github_repo
-  service_account_name  = module.dbt_service_account.name
+  project_id           = var.project_id
+  project_number       = data.google_project.current.number
+  environment          = var.environment
+  github_repo          = var.github_repo
+  service_account_name = module.dbt_service_account.name
 }
 
 module "pipeline_global_workflow" {
@@ -541,4 +541,54 @@ resource "google_project_iam_member" "n8n_bigquery_job_user" {
   project = var.project_id
   role    = "roles/bigquery.jobUser"
   member  = "serviceAccount:${module.n8n_service_account.email}"
+}
+
+module "scheduler_iam" {
+  source = "../../modules/scheduler_iam"
+
+  project_id            = var.project_id
+  service_account_email = module.pipeline_service_account.email
+}
+
+module "schedule_extract_ft" {
+  source = "../../modules/cloud_scheduler_job"
+
+  project_id                      = var.project_id
+  region                          = var.region
+  scheduler_name                  = "trigger-extract-ft-${var.environment}"
+  schedule                        = "0 6 * * *"
+  cloud_run_job_name              = module.extract_job_ft.job_name
+  scheduler_service_account_email = module.pipeline_service_account.email
+}
+
+module "schedule_extract_geo" {
+  source = "../../modules/cloud_scheduler_job"
+
+  project_id                      = var.project_id
+  region                          = var.region
+  scheduler_name                  = "trigger-extract-geo-${var.environment}"
+  schedule                        = "0 5 * * 1"
+  cloud_run_job_name              = module.extract_job_geo.job_name
+  scheduler_service_account_email = module.pipeline_service_account.email
+}
+
+module "schedule_extract_adzuna" {
+  source = "../../modules/cloud_scheduler_job"
+
+  project_id                      = var.project_id
+  region                          = var.region
+  scheduler_name                  = "trigger-extract-adzuna-${var.environment}"
+  schedule                        = "0 7 * * *"
+  cloud_run_job_name              = module.extract_job_adzuna.job_name
+  scheduler_service_account_email = module.pipeline_service_account.email
+}
+
+module "pipeline_monitoring" {
+  source = "../../modules/pipeline_monitoring"
+
+  project_id         = var.project_id
+  region             = var.region
+  environment        = var.environment
+  notification_email = var.monitoring_email
+  n8n_uptime_host    = replace(module.n8n_service.url, "https://", "")
 }
