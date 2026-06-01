@@ -141,8 +141,11 @@ class OffersExtractor:
 
             self.total_offers_fetched += len(offers_page)
             for offer_payload in offers_page:
-                offer_id = str(offer_payload.get("id") or "")
-                if not offer_id or offer_id in self.offers_by_id:
+                offer_id = offer_payload.get("id")
+                if offer_id is None:
+                    continue
+                offer_id = str(offer_id)
+                if offer_id in self.offers_by_id:
                     continue
 
                 self.offers_by_id[offer_id] = offer_payload
