@@ -48,3 +48,8 @@ output "github_workload_identity_pool_name" {
   description = "WIF pool name"
   value       = module.github_workload_identity.pool_name
 }
+
+output "monitoring_dashboard_id" {
+  description = "Pipeline monitoring dashboard resource ID"
+  value       = module.pipeline_monitoring.dashboard_id
+}
