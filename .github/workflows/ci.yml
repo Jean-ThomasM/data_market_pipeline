@@ -48,3 +48,6 @@ jobs:
 
       - name: Verifier le formatage
         run: uv run ruff format --check .
+
+      - name: Executer les tests
+        run: uv run pytest tests/
