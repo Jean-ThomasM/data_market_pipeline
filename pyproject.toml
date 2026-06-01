@@ -4,7 +4,12 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "shared",
+    "france-travail",
+    "geo",
+    "adzuna",
+]
 
 [dependency-groups]
 dev = [
@@ -12,6 +17,7 @@ dev = [
     "pytest>=8.3.5",
     "pytest-mock>=3.14.0",
     "ruff>=0.15.9",
+    "sqlfluff>=3.4.0",
 ]
 
 [tool.ruff]
@@ -28,6 +34,12 @@ norecursedirs = [
     ".opencode",
 ]
 testpaths = ["tests"]
+
+[tool.uv.sources]
+shared = { workspace = true }
+france-travail = { workspace = true }
+geo = { workspace = true }
+adzuna = { workspace = true }
 
 [tool.uv.workspace]
 members = [
