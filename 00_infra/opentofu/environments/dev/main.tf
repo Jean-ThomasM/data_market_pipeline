@@ -192,9 +192,9 @@ module "load_staging_sirene_workflow" {
   source_contents = templatefile(
     "${path.module}/workflows/load_staging_sirene.yaml.tftpl",
     {
-      project_id   = var.project_id
-      dataset_id   = module.staging_dataset.dataset_id
-      bucket_name  = module.data_lake.bucket_name
+      project_id  = var.project_id
+      dataset_id  = module.staging_dataset.dataset_id
+      bucket_name = module.data_lake.bucket_name
     }
   )
 
@@ -436,13 +436,13 @@ module "pipeline_global_workflow" {
       project_id                = var.project_id
       region                    = var.region
       environment               = var.environment
-      extract_ft_job_name        = module.extract_job_ft.job_name
-      extract_geo_job_name       = module.extract_job_geo.job_name
-      extract_adzuna_job_name    = module.extract_job_adzuna.job_name
-      load_ft_workflow_name      = module.load_staging_offres_ft_workflow.name
-      load_geo_workflow_name     = module.load_staging_geo_workflow.name
-      load_adzuna_workflow_name  = module.load_staging_adzuna_workflow.name
-      load_sirene_workflow_name  = module.load_staging_sirene_workflow.name
+      extract_ft_job_name       = module.extract_job_ft.job_name
+      extract_geo_job_name      = module.extract_job_geo.job_name
+      extract_adzuna_job_name   = module.extract_job_adzuna.job_name
+      load_ft_workflow_name     = module.load_staging_offres_ft_workflow.name
+      load_geo_workflow_name    = module.load_staging_geo_workflow.name
+      load_adzuna_workflow_name = module.load_staging_adzuna_workflow.name
+      load_sirene_workflow_name = module.load_staging_sirene_workflow.name
     }
   )
 
