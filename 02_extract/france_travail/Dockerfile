@@ -15,7 +15,7 @@ COPY 00_infra/pyproject.toml 00_infra/pyproject.toml
 COPY 01_shared/pyproject.toml 01_shared/pyproject.toml
 COPY 02_extract/adzuna/pyproject.toml 02_extract/adzuna/pyproject.toml
 COPY 02_extract/geo/pyproject.toml 02_extract/geo/pyproject.toml
-COPY 02_extract/sirene/pyproject.toml 02_extract/sirene/pyproject.toml
+
 COPY 02_extract/france_travail/pyproject.toml 02_extract/france_travail/pyproject.toml
 
 # Les sources nécessaires au package cible sont copiées après les métadonnées.
