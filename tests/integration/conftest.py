@@ -1,31 +1,74 @@
 """Configuration pytest pour les tests d'intégration."""
 
 import os
-import tempfile
+import sys
 from pathlib import Path
 
 import pytest
 
+# ── Module-level isolation ──────────────────────────────────────────────
+# Clear cached extractor modules BEFORE any test module in this dir is
+# imported.  Each test file does sys.path.insert(0, …) at module level,
+# so the freshly imported modules will come from the correct extractor.
+_PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-@pytest.fixture(scope="session")
-def integration_test_dir():
-    """Crée un répertoire temporaire pour les tests d'intégration."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+for _k in list(sys.modules):
+    _m = sys.modules[_k]
+    _f = getattr(_m, "__file__", None)
+    if _f and "02_extract" in os.path.normpath(_f):
+        sys.modules.pop(_k, None)
+
+for _p in list(sys.path):
+    _norm = os.path.normpath(_p) if _p else ""
+    if "02_extract" in _norm:
+        sys.path.remove(_p)
+
+
+_EXTRACTOR_MAP = {
+    "france_travail": "france_travail",
+    "geo": "geo",
+    "health": None,
+}
+
+
+@pytest.fixture(autouse=True)
+def _isolate_extractor_imports(request):
+    module_name = Path(request.module.__file__).stem
+    extractor = None
+    for key, val in _EXTRACTOR_MAP.items():
+        if key in module_name:
+            extractor = val
+            break
+
+    if extractor is None:
+        yield
+        return
+
+    my_src = str(Path(_PROJECT_ROOT) / "02_extract" / extractor)
+
+    old_path = list(sys.path)
+    old_modules = {}
+    for k, v in list(sys.modules.items()):
+        f = getattr(v, "__file__", None)
+        if f and "02_extract" in os.path.normpath(f):
+            old_modules[k] = sys.modules.pop(k)
+    for p in list(sys.path):
+        normalized = os.path.normpath(p) if p else _PROJECT_ROOT
+        if normalized == _PROJECT_ROOT or (
+            "02_extract" in normalized and normalized != my_src
+        ):
+            sys.path.remove(p)
+    if my_src not in sys.path:
+        sys.path.insert(0, my_src)
+    yield
+    sys.path[:] = old_path
+    sys.modules.update(old_modules)
 
 
 @pytest.fixture
-def mock_gcs_bucket(integration_test_dir):
-    """Simule un bucket GCS avec un répertoire local."""
-    bucket_dir = integration_test_dir / "mock_gcs_bucket"
-    bucket_dir.mkdir(parents=True, exist_ok=True)
-    return str(bucket_dir)
-
-
-@pytest.fixture
-def mock_local_storage(integration_test_dir):
-    """Crée un répertoire de stockage local pour les tests."""
-    storage_dir = integration_test_dir / "mock_storage"
+def mock_local_storage(tmp_path):
+    """Crée un répertoire de stockage local temporaire par test."""
+    storage_dir = tmp_path / "mock_storage"
     storage_dir.mkdir(parents=True, exist_ok=True)
     return str(storage_dir)
 

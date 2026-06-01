@@ -25,6 +25,9 @@ dev = [
 exclude = ["_old", "_developpements"]
 
 [tool.pytest.ini_options]
+markers = [
+    "slow: tests d'intégration ou end-to-end lents",
+]
 norecursedirs = [
     "_old",
     ".venv",
