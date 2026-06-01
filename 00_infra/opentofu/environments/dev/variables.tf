@@ -22,3 +22,8 @@ variable "bigquery_location" {
   description = "Localisation des datasets BigQuery"
   type        = string
 }
+
+variable "github_repo" {
+  description = "Dépôt GitHub au format 'owner/repo' pour la fédération d'identité WIF"
+  type        = string
+}

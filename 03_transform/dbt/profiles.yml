@@ -21,6 +21,16 @@ data_market_pipeline:
       priority: interactive
       timeout_seconds: 300
 
+    ci:
+      type: bigquery
+      method: oauth
+      project: data-market-386959
+      dataset: "{{ env_var('DBT_CI_DATASET', 'staging_ci') }}"
+      location: europe-west1
+      threads: 4
+      priority: interactive
+      timeout_seconds: 300
+
     local:
       type: sqlite
       threads: 1

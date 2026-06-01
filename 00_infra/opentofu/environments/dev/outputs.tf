@@ -38,3 +38,13 @@ output "n8n_url" {
   description = "n8n Cloud Run URL"
   value       = module.n8n_service.url
 }
+
+output "github_workload_identity_provider" {
+  description = "WIF provider resource name for GitHub Actions"
+  value       = module.github_workload_identity.provider_resource_name
+}
+
+output "github_workload_identity_pool_name" {
+  description = "WIF pool name"
+  value       = module.github_workload_identity.pool_name
+}

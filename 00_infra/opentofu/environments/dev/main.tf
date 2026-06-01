@@ -221,6 +221,7 @@ module "project_services" {
   services = [
     "serviceusage.googleapis.com",
     "iam.googleapis.com",
+    "iamcredentials.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "storage.googleapis.com",
     "bigquery.googleapis.com",
@@ -409,6 +410,16 @@ module "dbt_job" {
     DBT_TARGET_ENV = var.environment
     GCP_PROJECT_ID = var.project_id
   }
+}
+
+module "github_workload_identity" {
+  source = "../../modules/workload_identity_federation"
+
+  project_id            = var.project_id
+  project_number        = data.google_project.current.number
+  environment           = var.environment
+  github_repo           = var.github_repo
+  service_account_email = module.dbt_service_account.email
 }
 
 module "pipeline_global_workflow" {
