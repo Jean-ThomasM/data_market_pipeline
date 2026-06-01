@@ -10,6 +10,7 @@ module "data_lake" {
   versioning_enabled = true
 }
 
+
 module "staging_dataset" {
   source = "../../modules/bigquery_dataset"
 
@@ -479,4 +480,10 @@ resource "google_project_iam_member" "n8n_secret_accessor" {
   project = var.project_id
   role    = "roles/secretmanager.secretAccessor"
   member  = "serviceAccount:${module.n8n_service_account.email}"
+}
+
+resource "google_storage_bucket_iam_member" "n8n_data_lake_viewer" {
+  bucket = module.data_lake.bucket_name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${module.n8n_service_account.email}"
 }
