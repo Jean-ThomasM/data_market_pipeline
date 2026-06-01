@@ -446,7 +446,7 @@ module "n8n_service" {
     N8N_ENDPOINT_HEALTH         = "health"
     N8N_RUNNERS_ENABLED         = "false"
     N8N_RESTRICT_FILE_ACCESS_TO = "/tmp"
-    N8N_HOST                    = "TON_URL_SANS_HTTPS"
+    N8N_HOST                    = "n8n-dev-5pko4kkvvq-ew.a.run.app"
     N8N_EDITOR_BASE_URL         = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
     WEBHOOK_URL                 = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
   }
