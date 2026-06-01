@@ -17,3 +17,10 @@ sources:
       - name: staging_departements
       - name: staging_regions
       - name: staging_epcis
+
+  - name: sirene
+    description: "Tables raw issues de l'extraction Sirene (stock INSEE)."
+    database: "{{ 'data-market-386959' if target.type == 'bigquery' else 'staging_offres_ft' }}"
+    schema: "{{ 'staging_dev' if target.type == 'bigquery' else 'main' }}"
+    tables:
+      - name: staging_sirene
