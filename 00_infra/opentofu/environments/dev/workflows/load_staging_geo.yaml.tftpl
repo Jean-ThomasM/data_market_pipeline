@@ -84,7 +84,7 @@ main:
     - move_loaded_files_to_done:
         for:
           value: loaded_file
-          in: $${default(loaded_files.items, [])}
+          in: $${default(map.get(loaded_files, "items"), [])}
           steps:
             - copy_loaded_file:
                 call: googleapis.storage.v1.objects.copy
