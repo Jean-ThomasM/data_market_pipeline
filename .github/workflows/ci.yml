@@ -1,5 +1,9 @@
 name: CI - Tests & Securite
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
     branches:
@@ -36,8 +40,11 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Installer les dépendances
+      - name: Installer les dependances
         run: uv sync --all-extras --dev
 
       - name: Linter le code
         run: uv run ruff check .
+
+      - name: Verifier le formatage
+        run: uv run ruff format --check .
