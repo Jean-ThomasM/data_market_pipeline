@@ -1,0 +1,122 @@
+{
+  "displayName": "Pipeline Data Market — ${environment}",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "Exécutions Cloud Run (extracteurs + dbt)",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "resource.type = \"cloud_run_job\" AND metric.type = \"run.googleapis.com/job/execution_count\" AND metric.labels.result = \"succeeded\"",
+                  "aggregation": {
+                    "alignmentPeriod": "86400s",
+                    "perSeriesAligner": "ALIGN_COUNT",
+                    "crossSeriesReducer": "REDUCE_SUM"
+                  }
+                }
+              },
+              "legendTemplate": "Succès"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "resource.type = \"cloud_run_job\" AND metric.type = \"run.googleapis.com/job/execution_count\" AND metric.labels.result = \"failed\"",
+                  "aggregation": {
+                    "alignmentPeriod": "86400s",
+                    "perSeriesAligner": "ALIGN_COUNT",
+                    "crossSeriesReducer": "REDUCE_SUM"
+                  }
+                }
+              },
+              "legendTemplate": "Échecs"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "Exécutions",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
+          }
+        }
+      },
+      {
+        "title": "Chargements BigQuery (workflows)",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "resource.type = \"workflows.googleapis.com/Workflow\" AND metric.type = \"workflows.googleapis.com/execution/completed_count\" AND metric.labels.state = \"succeeded\"",
+                  "aggregation": {
+                    "alignmentPeriod": "86400s",
+                    "perSeriesAligner": "ALIGN_COUNT",
+                    "crossSeriesReducer": "REDUCE_SUM"
+                  }
+                }
+              },
+              "legendTemplate": "Succès"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "resource.type = \"workflows.googleapis.com/Workflow\" AND metric.type = \"workflows.googleapis.com/execution/completed_count\" AND metric.labels.state = \"failed\"",
+                  "aggregation": {
+                    "alignmentPeriod": "86400s",
+                    "perSeriesAligner": "ALIGN_COUNT",
+                    "crossSeriesReducer": "REDUCE_SUM"
+                  }
+                }
+              },
+              "legendTemplate": "Échecs"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "Exécutions",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
+          }
+        }
+      },
+      {
+        "title": "Statut n8n",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "resource.type = \"uptime_url\" AND metric.type = \"monitoring.googleapis.com/uptime_check/health_passed\"",
+                  "aggregation": {
+                    "alignmentPeriod": "3600s",
+                    "perSeriesAligner": "ALIGN_MEAN",
+                    "crossSeriesReducer": "REDUCE_MEAN"
+                  }
+                }
+              },
+              "legendTemplate": "Disponibilité"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "Disponibilité",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "Erreurs récentes (logs pipeline)",
+        "logsPanel": {
+          "resourceNames": ["projects/${project_id}"],
+          "filter": "(resource.type = \"cloud_run_job\" OR resource.type = \"workflows.googleapis.com/Workflow\") AND severity = ERROR"
+        }
+      }
+    ]
+  }
+}
