@@ -18,9 +18,7 @@ DEFAULT_REFERENTIALS_DIR = (
     / "data"
     / "france_travail_referentiels"
 )
-DEFAULT_OUTPUT_MD = (
-    Path(__file__).resolve().parent / "france_travail_offer_schema.md"
-)
+DEFAULT_OUTPUT_MD = Path(__file__).resolve().parent / "france_travail_offer_schema.md"
 DEFAULT_OUTPUT_JSON = (
     Path(__file__).resolve().parent / "france_travail_offer_schema.json"
 )
@@ -127,7 +125,9 @@ def load_offers_from_file(file_path: Path) -> list[dict[str, Any]]:
                     f"Ligne NDJSON invalide dans {file_path}:{line_number}: {exc}"
                 ) from exc
             if not isinstance(payload, dict):
-                raise ValueError(f"Chaque ligne de {file_path} doit etre un objet JSON.")
+                raise ValueError(
+                    f"Chaque ligne de {file_path} doit etre un objet JSON."
+                )
             offers.append(payload)
     return offers
 
@@ -235,7 +235,11 @@ def render_markdown(
     offer_files: list[Path],
     referentials: dict[str, dict[str, set[str]]],
 ) -> str:
-    top_level_rows = [row for row in rows if "." not in row["field_path"] and "[]" not in row["field_path"]]
+    top_level_rows = [
+        row
+        for row in rows
+        if "." not in row["field_path"] and "[]" not in row["field_path"]
+    ]
 
     lines = [
         "# Schema des offres France Travail",

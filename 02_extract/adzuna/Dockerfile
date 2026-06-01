@@ -22,8 +22,6 @@ COPY 02_extract/adzuna/config.py 02_extract/adzuna/config.py
 COPY 02_extract/adzuna/main.py 02_extract/adzuna/main.py
 COPY 02_extract/adzuna/scraper.py 02_extract/adzuna/scraper.py
 COPY 02_extract/adzuna/scraper_2.py 02_extract/adzuna/scraper_2.py
-COPY 02_extract/adzuna/utils.py 02_extract/adzuna/utils.py
-
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package adzuna
 
@@ -42,6 +40,5 @@ COPY --from=builder /app/02_extract/adzuna/config.py /app/02_extract/adzuna/conf
 COPY --from=builder /app/02_extract/adzuna/main.py /app/02_extract/adzuna/main.py
 COPY --from=builder /app/02_extract/adzuna/scraper.py /app/02_extract/adzuna/scraper.py
 COPY --from=builder /app/02_extract/adzuna/scraper_2.py /app/02_extract/adzuna/scraper_2.py
-COPY --from=builder /app/02_extract/adzuna/utils.py /app/02_extract/adzuna/utils.py
 
 CMD ["python", "main.py"]

@@ -13,14 +13,13 @@ COPY 00_infra/pyproject.toml 00_infra/pyproject.toml
 COPY 01_shared/pyproject.toml 01_shared/pyproject.toml
 COPY 02_extract/adzuna/pyproject.toml 02_extract/adzuna/pyproject.toml
 COPY 02_extract/geo/pyproject.toml 02_extract/geo/pyproject.toml
-COPY 02_extract/sirene/pyproject.toml 02_extract/sirene/pyproject.toml
+
 COPY 02_extract/france_travail/pyproject.toml 02_extract/france_travail/pyproject.toml
 
 COPY 01_shared/shared 01_shared/shared
 COPY 02_extract/geo/config.py 02_extract/geo/config.py
 COPY 02_extract/geo/main.py 02_extract/geo/main.py
 COPY 02_extract/geo/scraper.py 02_extract/geo/scraper.py
-COPY 02_extract/geo/utils.py 02_extract/geo/utils.py
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package geo
@@ -39,6 +38,5 @@ COPY --from=builder /app/01_shared/shared /app/01_shared/shared
 COPY --from=builder /app/02_extract/geo/config.py /app/02_extract/geo/config.py
 COPY --from=builder /app/02_extract/geo/main.py /app/02_extract/geo/main.py
 COPY --from=builder /app/02_extract/geo/scraper.py /app/02_extract/geo/scraper.py
-COPY --from=builder /app/02_extract/geo/utils.py /app/02_extract/geo/utils.py
 
 CMD ["python", "main.py"]
