@@ -1,0 +1,22 @@
+[sqlfluff]
+templater = dbt
+dialect = bigquery
+runaway_limit = 10
+max_line_length = 120
+
+[sqlfluff:templater:dbt]
+project_dir = 03_transform/dbt
+profiles_dir = 03_transform/dbt
+target = local
+
+[sqlfluff:indentation]
+tab_width = 4
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.identifiers]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.functions]
+capitalisation_policy = lower

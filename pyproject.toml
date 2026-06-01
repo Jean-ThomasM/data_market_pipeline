@@ -18,6 +18,7 @@ dev = [
     "pytest-mock>=3.14.0",
     "ruff>=0.15.9",
     "sqlfluff>=3.4.0",
+    "sqlfluff-templater-dbt>=3.3.0",
 ]
 
 [tool.ruff]
@@ -47,5 +48,6 @@ members = [
     "01_shared",
     "02_extract/france_travail",
     "02_extract/geo",
+    "02_extract/sirene",
     "02_extract/adzuna",
 ]

@@ -14,6 +14,7 @@ COPY 01_shared/pyproject.toml 01_shared/pyproject.toml
 COPY 02_extract/adzuna/pyproject.toml 02_extract/adzuna/pyproject.toml
 COPY 02_extract/france_travail/pyproject.toml 02_extract/france_travail/pyproject.toml
 COPY 02_extract/geo/pyproject.toml 02_extract/geo/pyproject.toml
+COPY 02_extract/sirene/pyproject.toml 02_extract/sirene/pyproject.toml
 
 # Copy only the packages needed by the Adzuna extractor.
 COPY 01_shared/shared 01_shared/shared
@@ -21,7 +22,6 @@ COPY 02_extract/adzuna/config.py 02_extract/adzuna/config.py
 COPY 02_extract/adzuna/main.py 02_extract/adzuna/main.py
 COPY 02_extract/adzuna/scraper.py 02_extract/adzuna/scraper.py
 COPY 02_extract/adzuna/scraper_2.py 02_extract/adzuna/scraper_2.py
-
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package adzuna
 
