@@ -1,8 +1,8 @@
 import logging
 
 import requests
-import utils
 from config import Config, load_config
+from shared.storage import save_ndjson_records
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class GeoExtractor:
     def extract(self) -> None:
         for resource_name in RESOURCE_PATHS:
             resource_payload = self._fetch_resource(resource_name)
-            utils.save_ndjson_records(
+            save_ndjson_records(
                 config=self.config,
                 records=resource_payload,
                 destination_name=RESOURCE_FILE_NAMES[resource_name],

@@ -90,7 +90,7 @@ class TestOffersExtractor:
             OffersExtractor, "_fetch_page", side_effect=[page_1, page_2]
         )
         mocker.patch("scraper.time.sleep")
-        mocker.patch("utils.save_ndjson_records")
+        mocker.patch("scraper.save_ndjson_records")
         config.results_per_page = 2
         config.max_results = 3150
 
@@ -120,7 +120,7 @@ class TestOffersExtractor:
             side_effect=[page_1] + subsequent_pages,
         )
         mocker.patch("scraper.time.sleep")
-        mocker.patch("utils.save_ndjson_records")
+        mocker.patch("scraper.save_ndjson_records")
 
         ext = OffersExtractor(config, mode="test")
         ext.extract()
@@ -135,7 +135,7 @@ class TestOffersExtractor:
             "_fetch_page",
             return_value={"count": 0, "results": []},
         )
-        mock_save = mocker.patch("utils.save_ndjson_records")
+        mock_save = mocker.patch("scraper.save_ndjson_records")
 
         ext = OffersExtractor(config, mode="prod")
         ext.extract()
@@ -149,7 +149,7 @@ class TestOffersExtractor:
         page_1 = {"count": 10, "results": [{"id": i} for i in range(10)]}
         mocker.patch.object(OffersExtractor, "_fetch_page", return_value=page_1)
         mocker.patch("scraper.time.sleep")
-        mocker.patch("utils.save_ndjson_records")
+        mocker.patch("scraper.save_ndjson_records")
 
         ext = OffersExtractor(config, mode="prod")
         ext.extract()

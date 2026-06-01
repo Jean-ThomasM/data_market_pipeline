@@ -4,8 +4,8 @@ import time
 from datetime import datetime
 
 import requests
-import utils
 from config import Config, load_config
+from shared.storage import save_ndjson_records
 from dotenv import load_dotenv
 
 logging.basicConfig(
@@ -209,7 +209,7 @@ class OffersExtractor:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_file_name = f"offres_adzuna_data_market_{timestamp}.ndjson"
 
-        utils.save_ndjson_records(
+        save_ndjson_records(
             config=self.config,
             records=deduplicated_offers,
             destination_name=output_file_name,

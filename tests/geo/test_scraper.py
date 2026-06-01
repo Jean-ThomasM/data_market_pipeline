@@ -63,7 +63,7 @@ class TestGeoExtractor:
         mock_fetch = mocker.patch.object(
             ext, "_fetch_resource", return_value=[{"id": 1}]
         )
-        mock_save = mocker.patch("utils.save_ndjson_records")
+        mock_save = mocker.patch("scraper.save_ndjson_records")
 
         ext.extract()
 

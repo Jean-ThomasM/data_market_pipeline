@@ -14,7 +14,7 @@ def test_shared_imports():
 
 
 class TestGeoImports:
-    module_names = ["config", "scraper", "utils"]
+    module_names = ["config", "scraper"]
 
     @pytest.fixture(autouse=True)
     def setup_path(self):
@@ -31,7 +31,7 @@ class TestGeoImports:
 
 
 class TestFranceTravailImports:
-    module_names = ["config", "scraper", "utils", "auth"]
+    module_names = ["config", "scraper", "auth"]
 
     @pytest.fixture(autouse=True)
     def setup_path(self):
@@ -51,7 +51,7 @@ class TestFranceTravailImports:
 
 
 class TestAdzunaImports:
-    module_names = ["config", "scraper", "utils"]
+    module_names = ["config", "scraper"]
 
     @pytest.fixture(autouse=True)
     def setup_path(self):

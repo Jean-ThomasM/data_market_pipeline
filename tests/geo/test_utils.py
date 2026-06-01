@@ -5,7 +5,7 @@ import pytest
 class TestSaveTextContent:
     def test_local(self, tmp_output_dir):
         from config import Config
-        from utils import save_text_content
+        from shared.storage import save_text_content
 
         cfg = Config(
             storage="local",
@@ -26,7 +26,7 @@ class TestSaveTextContent:
 
     def test_gcs_no_bucket(self):
         from config import Config
-        from utils import save_text_content
+        from shared.storage import save_text_content
 
         cfg = Config(
             storage="gcs",
@@ -41,7 +41,7 @@ class TestSaveTextContent:
 
     def test_gcs_calls_write_file(self, mock_gcs_write):
         from config import Config
-        from utils import save_text_content
+        from shared.storage import save_text_content
 
         cfg = Config(
             storage="gcs",
@@ -59,7 +59,7 @@ class TestSaveTextContent:
 
     def test_local_missing_dir(self):
         from config import Config
-        from utils import save_text_content
+        from shared.storage import save_text_content
 
         cfg = Config(
             storage="local",
@@ -76,7 +76,7 @@ class TestSaveTextContent:
 class TestSaveJsonPayload:
     def test_local(self, tmp_output_dir):
         from config import Config
-        from utils import save_json_payload
+        from shared.storage import save_json_payload
 
         cfg = Config(
             storage="local",
@@ -100,7 +100,7 @@ class TestSaveJsonPayload:
 class TestSaveNdjsonRecords:
     def test_local(self, tmp_output_dir):
         from config import Config
-        from utils import save_ndjson_records
+        from shared.storage import save_ndjson_records
 
         cfg = Config(
             storage="local",

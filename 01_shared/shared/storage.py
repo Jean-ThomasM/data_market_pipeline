@@ -1,15 +1,20 @@
 import json
 import logging
 from pathlib import Path
+from typing import Protocol
 
-from config import Config
 from shared import gcs
 
 logger = logging.getLogger(__name__)
 
 
+class StorageConfig(Protocol):
+    storage: str | None
+    gcs_bucket_name: str | None
+
+
 def save_text_content(
-    config: Config,
+    config: StorageConfig,
     content: str,
     destination_name: str,
     gcs_prefix: str,
@@ -34,8 +39,25 @@ def save_text_content(
     logger.info("Saved file locally: %s", output_path)
 
 
+def save_json_payload(
+    config: StorageConfig,
+    payload: list[dict] | dict,
+    destination_name: str,
+    gcs_prefix: str,
+    local_directory: str | None,
+) -> None:
+    json_content = json.dumps(payload, ensure_ascii=False, indent=2)
+    save_text_content(
+        config=config,
+        content=json_content,
+        destination_name=destination_name,
+        gcs_prefix=gcs_prefix,
+        local_directory=local_directory,
+    )
+
+
 def save_ndjson_records(
-    config: Config,
+    config: StorageConfig,
     records: list[dict],
     destination_name: str,
     gcs_prefix: str,

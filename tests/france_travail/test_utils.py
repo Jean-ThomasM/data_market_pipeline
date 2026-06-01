@@ -24,7 +24,7 @@ def config():
 
 class TestSaveTextContent:
     def test_local(self, config, tmp_output_dir):
-        from utils import save_text_content
+        from shared.storage import save_text_content
 
         cfg = config
         cfg.local_save_dir_offres = tmp_output_dir
@@ -39,7 +39,7 @@ class TestSaveTextContent:
         assert (tmp_output_dir / "test.txt").read_text(encoding="utf-8") == "hello"
 
     def test_gcs(self, config, mock_gcs_write):
-        from utils import save_text_content
+        from shared.storage import save_text_content
 
         cfg = config
         cfg.storage = "gcs"
@@ -53,7 +53,7 @@ class TestSaveTextContent:
 
 class TestSaveJsonPayload:
     def test_local(self, config, tmp_output_dir):
-        from utils import save_json_payload
+        from shared.storage import save_json_payload
 
         config.local_save_dir_refs = tmp_output_dir
         payload = [{"code": "M1811"}]
@@ -71,7 +71,7 @@ class TestSaveJsonPayload:
 
 class TestSaveNdjsonRecords:
     def test_local(self, config, tmp_output_dir):
-        from utils import save_ndjson_records
+        from shared.storage import save_ndjson_records
 
         config.local_save_dir_offres = tmp_output_dir
         records = [{"id": "1"}, {"id": "2"}]

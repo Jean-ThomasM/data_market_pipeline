@@ -223,7 +223,7 @@ class TestOffersExtractor:
             side_effect=[first_page_resp, page_0_resp, page_1_resp],
         )
         mocker.patch("scraper.time.sleep")
-        mocker.patch("utils.save_ndjson_records")
+        mocker.patch("scraper.save_ndjson_records")
 
         ext = OffersExtractor(config, mode="test")
         ext.extract()
@@ -251,7 +251,7 @@ class TestOffersExtractor:
             side_effect=[first_page_resp] + page_responses,
         )
         mocker.patch("scraper.time.sleep")
-        mocker.patch("utils.save_ndjson_records")
+        mocker.patch("scraper.save_ndjson_records")
 
         ext = OffersExtractor(config, mode="prod")
         ext.extract()
@@ -279,7 +279,7 @@ class TestOffersExtractor:
             side_effect=[first_page_resp, page_0_resp, page_1_resp],
         )
         mocker.patch("scraper.time.sleep")
-        mocker.patch("utils.save_ndjson_records")
+        mocker.patch("scraper.save_ndjson_records")
 
         ext = OffersExtractor(config, mode="prod")
         ext.extract()
@@ -292,7 +292,7 @@ class TestOffersExtractor:
     def test_no_offers_saves_nothing(self, mocker, config):
         from scraper import OffersExtractor
 
-        mock_save = mocker.patch("utils.save_ndjson_records")
+        mock_save = mocker.patch("scraper.save_ndjson_records")
         ext = OffersExtractor(config, mode="prod")
         ext._save_results()
 
@@ -309,7 +309,7 @@ class TestReferentialsExtractor:
 
         mocker.patch("scraper.request_with_retry", return_value=mock_resp)
         mocker.patch("scraper.create_authenticated_session")
-        mock_save = mocker.patch("utils.save_json_payload")
+        mock_save = mocker.patch("scraper.save_json_payload")
         mocker.patch("scraper.time.sleep")
 
         ext = ReferentialsExtractor(config)

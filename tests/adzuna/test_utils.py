@@ -3,7 +3,7 @@ import json
 
 class TestSaveTextContent:
     def test_local(self, config, tmp_output_dir):
-        from utils import save_text_content
+        from shared.storage import save_text_content
 
         config.local_save_dir_offres = tmp_output_dir
         save_text_content(
@@ -17,7 +17,7 @@ class TestSaveTextContent:
         assert (tmp_output_dir / "test.txt").read_text(encoding="utf-8") == "hello"
 
     def test_gcs(self, config, mock_gcs_write):
-        from utils import save_text_content
+        from shared.storage import save_text_content
 
         config.storage = "gcs"
         config.gcs_bucket_name = "bucket"
@@ -36,7 +36,7 @@ class TestSaveTextContent:
 
 class TestSaveNdjsonRecords:
     def test_local(self, config, tmp_output_dir):
-        from utils import save_ndjson_records
+        from shared.storage import save_ndjson_records
 
         config.local_save_dir_offres = tmp_output_dir
         records = [{"id": "1"}, {"id": "2"}]
