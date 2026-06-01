@@ -22,8 +22,3 @@ variable "bigquery_location" {
   description = "Localisation des datasets BigQuery"
   type        = string
 }
-
-variable "n8n_db_password" {
-  type      = string
-  sensitive = true
-}

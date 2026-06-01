@@ -195,8 +195,7 @@ module "project_services" {
     "workflows.googleapis.com",
     "cloudscheduler.googleapis.com",
     "logging.googleapis.com",
-    "monitoring.googleapis.com",
-    "sqladmin.googleapis.com"
+    "monitoring.googleapis.com"
   ]
 }
 
@@ -439,11 +438,6 @@ module "n8n_service" {
   manual_instance_count = 1
 
   env_vars = {
-    DB_TYPE                     = "postgresdb"
-    DB_POSTGRESDB_DATABASE      = "n8n"
-    DB_POSTGRESDB_USER          = "n8n"
-    DB_POSTGRESDB_HOST          = "/cloudsql/${module.n8n_postgres.connection_name}"
-    DB_POSTGRESDB_PORT          = "5432"
     N8N_PORT                    = "5678"
     N8N_PROTOCOL                = "https"
     GENERIC_TIMEZONE            = "Europe/Paris"
@@ -457,20 +451,12 @@ module "n8n_service" {
   }
 
   secret_env_vars = {
-    DB_POSTGRESDB_PASSWORD = {
-      secret  = module.n8n_db_password_secret.secret_id
-      version = "latest"
-    }
 
     N8N_ENCRYPTION_KEY = {
       secret  = module.n8n_encryption_key_secret.secret_id
       version = "latest"
     }
   }
-
-  cloud_sql_instances = [
-    module.n8n_postgres.connection_name
-  ]
 }
 
 resource "google_cloud_run_service_iam_member" "n8n_public_access" {
@@ -482,37 +468,11 @@ resource "google_cloud_run_service_iam_member" "n8n_public_access" {
   member = "allUsers"
 }
 
-module "n8n_postgres" {
-  source = "../../modules/cloud_sql_postgres"
-
-  project_id = var.project_id
-  region     = var.region
-
-  instance_name = "n8n-postgres-${var.environment}"
-
-  database_name     = "n8n"
-  database_user     = "n8n"
-  database_password = var.n8n_db_password
-}
-
-module "n8n_db_password_secret" {
-  source = "../../modules/secret_manager_secret"
-
-  project_id = var.project_id
-  secret_id  = "n8n-db-password-${var.environment}"
-}
-
 module "n8n_encryption_key_secret" {
   source = "../../modules/secret_manager_secret"
 
   project_id = var.project_id
   secret_id  = "n8n-encryption-key-${var.environment}"
-}
-
-resource "google_project_iam_member" "n8n_cloudsql_client" {
-  project = var.project_id
-  role    = "roles/cloudsql.client"
-  member  = "serviceAccount:${module.n8n_service_account.email}"
 }
 
 resource "google_project_iam_member" "n8n_secret_accessor" {
