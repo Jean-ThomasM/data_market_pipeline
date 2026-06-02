@@ -10,6 +10,7 @@ module "data_lake" {
   versioning_enabled = true
 }
 
+
 module "staging_dataset" {
   source = "../../modules/bigquery_dataset"
 
@@ -28,6 +29,13 @@ module "marts_dataset" {
   source = "../../modules/bigquery_dataset"
 
   dataset_id = "marts_${var.environment}"
+  location   = var.bigquery_location
+}
+
+module "finops_dataset" {
+  source = "../../modules/bigquery_dataset"
+
+  dataset_id = "finops_${var.environment}"
   location   = var.bigquery_location
 }
 
@@ -83,6 +91,15 @@ module "epcis_table" {
   dataset_id = module.staging_dataset.dataset_id
   table_id   = "staging_epcis"
   schema     = file("${path.module}/schemas/epcis.bqschema")
+}
+
+module "staging_sirene_table" {
+  source = "../../modules/bigquery_table"
+
+  project_id = var.project_id
+  dataset_id = module.staging_dataset.dataset_id
+  table_id   = "staging_sirene"
+  schema     = file("${path.module}/schemas/staging_sirene.bqschema")
 }
 
 module "load_staging_offres_ft_workflow" {
@@ -164,6 +181,31 @@ module "load_staging_geo_workflow" {
   ]
 }
 
+module "load_staging_sirene_workflow" {
+  source = "../../modules/workflow"
+
+  project_id            = var.project_id
+  region                = var.region
+  name                  = "load-staging-sirene-${var.environment}"
+  description           = "Charge les données Sirene depuis GCS vers BigQuery."
+  service_account_email = module.pipeline_service_account.email
+  source_contents = templatefile(
+    "${path.module}/workflows/load_staging_sirene.yaml.tftpl",
+    {
+      project_id  = var.project_id
+      dataset_id  = module.staging_dataset.dataset_id
+      bucket_name = module.data_lake.bucket_name
+    }
+  )
+
+  depends_on = [
+    module.staging_sirene_table,
+    module.project_services,
+    google_project_service_identity.workflows_service_agent,
+    google_service_account_iam_member.workflows_service_account_token_creator
+  ]
+}
+
 module "pipeline_service_account" {
   source = "../../modules/service_account"
 
@@ -179,6 +221,7 @@ module "project_services" {
   services = [
     "serviceusage.googleapis.com",
     "iam.googleapis.com",
+    "iamcredentials.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "storage.googleapis.com",
     "bigquery.googleapis.com",
@@ -188,7 +231,8 @@ module "project_services" {
     "workflows.googleapis.com",
     "cloudscheduler.googleapis.com",
     "logging.googleapis.com",
-    "monitoring.googleapis.com"
+    "monitoring.googleapis.com",
+    "sqladmin.googleapis.com"
   ]
 }
 
@@ -368,12 +412,22 @@ module "dbt_job" {
   }
 }
 
+module "github_workload_identity" {
+  source = "../../modules/workload_identity_federation"
+
+  project_id           = var.project_id
+  project_number       = data.google_project.current.number
+  environment          = var.environment
+  github_repo          = var.github_repo
+  service_account_name = module.dbt_service_account.name
+}
+
 module "pipeline_global_workflow" {
   source                = "../../modules/workflow"
   project_id            = var.project_id
   region                = var.region
   name                  = "pipeline-global-${var.environment}"
-  description           = "Orchestre extraction FT/GEO/ADZUNA et chargement staging."
+  description           = "Orchestre extraction FT/GEO/ADZUNA/SIRENE et chargement staging."
   service_account_email = module.pipeline_service_account.email
 
   source_contents = templatefile(
@@ -388,6 +442,7 @@ module "pipeline_global_workflow" {
       load_ft_workflow_name     = module.load_staging_offres_ft_workflow.name
       load_geo_workflow_name    = module.load_staging_geo_workflow.name
       load_adzuna_workflow_name = module.load_staging_adzuna_workflow.name
+      load_sirene_workflow_name = module.load_staging_sirene_workflow.name
     }
   )
 
@@ -398,6 +453,7 @@ module "pipeline_global_workflow" {
     module.load_staging_offres_ft_workflow,
     module.load_staging_geo_workflow,
     module.load_staging_adzuna_workflow,
+    module.load_staging_sirene_workflow,
     module.pipeline_iam,
     module.project_services,
     google_project_service_identity.workflows_service_agent,
@@ -420,21 +476,35 @@ module "n8n_service" {
   region     = var.region
 
   service_name = "n8n-${var.environment}"
-
-  image = "docker.io/n8nio/n8n:latest"
+  image        = "docker.io/n8nio/n8n:latest"
 
   service_account_email = module.n8n_service_account.email
 
-  cpu    = "2"
-  memory = "4Gi"
+  port   = 5678
+  cpu    = "1"
+  memory = "2Gi"
+
+  manual_instance_count = 1
 
   env_vars = {
-    N8N_PORT            = "5678"
-    N8N_PROTOCOL        = "https"
-    N8N_HOST            = "n8n-dev-5pko4kkvvq-ew.a.run.app"
-    WEBHOOK_URL         = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
-    N8N_EDITOR_BASE_URL = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
-    N8N_PUSH_BACKEND    = "sse"
+    N8N_PORT                    = "5678"
+    N8N_PROTOCOL                = "https"
+    GENERIC_TIMEZONE            = "Europe/Paris"
+    N8N_SECURE_COOKIE           = "true"
+    N8N_ENDPOINT_HEALTH         = "health"
+    N8N_RUNNERS_ENABLED         = "false"
+    N8N_RESTRICT_FILE_ACCESS_TO = "/tmp"
+    N8N_HOST                    = "n8n-dev-5pko4kkvvq-ew.a.run.app"
+    N8N_EDITOR_BASE_URL         = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
+    WEBHOOK_URL                 = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
+  }
+
+  secret_env_vars = {
+
+    N8N_ENCRYPTION_KEY = {
+      secret  = module.n8n_encryption_key_secret.secret_id
+      version = "latest"
+    }
   }
 }
 
@@ -442,6 +512,83 @@ resource "google_cloud_run_service_iam_member" "n8n_public_access" {
   project  = var.project_id
   location = var.region
   service  = module.n8n_service.name
-  role     = "roles/run.invoker"
-  member   = "allUsers"
+
+  role   = "roles/run.invoker"
+  member = "allUsers"
+}
+
+module "n8n_encryption_key_secret" {
+  source = "../../modules/secret_manager_secret"
+
+  project_id = var.project_id
+  secret_id  = "n8n-encryption-key-${var.environment}"
+}
+
+resource "google_storage_bucket_iam_member" "n8n_data_lake_viewer" {
+  bucket = module.data_lake.bucket_name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${module.n8n_service_account.email}"
+}
+
+resource "google_bigquery_dataset_iam_member" "n8n_staging_data_editor" {
+  project    = var.project_id
+  dataset_id = "staging_${var.environment}"
+  role       = "roles/bigquery.dataEditor"
+  member     = "serviceAccount:${module.n8n_service_account.email}"
+}
+
+resource "google_project_iam_member" "n8n_bigquery_job_user" {
+  project = var.project_id
+  role    = "roles/bigquery.jobUser"
+  member  = "serviceAccount:${module.n8n_service_account.email}"
+}
+
+module "scheduler_iam" {
+  source = "../../modules/scheduler_iam"
+
+  project_id            = var.project_id
+  service_account_email = module.pipeline_service_account.email
+}
+
+module "schedule_extract_ft" {
+  source = "../../modules/cloud_scheduler_job"
+
+  project_id                      = var.project_id
+  region                          = var.region
+  scheduler_name                  = "trigger-extract-ft-${var.environment}"
+  schedule                        = "0 6 * * *"
+  cloud_run_job_name              = module.extract_job_ft.job_name
+  scheduler_service_account_email = module.pipeline_service_account.email
+}
+
+module "schedule_extract_geo" {
+  source = "../../modules/cloud_scheduler_job"
+
+  project_id                      = var.project_id
+  region                          = var.region
+  scheduler_name                  = "trigger-extract-geo-${var.environment}"
+  schedule                        = "0 5 * * 1"
+  cloud_run_job_name              = module.extract_job_geo.job_name
+  scheduler_service_account_email = module.pipeline_service_account.email
+}
+
+module "schedule_extract_adzuna" {
+  source = "../../modules/cloud_scheduler_job"
+
+  project_id                      = var.project_id
+  region                          = var.region
+  scheduler_name                  = "trigger-extract-adzuna-${var.environment}"
+  schedule                        = "0 7 * * *"
+  cloud_run_job_name              = module.extract_job_adzuna.job_name
+  scheduler_service_account_email = module.pipeline_service_account.email
+}
+
+module "pipeline_monitoring" {
+  source = "../../modules/pipeline_monitoring"
+
+  project_id         = var.project_id
+  region             = var.region
+  environment        = var.environment
+  notification_email = var.monitoring_email
+  n8n_uptime_host    = replace(module.n8n_service.url, "https://", "")
 }
