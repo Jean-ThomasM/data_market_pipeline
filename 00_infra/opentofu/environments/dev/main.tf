@@ -253,7 +253,7 @@ module "extract_job_ft" {
 
   job_name = "extract-ft-dev"
 
-  image = "${module.artifact_registry.repository_url}/extract-ft:latest"
+  image = "${module.artifact_registry.repository_url}/extract-ft:${var.environment}"
 
   service_account_email = module.pipeline_service_account.email
 
@@ -277,7 +277,7 @@ module "extract_job_geo" {
 
   job_name = "extract-geo-dev"
 
-  image = "${module.artifact_registry.repository_url}/extract-geo:latest"
+  image = "${module.artifact_registry.repository_url}/extract-geo:${var.environment}"
 
   service_account_email = module.pipeline_service_account.email
 
@@ -300,7 +300,7 @@ module "extract_job_adzuna" {
 
   job_name = "extract-adzuna-dev"
 
-  image = "${module.artifact_registry.repository_url}/extract-adzuna:latest"
+  image = "${module.artifact_registry.repository_url}/extract-adzuna:${var.environment}"
 
   service_account_email = module.pipeline_service_account.email
 

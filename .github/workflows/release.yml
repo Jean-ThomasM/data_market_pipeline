@@ -1,10 +1,15 @@
-name: CD - Semantic Release & Docker
+name: CI/CD - Build, Deploy & Release
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 on:
+  pull_request:
+    types: [opened, synchronize]
+    paths-ignore:
+      - "_*/**"
+      - "**/_*/**"
   push:
     branches:
       - main
@@ -12,26 +17,39 @@ on:
     paths-ignore:
       - "_*/**"
       - "**/_*/**"
+  workflow_dispatch:
+    inputs:
+      build:
+        description: "Build & push les images"
+        type: boolean
+        default: false
+      environment:
+        description: "Env cible pour le build"
+        type: choice
+        options:
+          - dev
+          - prod
+        default: dev
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   GCP_WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
-  GCP_DBT_SA_EMAIL: ${{ vars.GCP_DBT_SA_EMAIL }}
+  GCP_SA_EMAIL: ${{ vars.GCP_DBT_SA_EMAIL }}
   REGISTRY: europe-west1-docker.pkg.dev
   REPOSITORY: data-market-docker-repository
+  TF_DIR: 00_infra/opentofu/environments
 
 jobs:
-  release:
+  filter:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write
-
+    outputs:
+      shared: ${{ steps.override.outputs.shared || steps.filter.outputs.shared }}
+      ft: ${{ steps.override.outputs.ft || steps.filter.outputs.ft }}
+      geo: ${{ steps.override.outputs.geo || steps.filter.outputs.geo }}
+      adzuna: ${{ steps.override.outputs.adzuna || steps.filter.outputs.adzuna }}
+      dbt: ${{ steps.override.outputs.dbt || steps.filter.outputs.dbt }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -49,75 +67,173 @@ jobs:
             dbt:
               - '03_transform/**'
 
+      - name: Override filter for manual build
+        id: override
+        if: github.event_name == 'workflow_dispatch' && inputs.build
+        run: |
+          echo "shared=true" >> $GITHUB_OUTPUT
+          echo "ft=true" >> $GITHUB_OUTPUT
+          echo "geo=true" >> $GITHUB_OUTPUT
+          echo "adzuna=true" >> $GITHUB_OUTPUT
+          echo "dbt=true" >> $GITHUB_OUTPUT
+
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    outputs:
+      released: ${{ steps.semantic.outputs.released || '' }}
+      version: ${{ steps.semantic.outputs.version || '' }}
+      tag: ${{ steps.tag.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Python Semantic Release
         id: semantic
+        if: github.ref_name == 'main' && github.event_name == 'push'
         uses: python-semantic-release/python-semantic-release@v9
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Authentifier via Workload Identity Federation
-        if: steps.semantic.outputs.released == 'true'
+      - name: Set environment tag
+        id: tag
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "value=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "value=prod" >> $GITHUB_OUTPUT
+          else
+            echo "value=dev" >> $GITHUB_OUTPUT
+          fi
+
+  build-and-push:
+    needs: [filter, release]
+    if: github.event_name == 'pull_request' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build)
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate via WIF
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build)
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
-          service_account: ${{ env.GCP_DBT_SA_EMAIL }}
+          service_account: ${{ env.GCP_SA_EMAIL }}
 
-      - name: Configurer Docker Buildx
-        if: steps.semantic.outputs.released == 'true'
+      - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Authentifier Docker a Artifact Registry
-        if: steps.semantic.outputs.released == 'true'
+      - name: Authenticate Docker to Artifact Registry
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build)
         run: gcloud auth configure-docker $REGISTRY
 
       - name: Build & Push extract-ft
-        if: steps.semantic.outputs.released == 'true' && (steps.filter.outputs.shared == 'true' || steps.filter.outputs.ft == 'true')
+        if: needs.filter.outputs.shared == 'true' || needs.filter.outputs.ft == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
           file: 02_extract/france_travail/Dockerfile
-          push: true
+          push: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build) }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/extract-ft:${{ steps.semantic.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/extract-ft:latest
+            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/extract-ft:${{ needs.release.outputs.tag }}
+            ${{ github.ref_name == 'main' && needs.release.outputs.version != '' && format('{0}/{1}/{2}/{3}:{4}', env.REGISTRY, env.GCP_PROJECT_ID, env.REPOSITORY, 'extract-ft', needs.release.outputs.version) || '' }}
+            ${{ github.ref_name == 'main' && format('{0}/{1}/{2}/{3}:latest', env.REGISTRY, env.GCP_PROJECT_ID, env.REPOSITORY, 'extract-ft') || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Build & Push extract-geo
-        if: steps.semantic.outputs.released == 'true' && (steps.filter.outputs.shared == 'true' || steps.filter.outputs.geo == 'true')
+        if: needs.filter.outputs.shared == 'true' || needs.filter.outputs.geo == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
           file: 02_extract/geo/Dockerfile
-          push: true
+          push: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build) }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/extract-geo:${{ steps.semantic.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/extract-geo:latest
+            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/extract-geo:${{ needs.release.outputs.tag }}
+            ${{ github.ref_name == 'main' && needs.release.outputs.version != '' && format('{0}/{1}/{2}/{3}:{4}', env.REGISTRY, env.GCP_PROJECT_ID, env.REPOSITORY, 'extract-geo', needs.release.outputs.version) || '' }}
+            ${{ github.ref_name == 'main' && format('{0}/{1}/{2}/{3}:latest', env.REGISTRY, env.GCP_PROJECT_ID, env.REPOSITORY, 'extract-geo') || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Build & Push extract-adzuna
-        if: steps.semantic.outputs.released == 'true' && (steps.filter.outputs.shared == 'true' || steps.filter.outputs.adzuna == 'true')
+        if: needs.filter.outputs.shared == 'true' || needs.filter.outputs.adzuna == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
           file: 02_extract/adzuna/Dockerfile
-          push: true
+          push: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build) }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/extract-adzuna:${{ steps.semantic.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/extract-adzuna:latest
+            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/extract-adzuna:${{ needs.release.outputs.tag }}
+            ${{ github.ref_name == 'main' && needs.release.outputs.version != '' && format('{0}/{1}/{2}/{3}:{4}', env.REGISTRY, env.GCP_PROJECT_ID, env.REPOSITORY, 'extract-adzuna', needs.release.outputs.version) || '' }}
+            ${{ github.ref_name == 'main' && format('{0}/{1}/{2}/{3}:latest', env.REGISTRY, env.GCP_PROJECT_ID, env.REPOSITORY, 'extract-adzuna') || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build & Push dbt-transform
-        if: steps.semantic.outputs.released == 'true' && (steps.filter.outputs.shared == 'true' || steps.filter.outputs.dbt == 'true')
+      - name: Build & Push dbt_transform
+        if: needs.filter.outputs.shared == 'true' || needs.filter.outputs.dbt == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
           file: 03_transform/Dockerfile
-          push: true
+          push: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build) }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/dbt_transform:${{ steps.semantic.outputs.version }}
             ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/dbt_transform:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  promote:
+    needs: release
+    if: github.event_name == 'workflow_dispatch' && !inputs.build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Authenticate via WIF
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
+          service_account: ${{ env.GCP_SA_EMAIL }}
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Authenticate Docker to Artifact Registry
+        run: gcloud auth configure-docker $REGISTRY
+      - name: Retag dev -> prod
+        run: |
+          for IMAGE in extract-ft extract-geo extract-adzuna dbt_transform; do
+            docker pull ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${IMAGE}:dev
+            docker tag ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${IMAGE}:dev \
+              ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${IMAGE}:prod
+            docker push ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${IMAGE}:prod
+          done
+
+  tofu-apply:
+    needs: [release, build-and-push, promote]
+    if: always() && !cancelled() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Authenticate via WIF
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
+          service_account: ${{ env.GCP_SA_EMAIL }}
+      - name: Setup tofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: latest
+      - name: tofu init
+        run: tofu init
+        working-directory: ${{ env.TF_DIR }}/${{ needs.release.outputs.tag }}
+      - name: tofu apply
+        run: tofu apply -auto-approve
+        working-directory: ${{ env.TF_DIR }}/${{ needs.release.outputs.tag }}
