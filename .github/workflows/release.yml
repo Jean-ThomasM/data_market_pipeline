@@ -235,5 +235,5 @@ jobs:
         run: tofu init
         working-directory: ${{ env.TF_DIR }}/${{ needs.release.outputs.tag }}
       - name: tofu apply
-        run: tofu apply -auto-approve
+        run: tofu apply -auto-approve -var-file=ci.tfvars
         working-directory: ${{ env.TF_DIR }}/${{ needs.release.outputs.tag }}

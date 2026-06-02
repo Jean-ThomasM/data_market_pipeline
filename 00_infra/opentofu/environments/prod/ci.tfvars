@@ -1,0 +1,5 @@
+project_id        = "data-market-386959"
+region            = "europe-west1"
+environment       = "prod"
+bucket_location   = "europe-west1"
+bigquery_location = "europe-west1"
