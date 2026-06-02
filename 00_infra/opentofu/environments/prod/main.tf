@@ -67,7 +67,7 @@ module "extract_job_ft" {
 
   job_name = "extract-ft-prod"
 
-  image = "${local.artifact_registry_repository_url}/extract-ft:latest"
+  image = "${local.artifact_registry_repository_url}/extract-ft:prod"
 
   service_account_email = module.pipeline_service_account.email
 
@@ -91,7 +91,7 @@ module "extract_job_geo" {
 
   job_name = "extract-geo-prod"
 
-  image = "${local.artifact_registry_repository_url}/extract-geo:latest"
+  image = "${local.artifact_registry_repository_url}/extract-geo:prod"
 
   service_account_email = module.pipeline_service_account.email
 
