@@ -9,6 +9,7 @@ dependencies = [
     "france-travail",
     "geo",
     "adzuna",
+    "api-entreprise",
 ]
 
 [dependency-groups]
@@ -41,6 +42,7 @@ shared = { workspace = true }
 france-travail = { workspace = true }
 geo = { workspace = true }
 adzuna = { workspace = true }
+api-entreprise = { workspace = true }
 
 [tool.uv.workspace]
 members = [
@@ -50,4 +52,6 @@ members = [
     "02_extract/geo",
     "02_extract/sirene",
     "02_extract/adzuna",
+    "02_extract/n8n_trigger",
+    "02_extract/api_entreprise",
 ]
