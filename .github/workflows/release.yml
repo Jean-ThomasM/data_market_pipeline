@@ -182,9 +182,8 @@ jobs:
           file: 03_transform/Dockerfile
           push: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build) }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/dbt_transform:${{ needs.release.outputs.tag }}
-            ${{ github.ref_name == 'main' && needs.release.outputs.version != '' && format('{0}/{1}/{2}/{3}:{4}', env.REGISTRY, env.GCP_PROJECT_ID, env.REPOSITORY, 'dbt_transform', needs.release.outputs.version) || '' }}
-            ${{ github.ref_name == 'main' && format('{0}/{1}/{2}/{3}:latest', env.REGISTRY, env.GCP_PROJECT_ID, env.REPOSITORY, 'dbt_transform') || '' }}
+            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/dbt_transform:${{ steps.semantic.outputs.version }}
+            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/dbt_transform:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

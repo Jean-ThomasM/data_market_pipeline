@@ -402,7 +402,7 @@ module "dbt_job" {
 
   job_name = "dbt-run-${var.environment}"
 
-  image = "${module.artifact_registry.repository_url}/dbt_transform:${var.environment}"
+  image = "${module.artifact_registry.repository_url}/dbt_transform:latest"
 
   service_account_email = module.dbt_service_account.email
 
