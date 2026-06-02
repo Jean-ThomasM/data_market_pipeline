@@ -26,6 +26,7 @@ Required env vars:
 
 Optional env vars:
   - PGPORT (default: 5432)
+  - PGSSLMODE (default: prefer)
 USAGE
 }
 
@@ -46,6 +47,7 @@ DATABASE="${PGDATABASE:-${DATABASE:-}}"
 DB_USER="${PGUSER:-${DB_USER:-}}"
 DB_PASSWORD="${PGPASSWORD:-${DB_PASSWORD:-}}"
 LOCAL_PORT="${PGPORT:-${LOCAL_PORT:-5432}}"
+DB_SSLMODE="${PGSSLMODE:-${DB_SSLMODE:-prefer}}"
 
 if [[ -z "$DATABASE" || -z "$DB_USER" || -z "$DB_PASSWORD" ]]; then
   echo "Missing required database arguments (PGDATABASE/PGUSER/PGPASSWORD)." >&2
@@ -61,6 +63,12 @@ fi
 
 if ! command -v psql >/dev/null 2>&1; then
   echo "Error: psql is not installed or not in PATH." >&2
+  exit 1
+fi
+
+if ! psql --version >/dev/null 2>&1; then
+  echo "Error: psql is present but PostgreSQL client binaries are not installed." >&2
+  echo "Install one package like postgresql-client-16 (or 15/14 depending on your distro)." >&2
   exit 1
 fi
 
@@ -102,6 +110,27 @@ if [[ -n "$INSTANCE" ]]; then
 
   DB_HOST="127.0.0.1"
 fi
+
+CONN_STR="host=$DB_HOST port=$LOCAL_PORT dbname=$DATABASE user=$DB_USER sslmode=$DB_SSLMODE connect_timeout=10"
+
+printf 'Target DB: host=%s port=%s db=%s user=%s sslmode=%s\n' \
+  "$DB_HOST" "$LOCAL_PORT" "$DATABASE" "$DB_USER" "$DB_SSLMODE"
+printf 'Checking database connection...\n'
+
+set +e
+connect_check_err="$(mktemp)"
+PGPASSWORD="$DB_PASSWORD" psql "$CONN_STR" -v ON_ERROR_STOP=1 -Atqc 'SELECT 1;' 2>"$connect_check_err"
+connect_status=$?
+set -e
+
+if [[ $connect_status -ne 0 ]]; then
+  echo "Database connection test failed." >&2
+  cat "$connect_check_err" >&2
+  rm -f "$connect_check_err"
+  exit 1
+fi
+rm -f "$connect_check_err"
+printf 'Connection OK.\n'
 
 shopt -s nullglob
 sql_files=("$SCRIPT_DIR"/insert_*.sql)
@@ -147,8 +176,8 @@ for sql_file in "${sql_files[@]}"; do
 
     set +e
     PGPASSWORD="$DB_PASSWORD" psql \
-      "host=$DB_HOST port=$LOCAL_PORT dbname=$DATABASE user=$DB_USER sslmode=disable connect_timeout=10" \
-      -v ON_ERROR_STOP=0 \
+      "$CONN_STR" \
+      -v ON_ERROR_STOP=1 \
       -f "$chunk_file" \
       2>"$err_log" \
       1>"$out_log"
@@ -157,6 +186,10 @@ for sql_file in "${sql_files[@]}"; do
 
     if [[ $status -ne 0 ]]; then
       file_had_non_zero=1
+      printf '   ERROR in %s lines %s-%s\n' "$(basename "$sql_file")" "$chunk_start" "$chunk_end" >&2
+      sed -n '1,20p' "$err_log" >&2
+      rm -f "$chunk_file" "$err_log" "$out_log"
+      break
     fi
 
     attempted_in_chunk=$((chunk_end - chunk_start + 1))
