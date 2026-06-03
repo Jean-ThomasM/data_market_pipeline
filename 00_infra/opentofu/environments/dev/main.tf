@@ -768,6 +768,18 @@ resource "google_project_iam_member" "github_ci_cd_artifact_registry_writer" {
   member  = "serviceAccount:${module.github_ci_cd_service_account.email}"
 }
 
+resource "google_project_iam_member" "github_ci_cd_bigquery_job_user" {
+  project = var.project_id
+  role    = "roles/bigquery.jobUser"
+  member  = "serviceAccount:${module.github_ci_cd_service_account.email}"
+}
+
+resource "google_project_iam_member" "github_ci_cd_bigquery_data_owner" {
+  project = var.project_id
+  role    = "roles/bigquery.dataOwner"
+  member  = "serviceAccount:${module.github_ci_cd_service_account.email}"
+}
+
 resource "google_service_account_iam_member" "github_wif_impersonate_ci_cd" {
   service_account_id = module.github_ci_cd_service_account.name
   role               = "roles/iam.workloadIdentityUser"
