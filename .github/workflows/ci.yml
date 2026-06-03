@@ -43,6 +43,9 @@ jobs:
       - name: Installer les dependances
         run: uv sync --all-extras --dev
 
+      - name: Installer les dependances dbt
+        run: uv pip install dbt-core dbt-sqlite
+
       - name: Linter le code Python (Ruff)
         run: uv run ruff check .
 
