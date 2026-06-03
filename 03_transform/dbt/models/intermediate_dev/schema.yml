@@ -3,7 +3,7 @@ version: 2
 models:
   - name: int_geo_communes
     description: >
-      Referentiel communal enrichi (communes, departements, regions, EPCI).
+      Référentiel communal enrichi (communes, départements, régions, EPCI).
       Une ligne par couple (commune, code_postal).
     columns:
       - name: commune_code
@@ -12,29 +12,41 @@ models:
           - not_null
       - name: code_postal
         description: "Code postal de la commune."
-        tests:
-          - not_null
       - name: departement_code
-        description: "Code departement (ex: 75)."
-        tests:
-          - not_null
+        description: "Code département (ex: 75)."
+      - name: region_nom
+        description: "Nom de la région."
 
   - name: int_ft_offres
     description: "Table consolidée des offres France Travail enrichie géographiquement."
     columns:
       - name: offer_id
-        description: "ID unique de l'offre."
+        description: "ID unique de l'offre France Travail."
         tests:
           - not_null
           - unique
-      - name: commune_name
-        description: "Nom de la commune (issu du référentiel ou de la source)."
-      - name: region_nom
-        description: "Nom de la région."
+      - name: nom_commune
+        description: "Nom de la commune matché avec le référentiel GEO."
+        tests:
+          - not_null
+      - name: numero_departement
+        description: "Code du département associé."
+        tests:
+          - not_null
       - name: has_salary_info
-        description: "Flag indiquant la présence d'informations de salaire (0 ou 1)."
-      - name: is_geo_matched
-        description: "Flag indiquant si l'offre a été matchée avec le référentiel GÉO (0 ou 1)."
+        description: "Flag indiquant si l'offre a des informations de salaire (0 ou 1)."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['0', '1']
+      - name: is_alternance
+        description: "Indique si l'offre est un contrat d'alternance (0 ou 1)."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['0', '1']
 
   - name: int_adzuna_offres
     description: "Table consolidée des offres Adzuna enrichie géographiquement."
@@ -44,3 +56,26 @@ models:
         tests:
           - not_null
           - unique
+      - name: nom_commune
+        description: "Nom de la commune matché avec le référentiel GEO."
+        tests:
+          - not_null
+      - name: numero_departement
+        description: "Code du département associé."
+        tests:
+          - not_null
+      - name: has_salary_info
+        description: "Flag indiquant si l'offre a des informations de salaire (0 ou 1)."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['0', '1']
+      - name: is_alternance
+        description: "Indique si l'offre est un contrat d'alternance (0 ou 1)."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['0', '1']
+

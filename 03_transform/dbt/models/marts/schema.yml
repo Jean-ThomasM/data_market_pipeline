@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: mart_offres_data_jobs
+    description: "Table de faits centrale consolidant et filtrant toutes les offres d'emploi pour les profils Data Engineers (France Travail & Adzuna)."
+    columns:
+      - name: offer_id
+        description: "Identifiant unique de l'offre."
+        tests:
+          - not_null
+          - unique
+      - name: source_system
+        description: "Plateforme d'origine de l'offre (France Travail, Adzuna)."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['France Travail', 'Adzuna']
+      - name: job_title
+        description: "Intitulé du poste."
+        tests:
+          - not_null
+      - name: contract_type
+        description: "Type de contrat (ex: CDI, CDD, Alternance)."
+      - name: nom_region
+        description: "Région associée à la localisation de l'offre."
+      - name: is_alternance
+        description: "Flag indiquant si l'offre concerne de l'alternance (0 ou 1)."
+        tests:
+          - not_null
+
+  - name: mart_recrutement_geographique
+    description: "Agrégations géographiques pour cartographier le recrutement en France (Région, Département, Commune)."
+    columns:
+      - name: nom_region
+        description: "Nom de la région."
+      - name: nom_departement
+        description: "Nom du département."
+      - name: nom_commune
+        description: "Nom de la commune."
+      - name: total_offres
+        description: "Nombre total d'offres de Data Engineer publiées dans cette commune."
+      - name: total_employeurs_distincts
+        description: "Nombre d'employeurs différents recrutant dans cette commune."
+
+  - name: mart_salaires
+    description: "Statistiques de rémunération (salaire minimum moyen, maximum moyen et moyen global) par région et type de contrat."
+    columns:
+      - name: nom_region
+        description: "Nom de la région."
+      - name: contract_type
+        description: "Type de contrat."
+      - name: total_offres_avec_salaire
+        description: "Nombre d'offres ayant servi à calculer ces statistiques."
