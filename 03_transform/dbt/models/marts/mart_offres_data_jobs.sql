@@ -25,3 +25,4 @@ with adzuna_offers as (
 )
 
 select * from adzuna_offers
+where code_postal is not null

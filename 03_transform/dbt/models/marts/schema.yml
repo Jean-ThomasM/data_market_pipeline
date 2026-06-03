@@ -43,12 +43,4 @@ models:
       - name: total_employeurs_distincts
         description: "Nombre d'employeurs différents recrutant dans cette commune."
 
-  - name: mart_salaires
-    description: "Statistiques de rémunération (salaire minimum moyen, maximum moyen et moyen global) par région et type de contrat."
-    columns:
-      - name: nom_region
-        description: "Nom de la région."
-      - name: contract_type
-        description: "Type de contrat."
-      - name: total_offres_avec_salaire
-        description: "Nombre d'offres ayant servi à calculer ces statistiques."
+
