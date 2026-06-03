@@ -14,30 +14,30 @@ COPY 00_infra/pyproject.toml 00_infra/pyproject.toml
 COPY 01_shared/pyproject.toml 01_shared/pyproject.toml
 COPY 02_extract/adzuna/pyproject.toml 02_extract/adzuna/pyproject.toml
 COPY 02_extract/geo/pyproject.toml 02_extract/geo/pyproject.toml
-
 COPY 02_extract/france_travail/pyproject.toml 02_extract/france_travail/pyproject.toml
+COPY 02_extract/sirene/pyproject.toml 02_extract/sirene/pyproject.toml
+
+COPY 02_extract/n8n_trigger/pyproject.toml 02_extract/n8n_trigger/pyproject.toml
 
 COPY 01_shared/shared 01_shared/shared
-COPY 02_extract/geo/config.py 02_extract/geo/config.py
-COPY 02_extract/geo/main.py 02_extract/geo/main.py
-COPY 02_extract/geo/scraper.py 02_extract/geo/scraper.py
+COPY 02_extract/n8n_trigger/main.py 02_extract/n8n_trigger/main.py
+COPY 02_extract/n8n_trigger/scraper.py 02_extract/n8n_trigger/scraper.py
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --package geo
+    uv sync --frozen --no-dev --package n8n-trigger
 
 
 FROM python:3.13-slim AS runtime
 
-WORKDIR /app/02_extract/geo
+WORKDIR /app/02_extract/n8n_trigger
 
 ENV PATH="/app/.venv/bin:${PATH}" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /app/02_extract/n8n_trigger/main.py /app/02_extract/n8n_trigger/main.py
+COPY --from=builder /app/02_extract/n8n_trigger/scraper.py /app/02_extract/n8n_trigger/scraper.py
 COPY --from=builder /app/01_shared/shared /app/01_shared/shared
-COPY --from=builder /app/02_extract/geo/config.py /app/02_extract/geo/config.py
-COPY --from=builder /app/02_extract/geo/main.py /app/02_extract/geo/main.py
-COPY --from=builder /app/02_extract/geo/scraper.py /app/02_extract/geo/scraper.py
 
 CMD ["python", "main.py"]

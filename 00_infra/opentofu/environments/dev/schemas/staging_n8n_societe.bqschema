@@ -1,0 +1,33 @@
+[
+  {"name": "employer_name", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "nom_commune", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "siren", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "scraped_at", "type": "TIMESTAMP", "mode": "NULLABLE"},
+  {"name": "siret_siege", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "tva_intra", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "legal_name", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "naf_code", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "naf_label", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "date_creation", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "adresse_rue", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "adresse_complement", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "adresse_code_postal", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "adresse_ville", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "forme_juridique_code", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "statut", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "dirigeants", "type": "RECORD", "mode": "REPEATED", "fields": [
+    {"mode": "NULLABLE", "name": "nom", "type": "STRING"},
+    {"mode": "NULLABLE", "name": "prenom", "type": "STRING"},
+    {"mode": "NULLABLE", "name": "nom_famille", "type": "STRING"},
+    {"mode": "NULLABLE", "name": "fonction", "type": "STRING"},
+    {"mode": "NULLABLE", "name": "siren", "type": "STRING"}
+  ]},
+  {"name": "capital_social", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "convention_collective", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "noms_commerciaux", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "statut_rcs", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "statut_insee", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "statut_rne", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "chiffre_affaires", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "effectif", "type": "STRING", "mode": "NULLABLE"}
+]

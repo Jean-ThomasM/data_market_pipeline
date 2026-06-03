@@ -6,7 +6,6 @@ main:
           - project_id: "${project_id}"
           - region: "${region}"
           - environment: "${environment}"
-
     - check_args:
         switch:
           - condition: $${args != null}
@@ -84,7 +83,61 @@ main:
                           parent_args: $${input_args}
                       result: adz_load
 
+            - sirene_branch:
+                steps:
+                  - load_sirene:
+                      call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+                      args:
+                        workflow_id: "${load_sirene_workflow_name}"
+                        location: "${region}"
+                        project_id: "${project_id}"
+                        argument:
+                          run_id: $${run_id}
+                          parent_args: $${input_args}
+                      result: sirene_load
+
+            - api_entreprise_branch:
+                steps:
+                  - run_extract_api_entreprise:
+                      call: googleapis.run.v2.projects.locations.jobs.run
+                      args:
+                        name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${api_entreprise_job_name}"}
+                      result: api_ext
+                  - load_api_entreprise:
+                      call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+                      args:
+                        workflow_id: "${load_api_entreprise_workflow_name}"
+                        location: "${region}"
+                        project_id: "${project_id}"
+                        argument:
+                          run_id: $${run_id}
+                          parent_args: $${input_args}
+                      result: api_load
+
+    - run_dbt:
+        call: googleapis.run.v2.projects.locations.jobs.run
+        args:
+          name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${dbt_job_name}"}
+        result: dbt_result
+
+    - run_n8n_extract:
+        call: googleapis.run.v2.projects.locations.jobs.run
+        args:
+          name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${n8n_trigger_job_name}"}
+        result: n8n_ext
+
+    - run_n8n_load:
+        call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+        args:
+          workflow_id: "${load_n8n_workflow_name}"
+          location: "${region}"
+          project_id: "${project_id}"
+          argument:
+            run_id: $${run_id}
+            parent_args: $${input_args}
+        result: n8n_load
+
     - done:
         return:
           run_id: $${run_id}
-          status: "PARALLEL_COMPLETED"
+          status: "PIPELINE_COMPLETED"

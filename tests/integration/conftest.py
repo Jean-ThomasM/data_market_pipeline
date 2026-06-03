@@ -24,8 +24,11 @@ def mock_gcs_bucket(integration_test_dir):
 
 
 @pytest.fixture
-def mock_local_storage(tmp_path):
-    return str(tmp_path)
+def mock_local_storage(integration_test_dir):
+    """Crée un répertoire de stockage local pour les tests."""
+    storage_dir = integration_test_dir / "mock_storage"
+    storage_dir.mkdir(parents=True, exist_ok=True)
+    return str(storage_dir)
 
 
 @pytest.fixture
@@ -73,38 +76,6 @@ def sample_ft_offers():
             "typeContrat": "CDI",
         },
     ]
-
-
-EXTRACTOR_PATHS = {
-    "france_travail": Path(__file__).parent.parent.parent
-    / "02_extract"
-    / "france_travail",
-    "geo": Path(__file__).parent.parent.parent / "02_extract" / "geo",
-}
-
-
-@pytest.fixture(autouse=True)
-def _isolate_extractor_imports(request):
-    test_file = Path(request.node.fspath).name
-    extractor_dir = None
-    for name, path in EXTRACTOR_PATHS.items():
-        if name in test_file:
-            extractor_dir = path
-            break
-
-    for k, v in list(sys.modules.items()):
-        f = getattr(v, "__file__", None)
-        if f and "02_extract" in os.path.normpath(f):
-            del sys.modules[k]
-
-    for p in list(sys.path):
-        if p and "02_extract" in os.path.normpath(p):
-            sys.path.remove(p)
-
-    if extractor_dir:
-        sys.path.insert(0, str(extractor_dir))
-
-    yield
 
 
 @pytest.fixture
