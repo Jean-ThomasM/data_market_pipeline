@@ -17,8 +17,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project
 
 # Copier la configuration dbt.
-COPY dbt /app/dbt
-COPY src /app/src
+COPY 03_transform/dbt /app/dbt
+COPY 03_transform/src /app/src
 
 ENV DBT_PROFILES_DIR=/app/dbt
 
