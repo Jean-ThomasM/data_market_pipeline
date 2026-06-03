@@ -40,5 +40,5 @@ data_market_pipeline:
         main: "staging_offres_ft.sqlite"
         intermediate_dev: "main_intermediate_dev.db"
         staging_dev: "main_intermediate_dev.db"
-        marts: "main_marts_dev.db"
+        marts_dev: "main_marts_dev.db"
       schema_directory: ".."
