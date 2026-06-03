@@ -50,6 +50,9 @@ jobs:
       - name: Installer les dépendances
         run: uv sync --dev
 
+      - name: Installer les dépendances dbt
+        run: uv pip install dbt-bigquery dbt-core dbt-sqlite
+
       - name: Créer les datasets BigQuery éphémères
         run: |
           PR_NUM="${{ github.event.pull_request.number }}"
