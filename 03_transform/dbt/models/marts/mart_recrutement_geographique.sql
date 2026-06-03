@@ -17,14 +17,9 @@ aggregated as (
         sum(case when is_alternance = '1' then 1 else 0 end) as total_alternance,
         sum(cast(has_salary_info as int)) as total_offres_avec_salaire,
         
-        -- Moyenne de salaire (coalesce min/max ou min ou max)
-        avg(
-            case
-                when salary_min is not null and salary_max is not null then (salary_min + salary_max) / 2.0
-                when salary_min is not null then salary_min
-                else salary_max
-            end
-        ) as salaire_moyen
+        -- Moyennes de salaires min et max
+        avg(salary_min) as salaire_min_moyen,
+        avg(salary_max) as salaire_max_moyen
     from fact_offers
     group by 1, 2, 3
 )
@@ -38,7 +33,8 @@ select
     total_cdi,
     total_alternance,
     total_offres_avec_salaire,
-    round(salaire_moyen, 2) as salaire_moyen,
+    round(salaire_min_moyen, 2) as salaire_min_moyen,
+    round(salaire_max_moyen, 2) as salaire_max_moyen,
     case 
         when total_offres > 0 
         then round(cast(total_cdi as float) / total_offres * 100, 2) 
