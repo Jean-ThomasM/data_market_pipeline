@@ -253,7 +253,7 @@ module "extract_job_ft" {
 
   job_name = "extract-ft-dev"
 
-  image = "${module.artifact_registry.repository_url}/extract-ft:latest"
+  image = "${module.artifact_registry.repository_url}/extract-ft:${var.environment}"
 
   service_account_email = module.pipeline_service_account.email
 
@@ -277,7 +277,7 @@ module "extract_job_geo" {
 
   job_name = "extract-geo-dev"
 
-  image = "${module.artifact_registry.repository_url}/extract-geo:latest"
+  image = "${module.artifact_registry.repository_url}/extract-geo:${var.environment}"
 
   service_account_email = module.pipeline_service_account.email
 
@@ -300,7 +300,7 @@ module "extract_job_adzuna" {
 
   job_name = "extract-adzuna-dev"
 
-  image = "${module.artifact_registry.repository_url}/extract-adzuna:latest"
+  image = "${module.artifact_registry.repository_url}/extract-adzuna:${var.environment}"
 
   service_account_email = module.pipeline_service_account.email
 
@@ -402,7 +402,7 @@ module "dbt_job" {
 
   job_name = "dbt-run-${var.environment}"
 
-  image = "${var.region}-docker.pkg.dev/${var.project_id}/data-market-docker-repository/dbt_transform:latest"
+  image = "${module.artifact_registry.repository_url}/dbt_transform:latest"
 
   service_account_email = module.dbt_service_account.email
 
@@ -481,6 +481,8 @@ module "n8n_service_account" {
 
 module "n8n_service" {
   source = "../../modules/cloud_run_service"
+
+  depends_on = [google_project_iam_member.n8n_secret_accessor]
 
   project_id = var.project_id
   region     = var.region
@@ -566,6 +568,10 @@ resource "google_cloud_run_service_iam_member" "pipeline_n8n_updater" {
   service  = module.n8n_service.name
   role     = "roles/run.developer"
   member   = "serviceAccount:${module.pipeline_service_account.email}"
+resource "google_project_iam_member" "n8n_secret_accessor" {
+  project = var.project_id
+  role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${module.n8n_service_account.email}"
 }
 
 module "scheduler_iam" {
@@ -746,4 +752,22 @@ module "pipeline_monitoring" {
   environment        = var.environment
   notification_email = var.monitoring_email
   n8n_uptime_host    = replace(module.n8n_service.url, "https://", "")
+}
+
+module "github_ci_cd_service_account" {
+  source       = "../../modules/service_account"
+  account_id   = "github-ci-cd-${var.environment}"
+  display_name = "GitHub CI/CD Runner ${var.environment}"
+}
+
+resource "google_project_iam_member" "github_ci_cd_artifact_registry_writer" {
+  project = var.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${module.github_ci_cd_service_account.email}"
+}
+
+resource "google_service_account_iam_member" "github_wif_impersonate_ci_cd" {
+  service_account_id = module.github_ci_cd_service_account.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/${module.github_workload_identity.pool_name}/attribute.repository/Jean-ThomasM/data_market_pipeline"
 }

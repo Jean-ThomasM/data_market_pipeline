@@ -43,7 +43,7 @@ Build from **repo root**, not from subdirectory:
 ```bash
 docker build -f 02_extract/france_travail/Dockerfile -t extract-ft:local .
 docker build -f 02_extract/geo/Dockerfile -t extract-geo:local .
-docker build -f 03_transform/Dockerfile -t dbt-transform:local .
+docker build -f 03_transform/Dockerfile -t dbt_transform:local .
 ```
 
 Multi-stage build copies only the needed workspace member sources. Uses `uv sync --frozen --no-dev --package <name>`.
@@ -74,6 +74,28 @@ SQL style (enforced by `.sqlfluff`): lowercase keywords, BigQuery dialect, 4-spa
 - `sirene/` extract module: stub only (`print("Hello from sirene!")`)
 - `adzuna/` has two scraper files (`scraper.py`, `scraper_2.py`)
 - `00_infra/src/` and `03_transform/src/` are minimal/empty packages
+
+## CI/CD Troubleshooting
+
+```bash
+# Grant CI/CD SA access to OpenTofu state bucket
+gcloud storage buckets add-iam-policy-binding gs://data-market-386959-opentofu-state \
+  --member=serviceAccount:github-ci-cd-dev@data-market-386959.iam.gserviceaccount.com \
+  --role=roles/storage.objectAdmin
+```
+
+**GitHub Variables** (Settings > Secrets and variables > Actions > Variables) :
+
+| Variable | Valeur |
+|----------|--------|
+| `GCP_DBT_SA_EMAIL` | `github-ci-cd-dev@data-market-386959.iam.gserviceaccount.com` |
+| `GCP_WIF_PROVIDER` | `projects/822083335202/locations/global/workloadIdentityPools/github-pool-dev/providers/github-provider-dev` |
+
+Obtention via tofu output :
+
+```bash
+tofu output -raw github_workload_identity_provider
+```
 
 ## Git conventions
 
