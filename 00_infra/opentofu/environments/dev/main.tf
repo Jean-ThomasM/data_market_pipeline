@@ -433,16 +433,21 @@ module "pipeline_global_workflow" {
   source_contents = templatefile(
     "${path.module}/workflows/pipeline_global.yaml.tftpl",
     {
-      project_id                = var.project_id
-      region                    = var.region
-      environment               = var.environment
-      extract_ft_job_name       = module.extract_job_ft.job_name
-      extract_geo_job_name      = module.extract_job_geo.job_name
-      extract_adzuna_job_name   = module.extract_job_adzuna.job_name
-      load_ft_workflow_name     = module.load_staging_offres_ft_workflow.name
-      load_geo_workflow_name    = module.load_staging_geo_workflow.name
-      load_adzuna_workflow_name = module.load_staging_adzuna_workflow.name
-      load_sirene_workflow_name = module.load_staging_sirene_workflow.name
+      project_id                      = var.project_id
+      region                          = var.region
+      environment                     = var.environment
+      extract_ft_job_name             = module.extract_job_ft.job_name
+      extract_geo_job_name            = module.extract_job_geo.job_name
+      extract_adzuna_job_name         = module.extract_job_adzuna.job_name
+      load_ft_workflow_name           = module.load_staging_offres_ft_workflow.name
+      load_geo_workflow_name          = module.load_staging_geo_workflow.name
+      load_adzuna_workflow_name       = module.load_staging_adzuna_workflow.name
+      load_sirene_workflow_name       = module.load_staging_sirene_workflow.name
+      load_api_entreprise_workflow_name = module.load_staging_api_entreprise_workflow.name
+      load_n8n_workflow_name          = module.load_staging_n8n_societe_workflow.name
+      dbt_job_name                    = module.dbt_job.job_name
+      n8n_trigger_job_name            = module.n8n_trigger_job.job_name
+      api_entreprise_job_name         = module.api_entreprise_job.job_name
     }
   )
 
@@ -454,6 +459,11 @@ module "pipeline_global_workflow" {
     module.load_staging_geo_workflow,
     module.load_staging_adzuna_workflow,
     module.load_staging_sirene_workflow,
+    module.load_staging_api_entreprise_workflow,
+    module.load_staging_n8n_societe_workflow,
+    module.dbt_job,
+    module.n8n_trigger_job,
+    module.api_entreprise_job,
     module.pipeline_iam,
     module.project_services,
     google_project_service_identity.workflows_service_agent,
@@ -476,7 +486,7 @@ module "n8n_service" {
   region     = var.region
 
   service_name = "n8n-${var.environment}"
-  image        = "docker.io/n8nio/n8n:latest"
+  image        = "${module.artifact_registry.repository_url}/n8n:latest"
 
   service_account_email = module.n8n_service_account.email
 
@@ -484,7 +494,7 @@ module "n8n_service" {
   cpu    = "1"
   memory = "2Gi"
 
-  manual_instance_count = 1
+  manual_instance_count = 0
 
   env_vars = {
     N8N_PORT                    = "5678"
@@ -524,6 +534,13 @@ module "n8n_encryption_key_secret" {
   secret_id  = "n8n-encryption-key-${var.environment}"
 }
 
+resource "google_secret_manager_secret_iam_member" "n8n_encryption_key_accessor" {
+  project   = var.project_id
+  secret_id = module.n8n_encryption_key_secret.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${module.n8n_service_account.email}"
+}
+
 resource "google_storage_bucket_iam_member" "n8n_data_lake_viewer" {
   bucket = module.data_lake.bucket_name
   role   = "roles/storage.objectViewer"
@@ -541,6 +558,14 @@ resource "google_project_iam_member" "n8n_bigquery_job_user" {
   project = var.project_id
   role    = "roles/bigquery.jobUser"
   member  = "serviceAccount:${module.n8n_service_account.email}"
+}
+
+resource "google_cloud_run_service_iam_member" "pipeline_n8n_updater" {
+  project  = var.project_id
+  location = var.region
+  service  = module.n8n_service.name
+  role     = "roles/run.developer"
+  member   = "serviceAccount:${module.pipeline_service_account.email}"
 }
 
 module "scheduler_iam" {
@@ -581,6 +606,136 @@ module "schedule_extract_adzuna" {
   schedule                        = "0 7 * * *"
   cloud_run_job_name              = module.extract_job_adzuna.job_name
   scheduler_service_account_email = module.pipeline_service_account.email
+}
+
+module "staging_societe_tracking_table" {
+  source = "../../modules/bigquery_table"
+
+  project_id = var.project_id
+  dataset_id = module.staging_dataset.dataset_id
+  table_id   = "staging_societe_tracking"
+  schema     = file("${path.module}/schemas/staging_societe_tracking.bqschema")
+}
+
+module "n8n_trigger_job" {
+  source = "../../modules/cloud_run_job"
+
+  project_id = var.project_id
+  region     = var.region
+
+  job_name = "n8n-trigger-${var.environment}"
+  image    = "${module.artifact_registry.repository_url}/n8n-trigger:latest"
+
+  service_account_email = module.pipeline_service_account.email
+
+  env_vars = {
+    ENVIRONMENT              = var.environment
+    GCS_BUCKET_NAME          = module.data_lake.bucket_name
+    GCP_PROJECT_ID           = var.project_id
+    STORAGE                  = "gcs"
+    INTERMEDIATE_DATASET_ID  = module.intermediate_dataset.dataset_id
+    STAGING_DATASET_ID       = module.staging_dataset.dataset_id
+  }
+}
+
+module "staging_api_entreprise_tracking_table" {
+  source = "../../modules/bigquery_table"
+
+  project_id = var.project_id
+  dataset_id = module.staging_dataset.dataset_id
+  table_id   = "staging_api_entreprise_tracking"
+  schema     = file("${path.module}/schemas/staging_api_entreprise_tracking.bqschema")
+}
+
+module "staging_api_entreprise_table" {
+  source = "../../modules/bigquery_table"
+
+  project_id = var.project_id
+  dataset_id = module.staging_dataset.dataset_id
+  table_id   = "staging_api_entreprise"
+  schema     = file("${path.module}/schemas/staging_api_entreprise.bqschema")
+}
+
+module "api_entreprise_job" {
+  source = "../../modules/cloud_run_job"
+
+  project_id = var.project_id
+  region     = var.region
+
+  job_name = "api-entreprise-${var.environment}"
+  image    = "${module.artifact_registry.repository_url}/api-entreprise:latest"
+
+  service_account_email = module.pipeline_service_account.email
+
+  env_vars = {
+    ENVIRONMENT              = var.environment
+    GCS_BUCKET_NAME          = module.data_lake.bucket_name
+    GCP_PROJECT_ID           = var.project_id
+    STORAGE                  = "gcs"
+    INTERMEDIATE_DATASET_ID  = module.intermediate_dataset.dataset_id
+    STAGING_DATASET_ID       = module.staging_dataset.dataset_id
+  }
+}
+
+module "staging_n8n_societe_table" {
+  source = "../../modules/bigquery_table"
+
+  project_id = var.project_id
+  dataset_id = module.staging_dataset.dataset_id
+  table_id   = "staging_n8n_societe"
+  schema     = file("${path.module}/schemas/staging_n8n_societe.bqschema")
+}
+
+module "load_staging_api_entreprise_workflow" {
+  source = "../../modules/workflow"
+
+  project_id            = var.project_id
+  region                = var.region
+  name                  = "load-staging-api-entreprise-${var.environment}"
+  description           = "Charge les données API Entreprise depuis GCS vers BigQuery."
+  service_account_email = module.pipeline_service_account.email
+  source_contents = templatefile(
+    "${path.module}/workflows/load_staging_api_entreprise.yaml.tftpl",
+    {
+      project_id  = var.project_id
+      dataset_id  = module.staging_dataset.dataset_id
+      table_id    = module.staging_api_entreprise_table.table_id
+      bucket_name = module.data_lake.bucket_name
+    }
+  )
+
+  depends_on = [
+    module.staging_api_entreprise_table,
+    module.project_services,
+    google_project_service_identity.workflows_service_agent,
+    google_service_account_iam_member.workflows_service_account_token_creator
+  ]
+}
+
+module "load_staging_n8n_societe_workflow" {
+  source = "../../modules/workflow"
+
+  project_id            = var.project_id
+  region                = var.region
+  name                  = "load-staging-n8n-societe-${var.environment}"
+  description           = "Charge les données scrapées societe.com depuis GCS vers BigQuery."
+  service_account_email = module.pipeline_service_account.email
+  source_contents = templatefile(
+    "${path.module}/workflows/load_staging_n8n_societe.yaml.tftpl",
+    {
+      project_id  = var.project_id
+      dataset_id  = module.staging_dataset.dataset_id
+      table_id    = module.staging_n8n_societe_table.table_id
+      bucket_name = module.data_lake.bucket_name
+    }
+  )
+
+  depends_on = [
+    module.staging_n8n_societe_table,
+    module.project_services,
+    google_project_service_identity.workflows_service_agent,
+    google_service_account_iam_member.workflows_service_account_token_creator
+  ]
 }
 
 module "pipeline_monitoring" {
