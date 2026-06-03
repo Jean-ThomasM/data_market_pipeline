@@ -1,7 +1,6 @@
 """Configuration pytest pour les tests d'intégration."""
 
 import os
-import sys
 import tempfile
 from pathlib import Path
 
