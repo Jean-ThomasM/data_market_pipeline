@@ -568,6 +568,8 @@ resource "google_cloud_run_service_iam_member" "pipeline_n8n_updater" {
   service  = module.n8n_service.name
   role     = "roles/run.developer"
   member   = "serviceAccount:${module.pipeline_service_account.email}"
+}
+
 resource "google_project_iam_member" "n8n_secret_accessor" {
   project = var.project_id
   role    = "roles/secretmanager.secretAccessor"
