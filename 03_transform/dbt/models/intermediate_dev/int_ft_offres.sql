@@ -36,12 +36,34 @@ with raw_offers_base as (
 ),
 
 raw_offers as (
-    select * from raw_offers_base
-    where commune_code is not null
+    select * from (
+        select 
+            *,
+            row_number() over (partition by offer_id order by updated_at desc, created_at desc) as rn
+        from raw_offers_base
+        where commune_code is not null
+          and (
+              upper(job_title) like '%DATA%'
+              or upper(job_title) like '%DONNÉE%'
+              or upper(job_title) like '%DONNÉES%'
+              or upper(job_title) like '%DONNEE%'
+              or upper(job_title) like '%DONNEES%'
+          )
+    )
+    where rn = 1
 ),
 
 geo_ref as (
-    select * from {{ ref('int_geo_communes') }}
+    select 
+        commune_code,
+        max(code_postal) as code_postal,
+        max(commune_nom) as commune_nom,
+        max(departement_code) as departement_code,
+        max(departement_nom) as departement_nom,
+        max(region_nom) as region_nom,
+        max(epci_nom) as epci_nom
+    from {{ ref('int_geo_communes') }}
+    group by 1
 ),
 
 final as (
@@ -72,9 +94,9 @@ final as (
         o.salary_label,
         o.salary_comment,
 
-        -- Flags de qualité
-        case when o.salary_label is null then 0 else 1 end as has_salary_info,
-        case when upper(o.job_title) like '%ALTERNANCE%' then 1 else 0 end as is_alternance
+        -- Flags de qualité (format string pour compatibilité tests dbt SQLite)
+        case when o.salary_label is null then '0' else '1' end as has_salary_info,
+        case when upper(o.job_title) like '%ALTERNANCE%' then '1' else '0' end as is_alternance
 
     from raw_offers o
     inner join geo_ref g

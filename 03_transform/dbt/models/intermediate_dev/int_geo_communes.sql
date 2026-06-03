@@ -6,7 +6,15 @@ with communes_raw as (
         codeDepartement,
         codeRegion,
         codeEpci,
-        population
+        population,
+        {% if target.type == 'bigquery' %}
+        latitude,
+        longitude
+        {% else %}
+        -- En local SQLite, ces colonnes n'existent pas forcément ou sont nulles
+        null as latitude,
+        null as longitude
+        {% endif %}
     from {{ source('geo-api', 'staging_communes') }}
 ),
 -- On éclate les codes postaux pour avoir une ligne par couple (commune, cp)
@@ -43,7 +51,9 @@ select
     trim(d.nom)                                 as departement_nom,
     trim(r.nom)                                 as region_nom,
     trim(e.nom)                                 as epci_nom,
-    cast(nullif(trim(cast(c.population as string)), '') as integer) as population
+    cast(nullif(trim(cast(c.population as string)), '') as integer) as population,
+    c.latitude,
+    c.longitude
 from communes_expanded c
 left join departements d
     on d.code = c.codeDepartement

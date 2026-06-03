@@ -21,5 +21,8 @@ models:
     intermediate_dev:
       +schema: intermediate_dev
       +materialized: table
+    marts:
+      +schema: marts
+      +materialized: table
     silver:
       +materialized: table
