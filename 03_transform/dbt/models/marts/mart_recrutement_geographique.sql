@@ -38,17 +38,17 @@ select
     round(salaire_max_moyen, 2) as salaire_max_moyen,
     case 
         when total_offres > 0 
-        then round(cast(total_cdi as float) / total_offres * 100, 2) 
+        then round(cast(total_cdi as float64) / total_offres * 100, 2) 
         else 0 
     end as pct_cdi,
     case 
         when total_offres > 0 
-        then round(cast(total_alternance as float) / total_offres * 100, 2) 
+        then round(cast(total_alternance as float64) / total_offres * 100, 2) 
         else 0 
     end as pct_alternance,
     case 
         when total_offres > 0 
-        then round(cast(total_offres_avec_salaire as float) / total_offres * 100, 2) 
+        then round(cast(total_offres_avec_salaire as float64) / total_offres * 100, 2) 
         else 0 
     end as complitude_salaire_pct
 from aggregated
