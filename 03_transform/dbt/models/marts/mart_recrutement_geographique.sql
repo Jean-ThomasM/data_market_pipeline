@@ -15,7 +15,7 @@ aggregated as (
         count(distinct employer_name) as total_employeurs_distincts,
         sum(case when upper(contract_type) = 'CDI' then 1 else 0 end) as total_cdi,
         sum(case when is_alternance = '1' then 1 else 0 end) as total_alternance,
-        sum(has_salary_info) as total_offres_avec_salaire,
+        sum(cast(has_salary_info as int)) as total_offres_avec_salaire,
         
         -- Moyenne de salaire (coalesce min/max ou min ou max)
         avg(
