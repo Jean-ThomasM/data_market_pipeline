@@ -4,6 +4,7 @@
 
 with fact_offers as (
     select * from {{ ref('mart_offres_data_jobs') }}
+    where has_salary_info = '1'
 ),
 
 aggregated as (
