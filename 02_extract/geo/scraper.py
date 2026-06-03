@@ -1,8 +1,8 @@
 import logging
 
 import requests
-import utils
 from config import Config, load_config
+from shared.storage import save_ndjson_records
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +21,11 @@ RESOURCE_FILE_NAMES = {
     "departements": "departements.ndjson",
     "communes": "communes.ndjson",
     "epcis": "epcis.ndjson",
+}
+
+RESOURCE_EXTRA_FIELDS = {
+    "communes": "nom,code,codeDepartement,siren,codeEpci,codeRegion,codesPostaux,population,centre",
+    "epcis": "nom,code,codesDepartements,codesRegions,population,centre",
 }
 
 
@@ -58,7 +63,17 @@ class GeoExtractor:
     def extract(self) -> None:
         for resource_name in RESOURCE_PATHS:
             resource_payload = self._fetch_resource(resource_name)
-            utils.save_ndjson_records(
+            if resource_name in ("communes", "epcis"):
+                for item in resource_payload:
+                    centre = item.pop("centre", None) or {}
+                    coords = centre.get("coordinates")
+                    if coords and len(coords) == 2:
+                        item["longitude"] = coords[0]
+                        item["latitude"] = coords[1]
+                    else:
+                        item["longitude"] = None
+                        item["latitude"] = None
+            save_ndjson_records(
                 config=self.config,
                 records=resource_payload,
                 destination_name=RESOURCE_FILE_NAMES[resource_name],
@@ -69,6 +84,9 @@ class GeoExtractor:
     def _fetch_resource(self, resource_name: str) -> list[dict]:
         resource_path = RESOURCE_PATHS[resource_name]
         resource_url = f"{GEO_API_BASE_URL}{resource_path}"
+        extra_fields = RESOURCE_EXTRA_FIELDS.get(resource_name)
+        if extra_fields:
+            resource_url += f"?fields={extra_fields}"
 
         try:
             response = self.session.get(resource_url, timeout=REQUEST_TIMEOUT_SECONDS)

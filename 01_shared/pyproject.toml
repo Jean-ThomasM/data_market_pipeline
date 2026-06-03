@@ -6,10 +6,11 @@ readme = "README.md"
 authors = [
     { name = "JeanThomasMiquelot", email = "miquelot.jeanthomas@gmail.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "google-cloud-secret-manager>=2.27.0",
     "google-cloud-storage>=3.10.1",
+    "requests>=2.33.1",
 ]
 
 [build-system]

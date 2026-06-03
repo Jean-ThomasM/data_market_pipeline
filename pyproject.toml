@@ -3,16 +3,46 @@ name = "data-market-pipeline"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = []
+requires-python = ">=3.13"
+dependencies = [
+    "shared",
+    "france-travail",
+    "geo",
+    "adzuna",
+    "api-entreprise",
+]
 
 [dependency-groups]
 dev = [
     "pre-commit>=4.5.1",
+    "pytest>=8.3.5",
+    "pytest-mock>=3.14.0",
     "ruff>=0.15.9",
-    "sqlfluff>=3.3.0",
+    "sqlfluff>=3.4.0",
     "sqlfluff-templater-dbt>=3.3.0",
 ]
+
+[tool.ruff]
+exclude = ["_old", "_developpements"]
+
+[tool.pytest.ini_options]
+norecursedirs = [
+    "_old",
+    ".venv",
+    "00_infra",
+    "01_shared",
+    "03_transform",
+    "n8n",
+    ".opencode",
+]
+testpaths = ["tests"]
+
+[tool.uv.sources]
+shared = { workspace = true }
+france-travail = { workspace = true }
+geo = { workspace = true }
+adzuna = { workspace = true }
+api-entreprise = { workspace = true }
 
 [tool.uv.workspace]
 members = [
@@ -22,4 +52,6 @@ members = [
     "02_extract/geo",
     "02_extract/sirene",
     "02_extract/adzuna",
+    "02_extract/n8n_trigger",
+    "02_extract/api_entreprise",
 ]
