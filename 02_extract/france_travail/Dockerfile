@@ -1,12 +1,13 @@
 # syntax=docker/dockerfile:1.7
 
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS builder
 
 WORKDIR /app
 
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
-    UV_PROJECT_ENVIRONMENT=/app/.venv
+    UV_PROJECT_ENVIRONMENT=/app/.venv \
+    UV_PYTHON_DOWNLOADS=never
 
 # Les fichiers de métadonnées sont copiés en premier afin de maximiser
 # la réutilisation du cache Docker lorsque seule l'implémentation change.
@@ -29,7 +30,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package france-travail
 
 
-FROM python:3.12-slim AS runtime
+FROM python:3.13-slim AS runtime
 
 WORKDIR /app/02_extract/france_travail
 

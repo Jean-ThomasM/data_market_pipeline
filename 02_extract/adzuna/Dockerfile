@@ -1,11 +1,12 @@
 # syntax=docker/dockerfile:1.7
 
-FROM ghcr.io/astral-sh/uv:python3.12-alpine AS builder
+FROM ghcr.io/astral-sh/uv:python3.13-alpine AS builder
 
 WORKDIR /app
 
 ENV UV_LINK_MODE=copy \
-    UV_PROJECT_ENVIRONMENT=/app/.venv
+    UV_PROJECT_ENVIRONMENT=/app/.venv \
+    UV_PYTHON_DOWNLOADS=never
 
 # Copy metadata first to maximize Docker layer cache reuse.
 COPY pyproject.toml uv.lock ./
@@ -26,7 +27,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package adzuna
 
 
-FROM python:3.12-alpine AS runtime
+FROM python:3.13-alpine AS runtime
 
 WORKDIR /app/02_extract/adzuna
 
