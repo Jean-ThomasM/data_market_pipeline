@@ -413,8 +413,9 @@ module "dbt_job" {
 }
 
 resource "google_bigquery_dataset_iam_member" "dbt_billing_raw_viewer" {
+  count      = var.billing_dataset_id != "" ? 1 : 0
   project    = var.project_id
-  dataset_id = "billing_raw"
+  dataset_id = var.billing_dataset_id
   role       = "roles/bigquery.dataViewer"
   member     = "serviceAccount:${module.dbt_service_account.email}"
 }

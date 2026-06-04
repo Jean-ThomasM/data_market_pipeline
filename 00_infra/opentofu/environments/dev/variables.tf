@@ -32,3 +32,9 @@ variable "monitoring_email" {
   description = "Email de réception des alertes pipeline"
   type        = string
 }
+
+variable "billing_dataset_id" {
+  description = "ID du dataset BigQuery contenant l'export de facturation GCP (ex: billing_raw). Laisser vide si pas encore configuré."
+  type        = string
+  default     = ""
+}
