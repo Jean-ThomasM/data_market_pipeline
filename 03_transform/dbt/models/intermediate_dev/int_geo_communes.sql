@@ -1,18 +1,20 @@
-{% if target.type == 'bigquery' %}
+{% if target.type == 'bigquery' and target.name == 'ci' %}
 
-{% set geo_tables_exist = false %}
-{% if execute %}
-  {% set communes_relation = adapter.get_relation(
-      database=target.project,
-      schema=target.schema,
-      identifier='staging_communes'
-  ) %}
-  {% if communes_relation is not none %}
-    {% set geo_tables_exist = true %}
-  {% endif %}
-{% endif %}
+-- CI: pas de données staging → table vide
+select
+    cast(null as string) as commune_code,
+    cast(null as string) as commune_nom,
+    cast(null as string) as code_postal,
+    cast(null as string) as departement_code,
+    cast(null as string) as departement_nom,
+    cast(null as string) as region_nom,
+    cast(null as string) as epci_nom,
+    cast(null as integer) as population,
+    cast(null as float64) as latitude,
+    cast(null as float64) as longitude
+limit 0
 
-{% if geo_tables_exist %}
+{% elif target.type == 'bigquery' %}
 
 with communes_raw as (
     select distinct
@@ -57,23 +59,6 @@ from communes_expanded c
 left join departements d on d.code = c.codeDepartement
 left join regions r on r.code = c.codeRegion
 left join epcis e on e.code = c.codeEpci
-
-{% else %}
-
-select
-    cast(null as string) as commune_code,
-    cast(null as string) as commune_nom,
-    cast(null as string) as code_postal,
-    cast(null as string) as departement_code,
-    cast(null as string) as departement_nom,
-    cast(null as string) as region_nom,
-    cast(null as string) as epci_nom,
-    cast(null as integer) as population,
-    cast(null as float64) as latitude,
-    cast(null as float64) as longitude
-limit 0
-
-{% endif %}
 
 {% else %}
 
