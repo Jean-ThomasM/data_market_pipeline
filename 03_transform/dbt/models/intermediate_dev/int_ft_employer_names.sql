@@ -5,16 +5,47 @@
 
 {% if target.type == 'bigquery' %}
 
+{% set adzuna_exists = false %}
+{% if execute %}
+  {% set adzuna_relation = adapter.get_relation(
+      database='data-market-386959',
+      schema='staging_dev',
+      identifier='staging_offres_adzuna'
+  ) %}
+  {% if adzuna_relation is not none %}
+    {% set adzuna_exists = true %}
+  {% endif %}
+{% endif %}
+
+{% set ft_exists = false %}
+{% if execute %}
+  {% set ft_relation = adapter.get_relation(
+      database='data-market-386959',
+      schema='staging_dev',
+      identifier='staging_offres_ft'
+  ) %}
+  {% if ft_relation is not none %}
+    {% set ft_exists = true %}
+  {% endif %}
+{% endif %}
+
 with name_ref as (
     select distinct trim(nom) as nom from (
+        {% if ft_exists %}
         select entreprise.nom
         from {{ source('france-travail', 'staging_offres_ft') }}
         where entreprise.nom is not null and length(trim(entreprise.nom)) > 3
+        {% else %}
+        select null as nom limit 0
+        {% endif %}
+        {% if adzuna_exists %}
         union distinct
         select company.display_name
         from {{ source('adzuna', 'staging_offres_adzuna') }}
         where company.display_name is not null and length(trim(company.display_name)) > 3
+        {% endif %}
     )
+    {% if ft_exists or adzuna_exists %}
     where length(trim(nom)) > 3
         and lower(trim(nom)) not in (
             select w from unnest([
@@ -25,6 +56,7 @@ with name_ref as (
         )
         and regexp_contains(trim(nom), r'[A-Za-z]')
         and not regexp_contains(trim(nom), r'\\')
+    {% endif %}
 ),
 
 ft_offers as (
@@ -99,4 +131,3 @@ from {{ source('france-travail', 'staging_offres_ft') }}
 where entreprise_description is not null
 
 {% endif %}
-

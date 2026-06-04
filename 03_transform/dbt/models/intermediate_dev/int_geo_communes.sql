@@ -1,3 +1,19 @@
+{% if target.type == 'bigquery' %}
+
+{% set geo_tables_exist = false %}
+{% if execute %}
+  {% set communes_relation = adapter.get_relation(
+      database='data-market-386959',
+      schema='staging_dev',
+      identifier='staging_communes'
+  ) %}
+  {% if communes_relation is not none %}
+    {% set geo_tables_exist = true %}
+  {% endif %}
+{% endif %}
+
+{% if geo_tables_exist %}
+
 with communes_raw as (
     select distinct
         code,
@@ -7,32 +23,15 @@ with communes_raw as (
         codeRegion,
         codeEpci,
         population,
-        {% if target.type == 'bigquery' %}
         latitude,
         longitude
-        {% else %}
-        -- En local SQLite, ces colonnes n'existent pas forcément ou sont nulles
-        null as latitude,
-        null as longitude
-        {% endif %}
     from {{ source('geo-api', 'staging_communes') }}
 ),
--- On éclate les codes postaux pour avoir une ligne par couple (commune, cp)
--- Sur BigQuery on utilise UNNEST. 
--- Pour SQLite local, on simule ou on utilise le premier si UNNEST n'est pas supporté.
 communes_expanded as (
-    {% if target.type == 'bigquery' %}
-    select 
+    select
         c.* except(codesPostaux),
         cast(cp as string) as code_postal_val
     from communes_raw c, unnest(c.codesPostaux) as cp
-    {% else %}
-    -- Version SQLite simplifiée (on prend le premier pour ne pas casser l'exécution locale)
-    select 
-        *,
-        json_extract(cast(codesPostaux as text), '$[0]') as code_postal_val
-    from communes_raw
-    {% endif %}
 ),
 departements as (
     select distinct code, nom from {{ source('geo-api', 'staging_departements') }}
@@ -44,20 +43,82 @@ epcis as (
     select distinct code, nom from {{ source('geo-api', 'staging_epcis') }}
 )
 select
-    trim(c.code)                                as commune_code,
-    trim(c.nom)                                 as commune_nom,
-    trim(c.code_postal_val)                     as code_postal,
-    trim(d.code)                                as departement_code,
-    trim(d.nom)                                 as departement_nom,
-    trim(r.nom)                                 as region_nom,
-    trim(e.nom)                                 as epci_nom,
+    trim(c.code)                        as commune_code,
+    trim(c.nom)                         as commune_nom,
+    trim(c.code_postal_val)             as code_postal,
+    trim(d.code)                        as departement_code,
+    trim(d.nom)                         as departement_nom,
+    trim(r.nom)                         as region_nom,
+    trim(e.nom)                         as epci_nom,
     cast(nullif(trim(cast(c.population as string)), '') as integer) as population,
     c.latitude,
     c.longitude
 from communes_expanded c
-left join departements d
-    on d.code = c.codeDepartement
-left join regions r
-    on r.code = c.codeRegion
-left join epcis e
-    on e.code = c.codeEpci
+left join departements d on d.code = c.codeDepartement
+left join regions r on r.code = c.codeRegion
+left join epcis e on e.code = c.codeEpci
+
+{% else %}
+
+select
+    cast(null as string) as commune_code,
+    cast(null as string) as commune_nom,
+    cast(null as string) as code_postal,
+    cast(null as string) as departement_code,
+    cast(null as string) as departement_nom,
+    cast(null as string) as region_nom,
+    cast(null as string) as epci_nom,
+    cast(null as integer) as population,
+    cast(null as float64) as latitude,
+    cast(null as float64) as longitude
+limit 0
+
+{% endif %}
+
+{% else %}
+
+with communes_raw as (
+    select distinct
+        code,
+        nom,
+        codesPostaux,
+        codeDepartement,
+        codeRegion,
+        codeEpci,
+        population,
+        null as latitude,
+        null as longitude
+    from {{ source('geo-api', 'staging_communes') }}
+),
+communes_expanded as (
+    select
+        *,
+        json_extract(cast(codesPostaux as text), '$[0]') as code_postal_val
+    from communes_raw
+),
+departements as (
+    select distinct code, nom from {{ source('geo-api', 'staging_departements') }}
+),
+regions as (
+    select distinct code, nom from {{ source('geo-api', 'staging_regions') }}
+),
+epcis as (
+    select distinct code, nom from {{ source('geo-api', 'staging_epcis') }}
+)
+select
+    trim(c.code)                        as commune_code,
+    trim(c.nom)                         as commune_nom,
+    trim(c.code_postal_val)             as code_postal,
+    trim(d.code)                        as departement_code,
+    trim(d.nom)                         as departement_nom,
+    trim(r.nom)                         as region_nom,
+    trim(e.nom)                         as epci_nom,
+    cast(nullif(trim(cast(c.population as string)), '') as integer) as population,
+    c.latitude,
+    c.longitude
+from communes_expanded c
+left join departements d on d.code = c.codeDepartement
+left join regions r on r.code = c.codeRegion
+left join epcis e on e.code = c.codeEpci
+
+{% endif %}
