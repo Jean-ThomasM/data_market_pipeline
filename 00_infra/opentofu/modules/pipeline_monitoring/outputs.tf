@@ -8,7 +8,6 @@ output "alert_policy_names" {
   value = [
     google_monitoring_alert_policy.extract_job_failed.display_name,
     google_monitoring_alert_policy.workflow_load_failed.display_name,
-    google_monitoring_alert_policy.n8n_down.display_name,
     google_monitoring_alert_policy.pipeline_stale.display_name,
   ]
 }

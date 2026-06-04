@@ -19,6 +19,6 @@ variable "notification_email" {
 }
 
 variable "n8n_uptime_host" {
-  description = "Hostname for n8n uptime check (e.g. n8n-dev-xxx.a.run.app)"
+  description = "Hostname for the remote n8n uptime check"
   type        = string
 }

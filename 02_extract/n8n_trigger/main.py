@@ -3,11 +3,12 @@ import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-import scraper
+import requests
 from shared import bigquery
 from shared.storage import save_ndjson_records
 
 logger = logging.getLogger(__name__)
+_WEBHOOK_TIMEOUT_SECONDS = 120
 
 
 def _env(name: str) -> str:
@@ -39,6 +40,22 @@ def get_untracked_offers() -> list[dict]:
           AND e.siren IS NOT NULL
     """
     return bigquery.query_to_dicts(query)
+
+
+def call_n8n_webhook(label: str, siren: str) -> dict:
+    response = requests.get(
+        _env("N8N_WEBHOOK_URL"),
+        params={
+            "denomination_unite_legales": label,
+            "siren": siren,
+        },
+        timeout=_WEBHOOK_TIMEOUT_SECONDS,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"Unexpected n8n response type: {type(payload).__name__}")
+    return payload
 
 
 def build_flat_record(scraped: dict, offer: dict, scraped_at: str) -> dict:
@@ -86,10 +103,8 @@ def main() -> None:
 
     flat_records: list[dict] = []
     for item in to_process:
-        scraped = scraper.scrape_societe(
-            item["siren"], company_name=item["employer_name"]
-        )
-        if scraped is not None:
+        try:
+            scraped = call_n8n_webhook(item["employer_name"], item["siren"])
             flat_records.append(
                 build_flat_record(
                     scraped,
@@ -98,8 +113,8 @@ def main() -> None:
                 )
             )
             logger.info("Scraped %s (%s)", item["employer_name"], item["siren"])
-        else:
-            logger.error("Failed for %s (%s)", item["employer_name"], item["siren"])
+        except Exception:
+            logger.exception("Failed for %s (%s)", item["employer_name"], item["siren"])
 
     if not flat_records:
         logger.warning("No results scraped")
@@ -128,7 +143,7 @@ def main() -> None:
         tracking_rows,
     )
 
-    logger.info("Done — %d/%d processed", len(flat_records), len(to_process))
+    logger.info("Done - %d/%d processed", len(flat_records), len(to_process))
 
 
 if __name__ == "__main__":

@@ -34,11 +34,6 @@ output "load_staging_offres_ft_workflow_name" {
   value = module.load_staging_offres_ft_workflow.name
 }
 
-output "n8n_url" {
-  description = "n8n Cloud Run URL"
-  value       = module.n8n_service.url
-}
-
 output "github_workload_identity_provider" {
   description = "WIF provider resource name for GitHub Actions"
   value       = module.github_workload_identity.provider_resource_name

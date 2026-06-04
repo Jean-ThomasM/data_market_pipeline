@@ -472,110 +472,6 @@ module "pipeline_global_workflow" {
   ]
 }
 
-module "n8n_service_account" {
-  source = "../../modules/service_account"
-
-  account_id   = "n8n-runner-${var.environment}"
-  display_name = "n8n Runner ${var.environment}"
-}
-
-module "n8n_service" {
-  source = "../../modules/cloud_run_service"
-
-  depends_on = [google_project_iam_member.n8n_secret_accessor]
-
-  project_id = var.project_id
-  region     = var.region
-
-  service_name = "n8n-${var.environment}"
-  image        = "${module.artifact_registry.repository_url}/n8n:latest"
-
-  service_account_email = module.n8n_service_account.email
-
-  port   = 5678
-  cpu    = "1"
-  memory = "2Gi"
-
-  manual_instance_count = 0
-
-  env_vars = {
-    N8N_PORT                    = "5678"
-    N8N_PROTOCOL                = "https"
-    GENERIC_TIMEZONE            = "Europe/Paris"
-    N8N_SECURE_COOKIE           = "true"
-    N8N_ENDPOINT_HEALTH         = "health"
-    N8N_RUNNERS_ENABLED         = "false"
-    N8N_RESTRICT_FILE_ACCESS_TO = "/tmp"
-    N8N_HOST                    = "n8n-dev-5pko4kkvvq-ew.a.run.app"
-    N8N_EDITOR_BASE_URL         = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
-    WEBHOOK_URL                 = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
-  }
-
-  secret_env_vars = {
-
-    N8N_ENCRYPTION_KEY = {
-      secret  = module.n8n_encryption_key_secret.secret_id
-      version = "latest"
-    }
-  }
-}
-
-resource "google_cloud_run_service_iam_member" "n8n_public_access" {
-  project  = var.project_id
-  location = var.region
-  service  = module.n8n_service.name
-
-  role   = "roles/run.invoker"
-  member = "allUsers"
-}
-
-module "n8n_encryption_key_secret" {
-  source = "../../modules/secret_manager_secret"
-
-  project_id = var.project_id
-  secret_id  = "n8n-encryption-key-${var.environment}"
-}
-
-resource "google_secret_manager_secret_iam_member" "n8n_encryption_key_accessor" {
-  project   = var.project_id
-  secret_id = module.n8n_encryption_key_secret.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${module.n8n_service_account.email}"
-}
-
-resource "google_storage_bucket_iam_member" "n8n_data_lake_viewer" {
-  bucket = module.data_lake.bucket_name
-  role   = "roles/storage.objectViewer"
-  member = "serviceAccount:${module.n8n_service_account.email}"
-}
-
-resource "google_bigquery_dataset_iam_member" "n8n_staging_data_editor" {
-  project    = var.project_id
-  dataset_id = "staging_${var.environment}"
-  role       = "roles/bigquery.dataEditor"
-  member     = "serviceAccount:${module.n8n_service_account.email}"
-}
-
-resource "google_project_iam_member" "n8n_bigquery_job_user" {
-  project = var.project_id
-  role    = "roles/bigquery.jobUser"
-  member  = "serviceAccount:${module.n8n_service_account.email}"
-}
-
-resource "google_cloud_run_service_iam_member" "pipeline_n8n_updater" {
-  project  = var.project_id
-  location = var.region
-  service  = module.n8n_service.name
-  role     = "roles/run.developer"
-  member   = "serviceAccount:${module.pipeline_service_account.email}"
-}
-
-resource "google_project_iam_member" "n8n_secret_accessor" {
-  project = var.project_id
-  role    = "roles/secretmanager.secretAccessor"
-  member  = "serviceAccount:${module.n8n_service_account.email}"
-}
-
 module "scheduler_iam" {
   source = "../../modules/scheduler_iam"
 
@@ -625,6 +521,13 @@ module "staging_societe_tracking_table" {
   schema     = file("${path.module}/schemas/staging_societe_tracking.bqschema")
 }
 
+module "n8n_webhook_url_secret" {
+  source = "../../modules/secret_manager_secret"
+
+  project_id = var.project_id
+  secret_id  = "n8n-webhook-url-${var.environment}"
+}
+
 module "n8n_trigger_job" {
   source = "../../modules/cloud_run_job"
 
@@ -643,6 +546,13 @@ module "n8n_trigger_job" {
     STORAGE                  = "gcs"
     INTERMEDIATE_DATASET_ID  = module.intermediate_dataset.dataset_id
     STAGING_DATASET_ID       = module.staging_dataset.dataset_id
+  }
+
+  secret_env_vars = {
+    N8N_WEBHOOK_URL = {
+      secret  = module.n8n_webhook_url_secret.secret_id
+      version = "latest"
+    }
   }
 }
 
@@ -753,7 +663,7 @@ module "pipeline_monitoring" {
   region             = var.region
   environment        = var.environment
   notification_email = var.monitoring_email
-  n8n_uptime_host    = replace(module.n8n_service.url, "https://", "")
+  n8n_uptime_host    = var.n8n_host
 }
 
 module "github_ci_cd_service_account" {

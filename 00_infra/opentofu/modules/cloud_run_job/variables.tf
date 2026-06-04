@@ -38,3 +38,12 @@ variable "env_vars" {
   type        = map(string)
   default     = {}
 }
+
+variable "secret_env_vars" {
+  description = "Secret Manager environment variables injected into the container"
+  type = map(object({
+    secret  = string
+    version = string
+  }))
+  default = {}
+}

@@ -21,7 +21,6 @@ COPY 02_extract/n8n_trigger/pyproject.toml 02_extract/n8n_trigger/pyproject.toml
 
 COPY 01_shared/shared 01_shared/shared
 COPY 02_extract/n8n_trigger/main.py 02_extract/n8n_trigger/main.py
-COPY 02_extract/n8n_trigger/scraper.py 02_extract/n8n_trigger/scraper.py
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package n8n-trigger
@@ -37,7 +36,6 @@ ENV PATH="/app/.venv/bin:${PATH}" \
 
 COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app/02_extract/n8n_trigger/main.py /app/02_extract/n8n_trigger/main.py
-COPY --from=builder /app/02_extract/n8n_trigger/scraper.py /app/02_extract/n8n_trigger/scraper.py
 COPY --from=builder /app/01_shared/shared /app/01_shared/shared
 
 CMD ["python", "main.py"]

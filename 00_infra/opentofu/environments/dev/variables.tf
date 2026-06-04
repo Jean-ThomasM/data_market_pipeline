@@ -32,3 +32,8 @@ variable "monitoring_email" {
   description = "Email de réception des alertes pipeline"
   type        = string
 }
+
+variable "n8n_host" {
+  description = "Hostname public du n8n distant"
+  type        = string
+}

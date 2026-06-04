@@ -53,15 +53,6 @@ resource "google_logging_metric" "run_job_all" {
   }
 }
 
-resource "google_logging_metric" "n8n_errors" {
-  name   = "n8n_errors_${var.environment}"
-  filter = "resource.type = \"cloud_run_revision\" resource.labels.service_name = \"n8n-${var.environment}\" severity = ERROR"
-  metric_descriptor {
-    metric_kind = "DELTA"
-    value_type  = "INT64"
-  }
-}
-
 resource "google_monitoring_alert_policy" "extract_job_failed" {
   display_name          = "Extracteur Cloud Run en échec - ${var.environment}"
   combiner              = "OR"
@@ -92,39 +83,6 @@ resource "google_monitoring_alert_policy" "workflow_load_failed" {
     display_name = "Au moins un workflow de chargement a généré des erreurs"
     condition_threshold {
       filter          = "resource.type = \"workflows.googleapis.com/Workflow\" AND metric.type = \"logging.googleapis.com/user/${google_logging_metric.workflow_errors.name}\""
-      duration        = "0s"
-      comparison      = "COMPARISON_GT"
-      threshold_value = 0
-      aggregations {
-        alignment_period     = "300s"
-        per_series_aligner   = "ALIGN_COUNT"
-        cross_series_reducer = "REDUCE_SUM"
-      }
-    }
-  }
-}
-
-resource "time_sleep" "n8n_metric_propagation" {
-  depends_on = [
-    google_logging_metric.run_job_errors,
-    google_logging_metric.workflow_errors,
-    google_logging_metric.run_job_all,
-    google_logging_metric.n8n_errors,
-  ]
-
-  create_duration = "30s"
-}
-
-resource "google_monitoring_alert_policy" "n8n_down" {
-  display_name          = "Erreurs n8n - ${var.environment}"
-  combiner              = "OR"
-  notification_channels = [google_monitoring_notification_channel.email.id]
-  depends_on            = [time_sleep.n8n_metric_propagation]
-
-  conditions {
-    display_name = "Au moins une erreur dans les logs du service n8n"
-    condition_threshold {
-      filter          = "resource.type = \"cloud_run_revision\" AND resource.labels.service_name = \"n8n-${var.environment}\" AND metric.type = \"logging.googleapis.com/user/${google_logging_metric.n8n_errors.name}\""
       duration        = "0s"
       comparison      = "COMPARISON_GT"
       threshold_value = 0
