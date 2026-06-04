@@ -15,7 +15,7 @@ aggregated as (
         count(distinct employer_name) as total_employeurs_distincts,
         sum(case when upper(contract_type) = 'CDI' then 1 else 0 end) as total_cdi,
         sum(cast(has_salary_info as int)) as total_offres_avec_salaire,
-        
+
         -- Moyennes de salaires min et max
         avg(salary_min) as salaire_min_moyen,
         avg(salary_max) as salaire_max_moyen
@@ -33,14 +33,14 @@ select
     total_offres_avec_salaire,
     round(salaire_min_moyen, 2) as salaire_min_moyen,
     round(salaire_max_moyen, 2) as salaire_max_moyen,
-    case 
-        when total_offres > 0 
-        then round(cast(total_cdi as float64) / total_offres * 100, 2) 
-        else 0 
+    case
+        when total_offres > 0
+            then round(cast(total_cdi as float64) / total_offres * 100, 2)
+        else 0
     end as pct_cdi,
-    case 
-        when total_offres > 0 
-        then round(cast(total_offres_avec_salaire as float64) / total_offres * 100, 2) 
-        else 0 
+    case
+        when total_offres > 0
+            then round(cast(total_offres_avec_salaire as float64) / total_offres * 100, 2)
+        else 0
     end as complitude_salaire_pct
 from aggregated

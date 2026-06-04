@@ -1,13 +1,8 @@
 [sqlfluff]
-templater = dbt
+templater = jinja
 dialect = bigquery
 runaway_limit = 10
 max_line_length = 120
-
-[sqlfluff:templater:dbt]
-project_dir = 03_transform/dbt
-profiles_dir = 03_transform/dbt
-target = local
 
 [sqlfluff:indentation]
 tab_width = 4

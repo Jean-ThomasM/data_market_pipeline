@@ -48,10 +48,8 @@ jobs:
           python-version: "3.13"
 
       - name: Installer les dépendances
-        run: uv sync --dev
-
-      - name: Installer les dépendances dbt
-        run: pip install dbt-bigquery dbt-core dbt-sqlite
+        working-directory: 03_transform
+        run: uv sync
 
       - name: Créer les datasets BigQuery éphémères
         run: |
@@ -62,25 +60,28 @@ jobs:
           bq mk --dataset --location=europe-west1 "${GCP_PROJECT_ID}:${DATASET_BASE}_intermediate_dev"
 
       - name: dbt compile
+        working-directory: 03_transform
         run: >
           DBT_TARGET_ENV=ci
           uv run dbt compile
-          --project-dir 03_transform/dbt
-          --profiles-dir 03_transform/dbt
+          --project-dir dbt
+          --profiles-dir dbt
 
       - name: dbt run
+        working-directory: 03_transform
         run: >
           DBT_TARGET_ENV=ci
           uv run dbt run
-          --project-dir 03_transform/dbt
-          --profiles-dir 03_transform/dbt
+          --project-dir dbt
+          --profiles-dir dbt
 
       - name: dbt test
+        working-directory: 03_transform
         run: >
           DBT_TARGET_ENV=ci
           uv run dbt test
-          --project-dir 03_transform/dbt
-          --profiles-dir 03_transform/dbt
+          --project-dir dbt
+          --profiles-dir dbt
 
       - name: Nettoyer les datasets éphémères
         if: always()

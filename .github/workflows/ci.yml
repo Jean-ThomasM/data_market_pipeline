@@ -43,9 +43,6 @@ jobs:
       - name: Installer les dependances
         run: uv sync --all-extras --dev
 
-      - name: Installer les dependances dbt
-        run: uv pip install dbt-core dbt-sqlite
-
       - name: Linter le code Python (Ruff)
         run: uv run ruff check .
 
@@ -56,8 +53,9 @@ jobs:
         run: uv run pytest tests/
 
       - name: Dbt - Verification du graphe et de la syntaxe
+        working-directory: 03_transform
         run: |
-          uv run dbt parse --project-dir 03_transform/dbt --profiles-dir 03_transform/dbt --target local
+          uv run dbt parse --project-dir dbt --profiles-dir dbt --target local
 
       - name: Dbt - Linter SQL (SQLFluff)
         run: |

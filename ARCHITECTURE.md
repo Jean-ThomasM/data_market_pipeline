@@ -1,108 +1,85 @@
-# Architecture ASCII
+# Architecture du Pipeline de Données
 
-## Vue d'ensemble
+Ce document décrit l'architecture technique globale, l'orchestration et le flux de données du projet **Data Market Pipeline**.
 
-```text
-                                      +------------------+
-                                      | Cloud Scheduler  |
-                                      +--------+---------+
-                                               |
-                                               v
-                                      +------------------+
-                                      |    Workflows     |
-                                      +---+---+---+---+
-                                          |   |   |
-                 +------------------------+   |   +------------------------+
-                 |                            |                            |
-                 v                            v                            v
-       +-------------------+        +-------------------+         +-------------------+
-       | extract-ft        |        | extract-geo       |         | extract-sirene    |
-       | Cloud Run Job     |        | Cloud Run Job     |         | Cloud Run Job     |
-       +---------+---------+        +---------+---------+         +---------+---------+
-                 |                            |                             |
-                 |                            |                             |
-                 v                            v                             v
-         France Travail API              API GEO                     API Sirene
-                 |                            |                             |
-                 +-------------+--------------+--------------+--------------+
-                               |                             |
-                               v                             |
-                    +----------------------+                 |
-                    |    GCS Data Lake     |<----------------+
-                    | raw landing / archive|
-                    +------------+-------------+
-                                 |
-                                 | BigQuery Load Jobs
-                                 | pilotes par Workflows
-                                 | schema explicite
-                                 | autodetect = false
-                                 v
-                  +---------------------------+
-                  |       BigQuery raw        |
-                  +-------------+-------------+
-                                |
-                                v
-                  +---------------------------+
-                  | transform-dbt / SQL job   |
-                  | Cloud Run Job             |
-                  +------+------+-------------+
-                         |      |
-                         |      +------------------------------+
-                         |                                     |
-                         v                                     v
-             +----------------------+              +----------------------+
-             | BigQuery staging     |              | dbt docs / lineage   |
-             +----------+-----------+              +----------------------+
-                        |
-                        v
-             +----------------------+
-             | BigQuery intermediate|
-             +----------+-----------+
-                        |
-                        v
-             +----------------------+
-             | BigQuery marts       |
-             +----------+-----------+
-                        |
-                        v
-             +----------------------+
-             | Dashboard BI         |
-             +----------------------+
+---
 
+## 1. Schéma d'Architecture Général
 
-      +---------------------------------------------------------------+
-      | Secret Manager + IAM / Service Accounts                       |
-      | - FT_CLIENT_ID / FT_CLIENT_KEY                                |
-      | - SIRENE_API_KEY si necessaire                                |
-      | - droits GCS / BigQuery / Cloud Run / Workflows               |
-      +---------------------------------------------------------------+
+Le diagramme suivant présente l'infrastructure globale déployée sur **Google Cloud Platform (GCP)** ainsi que les flux de données associés :
+
+```mermaid
+flowchart TD
+    %% Orchestration
+    Scheduler[Cloud Scheduler] ➔|Déclenchement quotidien| Workflow[Cloud Workflows]
+
+    %% Ingest
+    subgraph Ingestion [Ingestion & Extraction (Cloud Run Jobs)]
+        job_ft[extract-ft]
+        job_geo[extract-geo]
+        job_sirene[extract-sirene <br/>⭐ STUB]
+    end
+
+    Workflow ➔|Lance les Jobs| Ingestion
+
+    %% External APIs
+    API_FT[API France Travail] ➔|Fetch json| job_ft
+    API_GEO[API Géo Gouv] ➔|Fetch json| job_geo
+    API_SIR[API Sirene Gouv] -.->|Stub - En dév| job_sirene
+
+    %% Storage Data Lake
+    bucket[GCS Data Lake <br/>gs://data-market-386959-raw-landing/]
+    job_ft ➔|Upload NDJSON| bucket
+    job_geo ➔|Upload JSON| bucket
+    job_sirene -.->|Stub| bucket
+
+    %% BigQuery Load
+    Workflow ➔|Pilote les Load Jobs| BQLoad[BigQuery Load Jobs]
+    bucket ➔|Chargement| BQLoad
+
+    %% BigQuery Layers
+    subgraph BigQuery [BigQuery Serverless Data Warehouse]
+        bq_raw[Dataset: raw_dev]
+        bq_int[Dataset: intermediate_dev]
+        bq_marts[Dataset: marts_dev]
+    end
+
+    BQLoad ➔ bq_raw
+
+    %% Transformation dbt
+    job_dbt[transform-dbt <br/>Cloud Run Job]
+    Workflow ➔|Lance la transformation| job_dbt
+    
+    bq_raw ➔|Lecture| job_dbt
+    job_dbt ➔|Écriture tables intermediate| bq_int
+    job_dbt ➔|Écriture tables marts| bq_marts
+
+    %% Consommation
+    Dashboard[Dashboard BI Looker Studio] ➔|Lecture des Marts| bq_marts
+    docs[dbt docs / Lineage HTML] ➔|Généré par dbt| bq_marts
 ```
 
-## Lecture par etape
+---
 
-### 1. Extraction
+## 2. Description Étape par Étape
 
-```text
-France Travail API ---> extract-ft ------+
-                                         |
-API GEO -------------> extract-geo ----- +--> GCS raw landing
-                                         |
-API Sirene ----------> extract-sirene ---+
-```
+### 2.1 Extraction (Ingestion)
+
+* **extract-ft** (Cloud Run Job) : Interroge l'API France Travail avec authentification OAuth2, gère la pagination et écrit les offres brutes au format NDJSON dans GCS.
+* **extract-geo** (Cloud Run Job) : Interroge l'API GEO publique pour récupérer les référentiels géographiques (communes, départements, régions, EPCI) et les écrit au format JSON dans GCS.
+* **extract-sirene** (Cloud Run Job - **STUB**) : Actuellement sous forme de stub qui logue un message d'attente (`print("Hello from sirene!")`), en prévision d'une future intégration avec l'API Sirene.
 
 Role :
-
 - Python appelle les APIs
 - gere auth, retries, pagination
 - ecrit des fichiers bruts dans GCS
 
-Formats recommandes :
-
+Formats de fichiers stockés dans GCS :
 - France Travail : `NDJSON`
 - GEO : `JSON`
-- Sirene : `NDJSON`
+- Sirene : `NDJSON` (prévu)
 
-### 2. Load
+## 2. Load
 
 ```text
 GCS raw landing ---> Workflows ---> BigQuery Load Jobs ---> BigQuery raw

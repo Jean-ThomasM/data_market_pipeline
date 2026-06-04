@@ -83,18 +83,18 @@ main:
                           parent_args: $${input_args}
                       result: adz_load
 
-            - sirene_branch:
-                steps:
-                  - load_sirene:
-                      call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
-                      args:
-                        workflow_id: "${load_sirene_workflow_name}"
-                        location: "${region}"
-                        project_id: "${project_id}"
-                        argument:
-                          run_id: $${run_id}
-                          parent_args: $${input_args}
-                      result: sirene_load
+#            - sirene_branch:
+#                steps:
+#                  - load_sirene:
+#                      call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+#                      args:
+#                        workflow_id: "${load_sirene_workflow_name}"
+#                        location: "${region}"
+#                        project_id: "${project_id}"
+#                        argument:
+#                          run_id: $${run_id}
+#                          parent_args: $${input_args}
+#                      result: sirene_load
 
             - api_entreprise_branch:
                 steps:

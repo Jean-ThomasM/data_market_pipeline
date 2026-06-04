@@ -53,5 +53,6 @@ all_offers as (
 )
 
 select * from all_offers
-where code_postal is not null
-  and is_alternance = '0'
+where
+    code_postal is not null
+    and is_alternance = '0'
