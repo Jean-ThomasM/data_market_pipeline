@@ -1,6 +1,20 @@
 version: 2
 
 models:
+  - name: mart_recruteurs
+    description: "Agrégations par entreprise (recruteur) calculant le volume d'offres et les moyennes de salaires minimum et maximum."
+    columns:
+      - name: employer_name
+        description: "Nom de l'entreprise ou employeur."
+      - name: total_offres
+        description: "Nombre total d'offres d'emploi."
+      - name: total_offres_avec_salaire
+        description: "Nombre d'offres d'emploi contenant des informations de salaire."
+      - name: salaire_min_moyen
+        description: "Moyenne des salaires minimums proposés par l'entreprise."
+      - name: salaire_max_moyen
+        description: "Moyenne des salaires maximums proposés par l'entreprise."
+
   - name: mart_offres_data_jobs
     description: "Table de faits centrale consolidant et filtrant toutes les offres d'emploi pour les profils Data Engineers (France Travail & Adzuna)."
     columns:
