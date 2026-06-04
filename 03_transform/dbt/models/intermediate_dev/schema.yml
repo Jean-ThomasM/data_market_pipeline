@@ -48,6 +48,30 @@ models:
               arguments:
                 values: ['0', '1']
 
+  - name: int_ft_employer_names
+    description: >
+      Enrichissement des noms d'employeurs des offres France Travail via
+      lookup STRPOS (noms vérifiés FT + Adzuna) puis regex de fallback
+      (Rejoindre X, X est un/une, Groupe X, etc.).
+      Une ligne par offre; `enrichment_source` indique la provenance
+      (raw/lookup/regex/fallback).
+    columns:
+      - name: offer_id
+        description: "ID unique de l'offre France Travail."
+        tests:
+          - not_null
+          - unique
+      - name: employer_name_raw
+        description: "Nom employeur brut depuis entreprise.nom (NULL si absent)."
+      - name: employer_description
+        description: "Description de l'entreprise depuis entreprise.description."
+      - name: employer_name_enriched
+        description: >
+          Nom employeur enrichi : priorité raw, puis lookup STRPOS,
+          puis regex fallback, NULL si introuvable.
+      - name: enrichment_source
+        description: "Source du nom enrichi : raw, lookup, regex, fallback."
+
   - name: int_adzuna_offres
     description: "Table consolidée des offres Adzuna enrichie géographiquement."
     columns:

@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 
 import scraper
 from shared import bigquery
+from shared.n8n import N8nClient
 from shared.storage import save_ndjson_records
 
 logger = logging.getLogger(__name__)
@@ -72,11 +73,42 @@ def build_flat_record(scraped: dict, offer: dict, scraped_at: str) -> dict:
     }
 
 
+def scrape_via_n8n(
+    n8n: N8nClient, siren: str, employer_name: str, nom_commune: str
+) -> dict | None:
+    payload = {
+        "siren": siren,
+        "employer_name": employer_name,
+        "nom_commune": nom_commune,
+    }
+    try:
+        result = n8n.trigger_workflow(payload)
+        if not result or not isinstance(result, list) or len(result) == 0:
+            logger.error(
+                "n8n returned empty response for %s (%s)", employer_name, siren
+            )
+            return None
+        html = result[0].get("html", "")
+        if not html:
+            logger.error("n8n returned no HTML for %s (%s)", employer_name, siren)
+            return None
+        return scraper.parse_societe_html(html, siren)
+    except Exception as e:
+        logger.error("n8n request failed for %s (%s): %s", employer_name, siren, e)
+        return None
+
+
 def main() -> None:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
+
+    n8n_webhook_url = os.environ.get("N8N_WEBHOOK_URL")
+    use_n8n = bool(n8n_webhook_url)
+    if use_n8n:
+        n8n_client = N8nClient(n8n_webhook_url)
+        logger.info("Using n8n webhook: %s", n8n_webhook_url)
 
     to_process = get_untracked_offers()
     logger.info("Offers with SIREN to process: %d", len(to_process))
@@ -86,9 +118,15 @@ def main() -> None:
 
     flat_records: list[dict] = []
     for item in to_process:
-        scraped = scraper.scrape_societe(
-            item["siren"], company_name=item["employer_name"]
-        )
+        scraped = None
+        if use_n8n:
+            scraped = scrape_via_n8n(
+                n8n_client, item["siren"], item["employer_name"], item["nom_commune"]
+            )
+        if scraped is None:
+            scraped = scraper.scrape_societe(
+                item["siren"], company_name=item["employer_name"]
+            )
         if scraped is not None:
             flat_records.append(
                 build_flat_record(

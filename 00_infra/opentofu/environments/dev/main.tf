@@ -496,7 +496,7 @@ module "n8n_service" {
   cpu    = "1"
   memory = "2Gi"
 
-  manual_instance_count = 0
+  manual_instance_count = 1
 
   env_vars = {
     N8N_PORT                    = "5678"
@@ -506,9 +506,6 @@ module "n8n_service" {
     N8N_ENDPOINT_HEALTH         = "health"
     N8N_RUNNERS_ENABLED         = "false"
     N8N_RESTRICT_FILE_ACCESS_TO = "/tmp"
-    N8N_HOST                    = "n8n-dev-5pko4kkvvq-ew.a.run.app"
-    N8N_EDITOR_BASE_URL         = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
-    WEBHOOK_URL                 = "https://n8n-dev-5pko4kkvvq-ew.a.run.app"
   }
 
   secret_env_vars = {
@@ -643,6 +640,7 @@ module "n8n_trigger_job" {
     STORAGE                  = "gcs"
     INTERMEDIATE_DATASET_ID  = module.intermediate_dataset.dataset_id
     STAGING_DATASET_ID       = module.staging_dataset.dataset_id
+    N8N_WEBHOOK_URL          = "${module.n8n_service.url}/webhook/societe-scraper"
   }
 }
 
