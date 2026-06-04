@@ -12,6 +12,12 @@ on:
     paths-ignore:
       - "_*/**"
       - "**/_*/**"
+  push:
+    branches:
+      - integration
+    paths-ignore:
+      - "_*/**"
+      - "**/_*/**"
 
 jobs:
   test:

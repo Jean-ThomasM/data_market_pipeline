@@ -4,9 +4,15 @@ on:
   pull_request:
     paths:
       - "03_transform/dbt/**"
+      - ".github/workflows/dbt-ci.yml"
     branches:
       - main
       - integration
+  push:
+    branches:
+      - integration
+    paths:
+      - "03_transform/dbt/**"
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
