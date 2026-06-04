@@ -44,9 +44,55 @@ Build from **repo root**, not from subdirectory:
 docker build -f 02_extract/france_travail/Dockerfile -t extract-ft:local .
 docker build -f 02_extract/geo/Dockerfile -t extract-geo:local .
 docker build -f 03_transform/Dockerfile -t dbt_transform:local .
+docker build -f n8n/Dockerfile -t n8n:local ./n8n
 ```
 
 Multi-stage build copies only the needed workspace member sources. Uses `uv sync --frozen --no-dev --package <name>`.
+
+## n8n dans GCP
+
+n8n est déployé comme **Cloud Run service** (n8n-dev). Le workflow `societe.com-scraper.json` est pré-chargé dans l'image via `entrypoint.sh` qui importe le workflow au démarrage via `n8n import:workflow`.
+
+Architecture du scraping societe.com :
+1. **n8n_trigger** (Cloud Run Job) interroge BQ pour les offres non traitées
+2. **n8n webhook** récupère le HTML de societe.com (proxy HTTP)
+3. **Python scraper** parse le HTML pour extraire JSON-LD + champs additionnels
+4. Résultats sauvegardés dans GCS puis chargés dans BQ
+
+Si `N8N_WEBHOOK_URL` est défini, le pipeline utilise n8n en priorité. Fallback direct HTTP si n8n échoue ou n'est pas configuré.
+
+### Déploiement n8n complet
+
+```bash
+docker build -f n8n/Dockerfile -t europe-west1-docker.pkg.dev/data-market-386959/data-market-docker-repository/n8n:dev ./n8n
+docker push europe-west1-docker.pkg.dev/data-market-386959/data-market-docker-repository/n8n:dev
+gcloud run deploy n8n-dev --image=europe-west1-docker.pkg.dev/data-market-386959/data-market-docker-repository/n8n:dev --region=europe-west1 --project=data-market-386959 --port=5678 --no-use-http2
+bash n8n/n8n_activate.sh          # activer le webhook après déploiement
+```
+
+### Build & push de l'image n8n
+
+```bash
+docker build -f n8n/Dockerfile -t n8n:local ./n8n
+docker tag n8n:local europe-west1-docker.pkg.dev/data-market-386959/data-market-docker-repository/n8n:dev
+docker push europe-west1-docker.pkg.dev/data-market-386959/data-market-docker-repository/n8n:dev
+```
+
+Le workflow n8n est importé au démarrage avec `n8n import:workflow` (désactive le workflow car import sans `--activeState`). L'activation du webhook doit être faite APRÈS déploiement via `n8n/n8n_activate.sh`.
+
+Étapes d'activation (API REST externe) :
+1. `POST /rest/owner/setup` — créer l'owner (ignorer si 400/409)
+2. `POST /rest/login` — récupérer cookie `n8n-auth`
+3. `GET /rest/workflows/:id` — récupérer `versionId`
+4. `POST /rest/workflows/:id/activate` — activer avec `{"versionId":"..."}`
+
+**IMPORTANT** : L'API `/rest/*` ne répond pas depuis localhost dans le conteneur (404). L'activation doit être faite depuis l'extérieur (Cloud Run URL). En local, l'instance n8n est accessible sur le port 5678, mais le webhook nécessite un tunnel/ngrok.
+
+Détails du workflow `societe.com-scraper` :
+- Webhook ID : `e1b2c3d4-5a6b-7c8d-9e0f-a1b2c3d4e5f6`
+- Méthode HTTP : POST (par défaut GET, nécessite `"httpMethod": "POST"` dans le JSON)
+- Webhook node output : `$json.body.siren` (pas `$json.siren`)
+- URL societe.com : `https://www.societe.com/societe/{slug}-{siren}.html` où slug = `company_name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')`
 
 ## dbt
 
