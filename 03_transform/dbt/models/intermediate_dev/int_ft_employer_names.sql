@@ -8,8 +8,8 @@
 {% set adzuna_exists = false %}
 {% if execute %}
   {% set adzuna_relation = adapter.get_relation(
-      database='data-market-386959',
-      schema='staging_dev',
+      database=target.project,
+      schema=target.schema,
       identifier='staging_offres_adzuna'
   ) %}
   {% if adzuna_relation is not none %}
@@ -20,8 +20,8 @@
 {% set ft_exists = false %}
 {% if execute %}
   {% set ft_relation = adapter.get_relation(
-      database='data-market-386959',
-      schema='staging_dev',
+      database=target.project,
+      schema=target.schema,
       identifier='staging_offres_ft'
   ) %}
   {% if ft_relation is not none %}

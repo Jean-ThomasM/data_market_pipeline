@@ -3,8 +3,8 @@
 {% set geo_tables_exist = false %}
 {% if execute %}
   {% set communes_relation = adapter.get_relation(
-      database='data-market-386959',
-      schema='staging_dev',
+      database=target.project,
+      schema=target.schema,
       identifier='staging_communes'
   ) %}
   {% if communes_relation is not none %}
