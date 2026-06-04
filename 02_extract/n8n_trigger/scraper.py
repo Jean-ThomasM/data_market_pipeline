@@ -81,6 +81,95 @@ def _clean_euro(value: str) -> str | None:
     return value.strip()
 
 
+def parse_societe_html(html: str, siren: str) -> dict | None:
+    ld = _extract_jsonld(html)
+    if ld is None:
+        logger.warning("No JSON-LD found for %s", siren)
+        return None
+
+    result: dict = {}
+
+    for id_ in ld.get("identifier", []):
+        pid = id_.get("propertyID", "").upper()
+        if pid == "SIREN":
+            result["siren"] = id_["value"]
+        elif pid == "SIRET":
+            result["siret_siege"] = id_["value"]
+        elif pid == "TVA":
+            result["tva_intra"] = id_["value"]
+
+    result["legal_name"] = ld.get("legalName")
+    result["naf_code"] = ld.get("naics")
+    result["naf_label"] = ld.get("description")
+    result["date_creation"] = ld.get("foundingDate")
+
+    addr = ld.get("address", {})
+    if addr:
+        result["adresse"] = {
+            "rue": addr.get("streetAddress"),
+            "complement": addr.get("extendedAddress"),
+            "code_postal": addr.get("postalCode"),
+            "ville": addr.get("addressLocality"),
+        }
+
+    for prop in ld.get("additionalProperty", []):
+        pid = prop.get("propertyID", "")
+        if pid == "Forme juridique":
+            result["forme_juridique_code"] = prop.get("value")
+        elif pid == "Statut":
+            result["statut"] = prop.get("value")
+
+    dirigeants = []
+    seen = set()
+    for member in ld.get("member", []):
+        d = {"nom": member.get("name")}
+        if member.get("@type") == "Person":
+            d["prenom"] = member.get("givenName")
+            d["nom_famille"] = member.get("familyName")
+            if member.get("jobTitle"):
+                d["fonction"] = member.get("jobTitle")
+        elif member.get("@type") == "Organization":
+            d["siren"] = member.get("identifier")
+            ap = member.get("additionalProperty", {})
+            if isinstance(ap, dict) and ap.get("propertyID") == "Fonction":
+                d["fonction"] = ap.get("value")
+        key = (d["nom"], d.get("fonction"))
+        if key not in seen:
+            seen.add(key)
+            dirigeants.append(d)
+    if dirigeants:
+        result["dirigeants"] = dirigeants
+
+    capital_raw = _extract_dt_dd(html, "Capital social")
+    if capital_raw:
+        result["capital_social"] = _clean_euro(capital_raw)
+
+    cc = _extract_dt_dd(html, "Convention collective")
+    if cc:
+        result["convention_collective"] = cc
+
+    noms = _extract_dt_dd(html, "Noms commerciaux")
+    if noms:
+        result["noms_commerciaux"] = noms
+
+    for key, label in [
+        ("statut_rcs", "Statut RCS"),
+        ("statut_insee", "Statut INSEE"),
+        ("statut_rne", "Statut RNE"),
+    ]:
+        val = _extract_dt_dd(html, label)
+        if val:
+            result[key] = val
+
+    adstack = _extract_adstack(html)
+    if adstack.get("chiffre"):
+        result["chiffre_affaires"] = adstack["chiffre"]
+    if adstack.get("effectif") and adstack["effectif"] != "0":
+        result["effectif"] = adstack["effectif"]
+
+    return result
+
+
 def scrape_societe(siren: str, company_name: str | None = None) -> dict | None:
     slug = _slugify(company_name) if company_name else siren
     url = f"https://www.societe.com/societe/{slug}-{siren}.html"
@@ -103,101 +192,10 @@ def scrape_societe(siren: str, company_name: str | None = None) -> dict | None:
                 return None
             resp.raise_for_status()
 
-            html = resp.text
-            ld = _extract_jsonld(html)
-            if ld is None:
+            result = parse_societe_html(resp.text, siren)
+            if result is None:
                 logger.warning("No JSON-LD found for %s", url)
                 return None
-
-            result: dict = {}
-
-            # --- identifiers ---
-            for id_ in ld.get("identifier", []):
-                pid = id_.get("propertyID", "").upper()
-                if pid == "SIREN":
-                    result["siren"] = id_["value"]
-                elif pid == "SIRET":
-                    result["siret_siege"] = id_["value"]
-                elif pid == "TVA":
-                    result["tva_intra"] = id_["value"]
-
-            result["legal_name"] = ld.get("legalName")
-
-            # --- NAF ---
-            result["naf_code"] = ld.get("naics")
-            result["naf_label"] = ld.get("description")
-
-            # --- date création ---
-            result["date_creation"] = ld.get("foundingDate")
-
-            # --- adresse ---
-            addr = ld.get("address", {})
-            if addr:
-                result["adresse"] = {
-                    "rue": addr.get("streetAddress"),
-                    "complement": addr.get("extendedAddress"),
-                    "code_postal": addr.get("postalCode"),
-                    "ville": addr.get("addressLocality"),
-                }
-
-            # --- forme juridique (code) + statut ---
-            for prop in ld.get("additionalProperty", []):
-                pid = prop.get("propertyID", "")
-                if pid == "Forme juridique":
-                    result["forme_juridique_code"] = prop.get("value")
-                elif pid == "Statut":
-                    result["statut"] = prop.get("value")
-
-            # --- dirigeants ---
-            dirigeants = []
-            seen = set()
-            for member in ld.get("member", []):
-                d = {"nom": member.get("name")}
-                if member.get("@type") == "Person":
-                    d["prenom"] = member.get("givenName")
-                    d["nom_famille"] = member.get("familyName")
-                    if member.get("jobTitle"):
-                        d["fonction"] = member.get("jobTitle")
-                elif member.get("@type") == "Organization":
-                    d["siren"] = member.get("identifier")
-                    ap = member.get("additionalProperty", {})
-                    if isinstance(ap, dict) and ap.get("propertyID") == "Fonction":
-                        d["fonction"] = ap.get("value")
-                key = (d["nom"], d.get("fonction"))
-                if key not in seen:
-                    seen.add(key)
-                    dirigeants.append(d)
-            if dirigeants:
-                result["dirigeants"] = dirigeants
-
-            # --- Champs additionnels depuis le HTML ---
-            capital_raw = _extract_dt_dd(html, "Capital social")
-            if capital_raw:
-                result["capital_social"] = _clean_euro(capital_raw)
-
-            cc = _extract_dt_dd(html, "Convention collective")
-            if cc:
-                result["convention_collective"] = cc
-
-            noms = _extract_dt_dd(html, "Noms commerciaux")
-            if noms:
-                result["noms_commerciaux"] = noms
-
-            for key, label in [
-                ("statut_rcs", "Statut RCS"),
-                ("statut_insee", "Statut INSEE"),
-                ("statut_rne", "Statut RNE"),
-            ]:
-                val = _extract_dt_dd(html, label)
-                if val:
-                    result[key] = val
-
-            # --- ADSTACK.data (chiffre d'affaires, effectif) ---
-            adstack = _extract_adstack(html)
-            if adstack.get("chiffre"):
-                result["chiffre_affaires"] = adstack["chiffre"]
-            if adstack.get("effectif") and adstack["effectif"] != "0":
-                result["effectif"] = adstack["effectif"]
 
             logger.info(
                 "Scraped %s (%s): %s",

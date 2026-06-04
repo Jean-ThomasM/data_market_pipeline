@@ -66,6 +66,11 @@ geo_ref as (
     group by 1
 ),
 
+employer_names as (
+    select offer_id, employer_name_enriched, enrichment_source
+    from {{ ref('int_ft_employer_names') }}
+),
+
 final as (
     select
         o.offer_id,
@@ -84,9 +89,10 @@ final as (
         g.region_nom as nom_region,
         g.epci_nom as nom_epci,
 
-        -- Employeur
-        o.employer_name,
+        -- Employeur (enrichi via lookup + regex si entreprise.nom est NULL)
+        coalesce(en.employer_name_enriched, o.employer_name) as employer_name,
         o.employer_description,
+        en.enrichment_source,
         o.naf_code,
         o.industry_label,
 
@@ -101,6 +107,8 @@ final as (
     from raw_offers o
     inner join geo_ref g
         on o.commune_code = g.commune_code
+    left join employer_names en
+        on o.offer_id = en.offer_id
 )
 
 select * from final

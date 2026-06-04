@@ -49,6 +49,7 @@ jobs:
       adzuna: ${{ steps.override.outputs.adzuna || steps.filter.outputs.adzuna }}
       api_entreprise: ${{ steps.override.outputs.api_entreprise || steps.filter.outputs.api_entreprise }}
       n8n_trigger: ${{ steps.override.outputs.n8n_trigger || steps.filter.outputs.n8n_trigger }}
+      n8n: ${{ steps.override.outputs.n8n || steps.filter.outputs.n8n }}
       dbt: ${{ steps.override.outputs.dbt || steps.filter.outputs.dbt }}
     steps:
       - uses: actions/checkout@v4
@@ -70,6 +71,8 @@ jobs:
               - '02_extract/api_entreprise/**'
             n8n_trigger:
               - '02_extract/n8n_trigger/**'
+            n8n:
+              - 'n8n/**'
             dbt:
               - '03_transform/**'
       - name: Override filter for manual build
@@ -82,6 +85,7 @@ jobs:
           echo "adzuna=true" >> $GITHUB_OUTPUT
           echo "api_entreprise=true" >> $GITHUB_OUTPUT
           echo "n8n_trigger=true" >> $GITHUB_OUTPUT
+          echo "n8n=true" >> $GITHUB_OUTPUT
           echo "dbt=true" >> $GITHUB_OUTPUT
   release:
     runs-on: ubuntu-latest
@@ -207,6 +211,20 @@ jobs:
             ${{ github.ref_name == 'main' && format('{0}/{1}/{2}/{3}:latest', env.REGISTRY, env.GCP_PROJECT_ID, env.REPOSITORY, 'n8n-trigger') || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Build & Push n8n
+        if: needs.filter.outputs.n8n == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./n8n
+          file: n8n/Dockerfile
+          push: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build) }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/n8n:${{ needs.release.outputs.tag }}
+            ${{ github.ref_name == 'main' && needs.release.outputs.version != '' && format('{0}/{1}/{2}/{3}:{4}', env.REGISTRY, env.GCP_PROJECT_ID, env.REPOSITORY, 'n8n', needs.release.outputs.version) || '' }}
+            ${{ github.ref_name == 'main' && format('{0}/{1}/{2}/{3}:latest', env.REGISTRY, env.GCP_PROJECT_ID, env.REPOSITORY, 'n8n') || '' }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Build & Push dbt_transform
         if: needs.filter.outputs.shared == 'true' || needs.filter.outputs.dbt == 'true'
         uses: docker/build-push-action@v6
@@ -240,7 +258,7 @@ jobs:
         run: gcloud auth configure-docker $REGISTRY
       - name: Retag dev -> prod
         run: |
-          for IMAGE in extract-ft extract-geo extract-adzuna api-entreprise n8n-trigger dbt_transform; do
+          for IMAGE in extract-ft extract-geo extract-adzuna api-entreprise n8n-trigger n8n dbt_transform; do
             docker pull ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${IMAGE}:dev
             docker tag ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${IMAGE}:dev \
               ${{ env.REGISTRY }}/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${IMAGE}:prod
