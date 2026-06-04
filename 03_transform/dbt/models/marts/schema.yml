@@ -16,7 +16,7 @@ models:
         description: "Moyenne des salaires maximums proposés par l'entreprise."
 
   - name: mart_offres_data_jobs
-    description: "Table de faits centrale consolidant et filtrant toutes les offres d'emploi pour les profils Data Engineers (France Travail & Adzuna)."
+    description: "Table de faits centrale consolidant et filtrant toutes les offres d'emploi pour les profils Data Engineers (France Travail & Adzuna), enrichie des données corporate (SIREN, finances, etc.)."
     columns:
       - name: offer_id
         description: "Identifiant unique de l'offre."
@@ -42,6 +42,16 @@ models:
         description: "Flag indiquant si l'offre concerne de l'alternance (0 ou 1)."
         tests:
           - not_null
+      - name: siren
+        description: "SIREN de l'employeur (Adzuna uniquement)."
+      - name: nom_raison_sociale
+        description: "Raison sociale officielle."
+      - name: categorie_entreprise
+        description: "Catégorie d'entreprise (PME, ETI, GE)."
+      - name: nature_juridique
+        description: "Forme juridique (SAS, SARL, SA, etc.)."
+      - name: egapro_renseignee
+        description: "Index égalité professionnelle F/H renseigné."
 
   - name: mart_recrutement_geographique
     description: "Agrégations géographiques pour cartographier le recrutement en France (Région, Département, Commune)."
@@ -57,4 +67,74 @@ models:
       - name: total_employeurs_distincts
         description: "Nombre d'employeurs différents recrutant dans cette commune."
 
+  - name: mart_employeurs_corporate
+    description: "Fiches corporate des employeurs Adzuna enrichies (SIREN, finances, RSE, structure)."
+    columns:
+      - name: employer_name
+        description: "Nom de l'employeur."
+        tests:
+          - not_null
+      - name: siren
+        description: "SIREN de l'entreprise."
+      - name: siret_siege
+        description: "SIRET du siège social."
+      - name: nom_raison_sociale
+        description: "Raison sociale officielle."
+      - name: nature_juridique
+        description: "Forme juridique."
+      - name: categorie_entreprise
+        description: "Catégorie (PME, ETI, GE)."
+      - name: tranche_effectif_salarie
+        description: "Tranche d'effectif salarié."
+      - name: etat_administratif
+        description: "État administratif (A=Actif, C=Fermé)."
+      - name: egapro_renseignee
+        description: "Index égalité professionnelle F/H renseigné."
+      - name: est_ess
+        description: "Entreprise de l'ESS."
+      - name: est_association
+        description: "Association."
+      - name: est_societe_mission
+        description: "Société à mission."
+      - name: ca_dernier_exercice
+        description: "CA du dernier exercice (k€)."
+      - name: resultat_net_dernier
+        description: "Résultat net du dernier exercice (k€)."
+      - name: capital_social
+        description: "Capital social."
+      - name: convention_collective
+        description: "Convention collective."
+      - name: effectif_societe
+        description: "Effectif (societe.com)."
+      - name: total_offres
+        description: "Nombre total d'offres publiées."
 
+  - name: mart_salaires
+    description: "Analyse des salaires par poste et employeur (hors alternance)."
+    columns:
+      - name: employer_name
+        description: "Nom de l'employeur."
+      - name: job_title
+        description: "Intitulé du poste."
+      - name: siren
+        description: "SIREN de l'employeur."
+      - name: categorie_entreprise
+        description: "Catégorie d'entreprise."
+      - name: nombre_offres
+        description: "Nombre d'offres pour ce couple (employeur, poste)."
+      - name: salaire_min_moyen
+        description: "Salaire minimum moyen."
+      - name: salaire_max_moyen
+        description: "Salaire maximum moyen."
+
+  - name: mart_finops_costs
+    description: "Coûts GCP quotidiens agrégés par service et environnement (dataset finops_dev)."
+    columns:
+      - name: facturation_mois
+        description: "Mois de facturation."
+      - name: date_usage
+        description: "Date d'usage."
+      - name: service_nom
+        description: "Service GCP (BigQuery, Cloud Run, etc.)."
+      - name: cout_net
+        description: "Coût net après crédits."

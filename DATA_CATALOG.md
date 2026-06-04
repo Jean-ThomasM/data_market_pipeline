@@ -145,6 +145,19 @@ Modèles dbt intermédiaires effectuant le typage, le nettoyage, la déduplicati
   * `nom_commune` / `numero_departement` / `nom_region` : Localisation géocodée.
   * `has_salary_info` / `is_alternance` : Flags techniques de classification.
 
+### Modèle : `int_adzuna_enrichissement`
+* **Clé primaire** : `offer_id`
+* **Lignage source** : `int_adzuna_offres` + `staging_api_entreprise` + `staging_n8n_societe`
+* **Description** : Enrichissement corporate des offres Adzuna via l'API Recherche Entreprises (SIREN, SIRET, finances, nature juridique, effectif, dirigeants) et le scraping societe.com via n8n (capital social, convention collective, chiffre d'affaires).
+* **Champs majeurs** :
+  * `offer_id` / `employer_name` / `nom_commune` : Clés de jointure.
+  * `siren` / `siret_siege` : Identifiants officiels de l'entreprise.
+  * `nom_raison_sociale` : Raison sociale officielle.
+  * `nature_juridique` / `categorie_entreprise` : Forme juridique et catégorie (PME/ETI/GE).
+  * `ca_dernier_exercice` / `resultat_net_dernier` : Données financières du dernier exercice (k€).
+  * `egapro_renseignee` / `est_ess` / `est_societe_mission` : Indicateurs RSE.
+  * `capital_social` / `convention_collective` / `effectif_societe` : Données societe.com.
+
 ---
 
 ## 3. Couche Marts (Restitution BI)
@@ -153,8 +166,8 @@ Modèles dbt finaux prêts à être exposés au Dashboard Looker Studio ou autre
 
 ### Modèle : `mart_offres_data_jobs`
 * **Clé primaire** : `offer_id`
-* **Lignage source** : `int_ft_offres` + `int_adzuna_offres`
-* **Description** : Table de faits consolidée au grain de l'offre d'emploi Data (hors alternance, ayant une géolocalisation valide). Fusionne les flux France Travail et Adzuna.
+* **Lignage source** : `int_ft_offres` + `int_adzuna_offres` + `int_adzuna_enrichissement`
+* **Description** : Table de faits consolidée au grain de l'offre d'emploi Data (hors alternance, ayant une géolocalisation valide). Fusionne les flux France Travail et Adzuna. Les offres Adzuna sont enrichies des données corporate (SIREN, finances, catégorie d'entreprise, RSE, capital social).
 * **Champs majeurs** :
   * `offer_id` : ID de l'offre.
   * `source_system` : Origine de l'offre (`France Travail` ou `Adzuna`).
@@ -163,6 +176,13 @@ Modèles dbt finaux prêts à être exposés au Dashboard Looker Studio ou autre
   * `employer_name` : Nom de l'employeur.
   * `nom_region` / `nom_departement` / `nom_commune` / `code_postal` : Informations de géolocalisation complètes.
   * `salary_min` / `salary_max` : Fourchette de salaire annuel brut (en EUR).
+  * `siren` / `siret_siege` : SIREN et SIRET du siège (Adzuna uniquement).
+  * `nom_raison_sociale` : Raison sociale officielle.
+  * `nature_juridique` / `categorie_entreprise` : Forme juridique et catégorie.
+  * `tranche_effectif_salarie` : Tranche d'effectifs INSEE.
+  * `egapro_renseignee` / `est_ess` / `est_societe_mission` : Indicateurs RSE.
+  * `ca_dernier_exercice` / `resultat_net_dernier` : Données financières (k€).
+  * `capital_social` / `convention_collective` : Données légales.
 
 ### Modèle : `mart_recrutement_geographique`
 * **Clé primaire** : `nom_region` + `nom_departement` + `nom_commune`
@@ -184,6 +204,42 @@ Modèles dbt finaux prêts à être exposés au Dashboard Looker Studio ou autre
   * `total_offres` : Volume total d'offres publiées.
   * `total_offres_avec_salaire` : Volume d'offres indiquant une rémunération.
   * `salaire_min_moyen` / `salaire_max_moyen` : Fourchette de salaires moyens proposés par cet employeur.
+
+### Modèle : `mart_employeurs_corporate`
+* **Clé primaire** : `(employer_name, nom_commune)`
+* **Lignage source** : `int_adzuna_enrichissement`
+* **Description** : Fiches corporate des employeurs Adzuna, dédupliquées par (employeur, commune). Une ligne = une entreprise avec ses données d'identité (SIREN, raison sociale), financières (CA, résultat net), structure (effectif, capital social, convention collective), RSE (egapro, ESS) et recrutement (volume d'offres, salaires moyens).
+* **Champs majeurs** :
+  * `employer_name` / `nom_commune` : Clé d'identification.
+  * `siren` / `siret_siege` / `nom_raison_sociale` : Identité officielle.
+  * `nature_juridique` / `categorie_entreprise` : Profil juridique.
+  * `tranche_effectif_salarie` / `effectif_societe` : Taille de l'entreprise.
+  * `ca_dernier_exercice` / `resultat_net_dernier` : Performance financière.
+  * `capital_social` / `convention_collective` : Données légales.
+  * `egapro_renseignee` / `est_ess` / `est_association` / `est_societe_mission` : RSE.
+  * `total_offres` / `salaire_min_moyen` / `salaire_max_moyen` : Métriques recrutement.
+
+### Modèle : `mart_salaires`
+* **Clé primaire** : `(employer_name, nom_commune, job_title)`
+* **Lignage source** : `mart_offres_data_jobs`
+* **Description** : Analyse des salaires par poste et employeur. Permet de comparer les rémunérations proposées par type de poste et profil d'entreprise.
+* **Champs majeurs** :
+  * `employer_name` / `nom_commune` / `job_title` : Axes d'analyse.
+  * `siren` / `nom_raison_sociale` / `nature_juridique` / `categorie_entreprise` : Profil employeur.
+  * `nombre_offres` : Volume d'offres pour ce couple.
+  * `salaire_min_moyen` / `salaire_max_moyen` : Salaires moyens.
+  * `salaire_min_global` / `salaire_max_global` : Étendue des salaires.
+
+### Modèle : `mart_finops_costs`
+* **Dataset** : `finops_dev`
+* **Lignage source** : `billing_raw.gcp_billing_export_v1_*` (export facturation GCP)
+* **Description** : Coûts GCP quotidiens agrégés par service, ressource et environnement. Permet le pilotage FinOps du pipeline via Looker Studio.
+* **Champs majeurs** :
+  * `facturation_mois` : Mois de facturation.
+  * `date_usage` : Jour de consommation.
+  * `service_nom` : Service GCP (BigQuery, Cloud Run, Cloud Storage, etc.).
+  * `environnement` : Label `dev` ou `prod`.
+  * `cout_brut` / `cout_net` : Coût avant et après crédits.
 
 ---
 
@@ -210,3 +266,12 @@ Les correspondances croisées entre les différentes sources de données reposen
 * **Type de jointure** : Prévu en `LEFT JOIN` (actuellement simulé)
 * **Clé de jointure** : Nom d'entreprise normalisé + Code Commune / Code Postal.
 * **Méthode** : La jointure utilise l'API de Recherche d'Entreprises publique française. À partir du nom de l'employeur nettoyé (fourni par `int_ft_employer_names`) et de sa commune de localisation, on interroge l'API pour récupérer le SIREN et le SIRET associés, permettant de relier l'offre d'emploi à la fiche d'identité officielle de l'entreprise.
+
+### Jointure : Adzuna ↔ API Entreprise + societe.com (Enrichissement Corporate)
+* **Type de jointure** : `LEFT JOIN` déterministe
+* **Clé de jointure** : `LOWER(TRIM(employer_name))` + `LOWER(TRIM(nom_commune))`
+* **Fichier d'implémentation** : [int_adzuna_enrichissement.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/intermediate_dev/int_adzuna_enrichissement.sql#L54-L84)
+* **Méthode** :
+  1. *Étape d'extraction* : Les Cloud Run Jobs `api-entreprise-dev` et `n8n-trigger-dev` interrogent respectivement l'API Recherche Entreprises et societe.com (via n8n). Les résultats sont chargés dans les tables `staging_api_entreprise` et `staging_n8n_societe`.
+  2. *Jointure dbt* : `int_adzuna_enrichissement` joint `int_adzuna_offres` avec ces deux tables sur le couple `(employer_name, nom_commune)` normalisé (lower + trim). Le SIREN sert de pont entre les deux sources d'enrichissement.
+  3. *Consolidation dans les marts* : `mart_offres_data_jobs` hérite directement des colonnes enrichies via un LEFT JOIN sur `offer_id`. `mart_employeurs_corporate` agrège ces données au niveau entreprise pour produire une table corporate unique.

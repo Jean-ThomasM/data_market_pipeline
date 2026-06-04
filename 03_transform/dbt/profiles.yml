@@ -41,4 +41,5 @@ data_market_pipeline:
         intermediate_dev: "main_intermediate_dev.db"
         staging_dev: "main_intermediate_dev.db"
         marts_dev: "main_marts_dev.db"
+        finops_dev: "main_marts_dev.db"
       schema_directory: ".."

@@ -31,3 +31,17 @@ sources:
     schema: "{{ 'staging_dev' if target.type == 'bigquery' else 'main' }}"
     tables:
       - name: staging_sirene
+
+  - name: api_entreprise
+    description: "Tables d'enrichissement issues de l'API Recherche Entreprises."
+    database: "{{ target.project if target.type == 'bigquery' else target.database }}"
+    schema: "{{ target.schema }}"
+    tables:
+      - name: staging_api_entreprise
+
+  - name: n8n_societe
+    description: "Tables d'enrichissement issues du scraping societe.com (via n8n)."
+    database: "{{ target.project if target.type == 'bigquery' else target.database }}"
+    schema: "{{ target.schema }}"
+    tables:
+      - name: staging_n8n_societe

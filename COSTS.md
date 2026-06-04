@@ -82,3 +82,19 @@ L'architecture du projet a été choisie spécifiquement pour sa nature **server
 
 ### D. Cloud Workflows & Scheduler
 * Ces services d'orchestration disposent d'un large palier gratuit (ex: 5 000 étapes gratuites par mois pour Workflows). Le pipeline consomme moins de 1% de ce quota gratuit chaque mois.
+
+---
+
+## 4. Modèle dbt FinOps
+
+Un modèle dbt `mart_finops_costs` a été ajouté dans `03_transform/dbt/models/marts/`. Il écrit dans le dataset `finops_dev` et agrège les coûts par jour, service et environnement.
+
+```bash
+# Exécution en dev (BigQuery uniquement)
+export DBT_TARGET_ENV=dev
+uv run dbt run --project-dir 03_transform/dbt --profiles-dir 03_transform/dbt --select mart_finops_costs
+```
+
+**IAM requis** : Le SA `dbt-runner-dev` doit avoir `roles/bigquery.dataViewer` sur le dataset `billing_raw` (déjà configuré dans `main.tf`).
+
+**Limitations** : Non disponible en local SQLite (dépend de l'export billing GCP).

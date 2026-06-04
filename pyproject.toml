@@ -10,6 +10,8 @@ dependencies = [
     "geo",
     "adzuna",
     "api-entreprise",
+    "dbt-core>=1.11.11",
+    "dbt-sqlite>=1.10.0",
 ]
 
 [dependency-groups]

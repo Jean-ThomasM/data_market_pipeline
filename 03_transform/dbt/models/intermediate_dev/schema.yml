@@ -103,3 +103,42 @@ models:
               arguments:
                 values: ['0', '1']
 
+  - name: int_adzuna_enrichissement
+    description: >
+      Enrichissement corporate des offres Adzuna via API Entreprise (SIREN, finances, etc.)
+      et scraping societe.com (capital social, convention collective, etc.).
+    columns:
+      - name: offer_id
+        description: "ID unique de l'offre Adzuna."
+        tests:
+          - not_null
+          - unique
+      - name: employer_name
+        description: "Nom de l'employeur."
+        tests:
+          - not_null
+      - name: siren
+        description: "SIREN de l'employeur (si trouvé)."
+      - name: siret_siege
+        description: "SIRET du siège social."
+      - name: nom_raison_sociale
+        description: "Raison sociale officielle de l'entreprise."
+      - name: nature_juridique
+        description: "Forme juridique (SAS, SARL, SA, etc.)."
+      - name: categorie_entreprise
+        description: "Catégorie (PME, ETI, GE)."
+      - name: etat_administratif
+        description: "État administratif (A=Actif, C=Fermé)."
+      - name: egapro_renseignee
+        description: "Index égalité professionnelle F/H renseigné."
+      - name: est_ess
+        description: "Entreprise de l'Économie Sociale et Solidaire."
+      - name: ca_dernier_exercice
+        description: "Chiffre d'affaires du dernier exercice connu (k€)."
+      - name: resultat_net_dernier
+        description: "Résultat net du dernier exercice connu (k€)."
+      - name: capital_social
+        description: "Capital social (depuis societe.com)."
+      - name: convention_collective
+        description: "Convention collective (IDCC)."
+

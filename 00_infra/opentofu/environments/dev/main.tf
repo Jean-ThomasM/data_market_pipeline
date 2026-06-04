@@ -412,6 +412,13 @@ module "dbt_job" {
   }
 }
 
+resource "google_bigquery_dataset_iam_member" "dbt_billing_raw_viewer" {
+  project    = var.project_id
+  dataset_id = "billing_raw"
+  role       = "roles/bigquery.dataViewer"
+  member     = "serviceAccount:${module.dbt_service_account.email}"
+}
+
 module "github_workload_identity" {
   source = "../../modules/workload_identity_federation"
 
@@ -433,21 +440,21 @@ module "pipeline_global_workflow" {
   source_contents = templatefile(
     "${path.module}/workflows/pipeline_global.yaml.tftpl",
     {
-      project_id                      = var.project_id
-      region                          = var.region
-      environment                     = var.environment
-      extract_ft_job_name             = module.extract_job_ft.job_name
-      extract_geo_job_name            = module.extract_job_geo.job_name
-      extract_adzuna_job_name         = module.extract_job_adzuna.job_name
-      load_ft_workflow_name           = module.load_staging_offres_ft_workflow.name
-      load_geo_workflow_name          = module.load_staging_geo_workflow.name
-      load_adzuna_workflow_name       = module.load_staging_adzuna_workflow.name
-      load_sirene_workflow_name       = module.load_staging_sirene_workflow.name
+      project_id                        = var.project_id
+      region                            = var.region
+      environment                       = var.environment
+      extract_ft_job_name               = module.extract_job_ft.job_name
+      extract_geo_job_name              = module.extract_job_geo.job_name
+      extract_adzuna_job_name           = module.extract_job_adzuna.job_name
+      load_ft_workflow_name             = module.load_staging_offres_ft_workflow.name
+      load_geo_workflow_name            = module.load_staging_geo_workflow.name
+      load_adzuna_workflow_name         = module.load_staging_adzuna_workflow.name
+      load_sirene_workflow_name         = module.load_staging_sirene_workflow.name
       load_api_entreprise_workflow_name = module.load_staging_api_entreprise_workflow.name
-      load_n8n_workflow_name          = module.load_staging_n8n_societe_workflow.name
-      dbt_job_name                    = module.dbt_job.job_name
-      n8n_trigger_job_name            = module.n8n_trigger_job.job_name
-      api_entreprise_job_name         = module.api_entreprise_job.job_name
+      load_n8n_workflow_name            = module.load_staging_n8n_societe_workflow.name
+      dbt_job_name                      = module.dbt_job.job_name
+      n8n_trigger_job_name              = module.n8n_trigger_job.job_name
+      api_entreprise_job_name           = module.api_entreprise_job.job_name
     }
   )
 
@@ -634,13 +641,13 @@ module "n8n_trigger_job" {
   service_account_email = module.pipeline_service_account.email
 
   env_vars = {
-    ENVIRONMENT              = var.environment
-    GCS_BUCKET_NAME          = module.data_lake.bucket_name
-    GCP_PROJECT_ID           = var.project_id
-    STORAGE                  = "gcs"
-    INTERMEDIATE_DATASET_ID  = module.intermediate_dataset.dataset_id
-    STAGING_DATASET_ID       = module.staging_dataset.dataset_id
-    N8N_WEBHOOK_URL          = "${module.n8n_service.url}/webhook/societe-scraper"
+    ENVIRONMENT             = var.environment
+    GCS_BUCKET_NAME         = module.data_lake.bucket_name
+    GCP_PROJECT_ID          = var.project_id
+    STORAGE                 = "gcs"
+    INTERMEDIATE_DATASET_ID = module.intermediate_dataset.dataset_id
+    STAGING_DATASET_ID      = module.staging_dataset.dataset_id
+    N8N_WEBHOOK_URL         = "${module.n8n_service.url}/webhook/societe-scraper"
   }
 }
 
@@ -674,12 +681,12 @@ module "api_entreprise_job" {
   service_account_email = module.pipeline_service_account.email
 
   env_vars = {
-    ENVIRONMENT              = var.environment
-    GCS_BUCKET_NAME          = module.data_lake.bucket_name
-    GCP_PROJECT_ID           = var.project_id
-    STORAGE                  = "gcs"
-    INTERMEDIATE_DATASET_ID  = module.intermediate_dataset.dataset_id
-    STAGING_DATASET_ID       = module.staging_dataset.dataset_id
+    ENVIRONMENT             = var.environment
+    GCS_BUCKET_NAME         = module.data_lake.bucket_name
+    GCP_PROJECT_ID          = var.project_id
+    STORAGE                 = "gcs"
+    INTERMEDIATE_DATASET_ID = module.intermediate_dataset.dataset_id
+    STAGING_DATASET_ID      = module.staging_dataset.dataset_id
   }
 }
 
