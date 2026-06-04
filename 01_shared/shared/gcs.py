@@ -17,6 +17,12 @@ def write_file(bucket: str, file_path: str, data: bytes) -> None:
     blob.upload_from_string(data)
 
 
+def upload_file(bucket: str, file_path: str, local_path: str) -> None:
+    bucket_obj = _get_client().bucket(bucket)
+    blob = bucket_obj.blob(file_path)
+    blob.upload_from_filename(local_path)
+
+
 def delete_file(bucket: str, file_path: str) -> None:
     bucket_obj = _get_client().bucket(bucket)
     blob = bucket_obj.blob(file_path)

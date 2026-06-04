@@ -3,8 +3,8 @@ import time
 from datetime import datetime
 
 import requests
-import utils
 from auth import create_authenticated_session, refresh_access_token
+from shared.storage import save_json_payload, save_ndjson_records
 from config import Config, load_config
 
 logger = logging.getLogger(__name__)
@@ -131,7 +131,7 @@ class ReferentialsExtractor:
         ) in REFERENTIAL_FILE_NAMES.items():
             logger.info("Starting referential extraction: %s", referential_endpoint)
             referential_payload = self._fetch_referential(referential_endpoint)
-            utils.save_json_payload(
+            save_json_payload(
                 config=self.config,
                 payload=referential_payload,
                 destination_name=referential_file_name,
@@ -267,7 +267,7 @@ class OffersExtractor:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_file_name = f"offres_data_market_{timestamp}.ndjson"
 
-        utils.save_ndjson_records(
+        save_ndjson_records(
             config=self.config,
             records=deduplicated_offers,
             destination_name=output_file_name,

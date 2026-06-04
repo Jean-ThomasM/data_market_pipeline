@@ -1,0 +1,7 @@
+project_id        = "data-market-386959"
+region            = "europe-west1"
+environment       = "dev"
+bucket_location   = "europe-west1"
+bigquery_location = "europe-west1"
+github_repo       = "Jean-ThomasM/data_market_pipeline"
+monitoring_email  = "miquelot.jeanthomas@gmail.com"

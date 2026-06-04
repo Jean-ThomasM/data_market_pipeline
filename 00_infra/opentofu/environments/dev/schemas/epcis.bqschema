@@ -3,5 +3,7 @@
   { "name": "code", "type": "STRING", "mode": "NULLABLE" },
   { "name": "codesDepartements", "type": "STRING", "mode": "REPEATED" },
   { "name": "codesRegions", "type": "STRING", "mode": "REPEATED" },
-  { "name": "population", "type": "INTEGER", "mode": "NULLABLE" }
+  { "name": "population", "type": "INTEGER", "mode": "NULLABLE" },
+  { "name": "latitude", "type": "FLOAT", "mode": "NULLABLE" },
+  { "name": "longitude", "type": "FLOAT", "mode": "NULLABLE" }
 ]
