@@ -40,51 +40,71 @@ flowchart TD
     %% Orchestration
     Scheduler[Cloud Scheduler] ➔|Déclenchement quotidien| Workflow[Cloud Workflows]
 
-    %% Ingestion
-    subgraph Ingestion [Ingestion & Ingestion (Cloud Run Jobs)]
-        job_ft[extract-ft]
-        job_geo[extract-geo]
-        job_adz[extract-adzuna]
-        job_sirene[extract-sirene <br/>⭐ STUB]
+    %% Ingestion Parallèle
+    subgraph Ingestion [Ingestion & Chargement (Cloud Run & Workflows)]
+        job_ft[extract-ft-dev <br/>Cloud Run Job]
+        job_geo[extract-geo-dev <br/>Cloud Run Job]
+        job_adz[extract-adzuna-dev <br/>Cloud Run Job]
+        job_api[api-entreprise-dev <br/>Cloud Run Job]
     end
 
-    Workflow ➔|Lance les Jobs| Ingestion
+    Workflow ➔|1. Lance les Jobs en parallèle| Ingestion
 
     %% External APIs
-    API_FT[API France Travail] ➔|Fetch json| job_ft
-    API_GEO[API Géo Gouv] ➔|Fetch json| job_geo
-    API_ADZ[API Adzuna] ➔|Fetch json| job_adz
-    API_SIR[API Sirene Gouv] -.->|Stub| job_sirene
+    API_FT[API France Travail] ➔|OAuth2 Fetch| job_ft
+    API_GEO[API Géo Gouv] ➔|Public Fetch| job_geo
+    API_ADZ[API Adzuna] ➔|Fetch JSON| job_adz
+    API_ENT[API Recherche Entreprises] ➔|Fetch JSON| job_api
 
-    %% Storage Data Lake
-    bucket[GCS Data Lake <br/>gs://data-market-386959-raw-landing/]
+    %% GCS Data Lake
+    bucket[GCS Data Lake <br/>gs://data-market-386959-data-lake-dev/]
     job_ft ➔|Upload NDJSON| bucket
     job_geo ➔|Upload JSON| bucket
     job_adz ➔|Upload NDJSON| bucket
+    job_api ➔|Upload NDJSON| bucket
 
     %% BigQuery Load
-    Workflow ➔|Pilote les Load Jobs| BQLoad[BigQuery Load Jobs]
-    bucket ➔|Chargement| BQLoad
+    Workflow ➔|2. Lance les BQ Load Jobs| BQLoad[BigQuery Load Jobs]
+    bucket ➔|Chargement brut| BQLoad
 
     %% BigQuery Layers
     subgraph BigQuery [BigQuery Serverless Data Warehouse]
-        bq_raw[Dataset: raw_dev]
-        bq_int[Dataset: intermediate_dev]
-        bq_marts[Dataset: marts_dev]
+        bq_raw[Couche Raw / staging_*]
+        bq_int[Couche Intermediate / int_*]
+        bq_marts[Couche Marts / mart_*]
     end
 
     BQLoad ➔ bq_raw
 
     %% Transformation dbt
-    job_dbt[transform-dbt <br/>Cloud Run Job]
-    Workflow ➔|Lance la transformation| job_dbt
+    job_dbt[dbt-run-dev <br/>Cloud Run Job]
+    Workflow ➔|3. Lance les transformations| job_dbt
     
     bq_raw ➔|Lecture| job_dbt
-    job_dbt ➔|Écriture tables intermediate| bq_int
-    job_dbt ➔|Écriture tables marts| bq_marts
+    job_dbt ➔|Nettoyage & Jointures| bq_int
+    job_dbt ➔|Agrégations Gold| bq_marts
+
+    %% Scraping societe.com (n8n)
+    subgraph n8n_flow [Scraping Complémentaire (n8n)]
+        job_n8n_trig[n8n-trigger-dev <br/>Cloud Run Job]
+        n8n_proxy[n8n-dev <br/>Cloud Run Service]
+        web_societe[Site societe.com]
+        load_n8n[load-n8n-workflow <br/>GCP Workflow]
+    end
+
+    Workflow ➔|4. Lance le scraping societe.com| job_n8n_trig
+    bq_int ➔|Offres non traitées| job_n8n_trig
+    
+    job_n8n_trig ➔|Appel Webhook| n8n_proxy
+    n8n_proxy ➔|Scrape HTML| web_societe
+    n8n_proxy ➔|Upload NDJSON scrapé| bucket
+    
+    Workflow ➔|5. Charge les données scrapées| load_n8n
+    bucket ➔|Chargement n8n| load_n8n
+    load_n8n ➔|Alimente staging_n8n_societe| bq_raw
 
     %% Consommation
-    Dashboard[Dashboard BI Looker Studio] ➔|Lecture des Marts| bq_marts
+    Dashboard[Dashboard Looker Studio] ➔|Lecture des Marts| bq_marts
 ```
 
 Détails complets de l'infrastructure dans [ARCHITECTURE.md](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/ARCHITECTURE.md).
