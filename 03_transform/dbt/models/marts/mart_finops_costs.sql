@@ -21,7 +21,7 @@ with billing as (
         sum(cost) as cout_brut,
         sum(cost) + sum(credits.amount) as cout_net,
         currency
-    from `data-market-386959.billing_raw.gcp_billing_export_v1_*`
+    from `data-market-386959.finops_dev.gcp_billing_export_v1_*`
     where project.id = 'data-market-386959'
     group by 1, 2, 3, 4, 5, 6, 7, 10
 )

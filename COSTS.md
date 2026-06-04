@@ -95,6 +95,7 @@ export DBT_TARGET_ENV=dev
 uv run dbt run --project-dir 03_transform/dbt --profiles-dir 03_transform/dbt --select mart_finops_costs
 ```
 
-**IAM requis** : Le SA `dbt-runner-dev` doit avoir `roles/bigquery.dataViewer` sur le dataset `billing_raw` (déjà configuré dans `main.tf`).
+**IAM requis** : Le SA `dbt-runner-dev` doit avoir `roles/bigquery.dataViewer` sur le dataset `finops_dev`.
+Ce binding est géré par OpenTofu via la variable `billing_dataset_id` (déjà renseignée dans `terraform.tfvars`).
 
 **Limitations** : Non disponible en local SQLite (dépend de l'export billing GCP).
