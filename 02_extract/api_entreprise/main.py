@@ -24,11 +24,12 @@ class _Config:
 
 def get_all_offers() -> list[dict]:
     query = f"""
-        SELECT DISTINCT a.employer_name, a.nom_commune
-        FROM `{_env("INTERMEDIATE_DATASET_ID")}.int_adzuna_offres` a
-        WHERE a.employer_name IS NOT NULL
-          AND a.nom_commune IS NOT NULL
-          AND LOWER(TRIM(a.employer_name)) NOT LIKE '%anonyme%'
+        SELECT DISTINCT 
+            company.display_name as employer_name, 
+            location.area[SAFE_OFFSET(0)] as nom_commune
+        FROM `{_env("STAGING_DATASET_ID")}.staging_offres_adzuna`
+        WHERE company.display_name IS NOT NULL
+          AND LOWER(TRIM(company.display_name)) NOT LIKE '%anonyme%'
     """
     from shared import bigquery as bq_shared
 

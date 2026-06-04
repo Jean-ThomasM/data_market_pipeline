@@ -26,17 +26,19 @@ class _Config:
 
 def get_untracked_offers() -> list[dict]:
     query = f"""
-        SELECT DISTINCT a.employer_name, a.nom_commune, e.siren
-        FROM `{_env("INTERMEDIATE_DATASET_ID")}.int_adzuna_offres` a
+        SELECT DISTINCT 
+            a.company.display_name as employer_name, 
+            a.location.area[SAFE_OFFSET(0)] as nom_commune, 
+            e.siren
+        FROM `{_env("STAGING_DATASET_ID")}.staging_offres_adzuna` a
         INNER JOIN `{_env("STAGING_DATASET_ID")}.staging_api_entreprise` e
-            ON LOWER(TRIM(a.employer_name)) = LOWER(TRIM(e.employer_name))
-            AND LOWER(TRIM(a.nom_commune)) = LOWER(TRIM(e.nom_commune))
+            ON LOWER(TRIM(a.company.display_name)) = LOWER(TRIM(e.employer_name))
+            AND LOWER(TRIM(a.location.area[SAFE_OFFSET(0)])) = LOWER(TRIM(e.nom_commune))
         LEFT JOIN `{_env("STAGING_DATASET_ID")}.staging_societe_tracking` t
-            ON LOWER(TRIM(a.employer_name)) = LOWER(TRIM(t.employer_name))
-            AND LOWER(TRIM(a.nom_commune)) = LOWER(TRIM(t.nom_commune))
+            ON LOWER(TRIM(a.company.display_name)) = LOWER(TRIM(t.employer_name))
+            AND LOWER(TRIM(a.location.area[SAFE_OFFSET(0)])) = LOWER(TRIM(t.nom_commune))
         WHERE t.employer_name IS NULL
-          AND a.employer_name IS NOT NULL
-          AND a.nom_commune IS NOT NULL
+          AND a.company.display_name IS NOT NULL
           AND e.siren IS NOT NULL
     """
     return bigquery.query_to_dicts(query)

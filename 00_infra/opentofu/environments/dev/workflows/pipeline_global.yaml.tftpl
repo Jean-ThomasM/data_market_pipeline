@@ -114,28 +114,29 @@ main:
                           parent_args: $${input_args}
                       result: api_load
 
+            - n8n_branch:
+                steps:
+                  - run_n8n_extract:
+                      call: googleapis.run.v2.projects.locations.jobs.run
+                      args:
+                        name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${n8n_trigger_job_name}"}
+                      result: n8n_ext
+                  - load_n8n:
+                      call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+                      args:
+                        workflow_id: "${load_n8n_workflow_name}"
+                        location: "${region}"
+                        project_id: "${project_id}"
+                        argument:
+                          run_id: $${run_id}
+                          parent_args: $${input_args}
+                      result: n8n_load
+
     - run_dbt:
         call: googleapis.run.v2.projects.locations.jobs.run
         args:
           name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${dbt_job_name}"}
         result: dbt_result
-
-    - run_n8n_extract:
-        call: googleapis.run.v2.projects.locations.jobs.run
-        args:
-          name: $${"projects/" + project_id + "/locations/" + region + "/jobs/${n8n_trigger_job_name}"}
-        result: n8n_ext
-
-    - run_n8n_load:
-        call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
-        args:
-          workflow_id: "${load_n8n_workflow_name}"
-          location: "${region}"
-          project_id: "${project_id}"
-          argument:
-            run_id: $${run_id}
-            parent_args: $${input_args}
-        result: n8n_load
 
     - done:
         return:
