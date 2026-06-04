@@ -9,10 +9,8 @@
 {% if execute %}
   {% set check_query %}
     select count(*) > 0 as has_table
-    from `{{ target.project }}.INFORMATION_SCHEMA.TABLES`
-    where table_catalog = '{{ target.project }}'
-      and table_schema = 'finops_dev'
-      and table_name like 'gcp_billing_export%'
+    from `{{ target.project }}.finops_dev.INFORMATION_SCHEMA.TABLES`
+    where table_name like 'gcp_billing_export%'
   {% endset %}
   {% set results = run_query(check_query) %}
   {% set billing_exists = results.rows[0].has_table %}
@@ -43,7 +41,7 @@ with billing as (
             select value from unnest(labels) where key = 'project'
         ) as projet_nom,
         sum(cost) as cout_brut,
-        sum(cost) + sum(credits.amount) as cout_net,
+        sum(cost + coalesce((select sum(amount) from unnest(credits)), 0)) as cout_net,
         currency
     from `{{ target.project }}.finops_dev.gcp_billing_export_v1_*`
     where project.id = '{{ target.project }}'

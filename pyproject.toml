@@ -12,6 +12,7 @@ dependencies = [
     "api-entreprise",
     "dbt-core>=1.11.11",
     "dbt-sqlite>=1.10.0",
+    "dbt-bigquery>=1.10.3",
 ]
 
 [dependency-groups]
