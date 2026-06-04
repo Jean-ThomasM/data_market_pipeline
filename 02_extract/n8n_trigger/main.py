@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
@@ -42,6 +43,23 @@ def get_untracked_offers() -> list[dict]:
     return bigquery.query_to_dicts(query)
 
 
+def _normalize_n8n_payload(payload: object) -> dict:
+    if isinstance(payload, dict):
+        return payload
+    if isinstance(payload, list):
+        if not payload:
+            raise RuntimeError("Unexpected n8n response: empty list")
+        if len(payload) > 1:
+            raise RuntimeError("Unexpected n8n response: multiple records returned")
+        record = payload[0]
+        if not isinstance(record, dict):
+            raise RuntimeError(
+                f"Unexpected n8n response item type: {type(record).__name__}"
+            )
+        return record
+    raise RuntimeError(f"Unexpected n8n response type: {type(payload).__name__}")
+
+
 def call_n8n_webhook(label: str, siren: str) -> dict:
     response = requests.get(
         _env("N8N_WEBHOOK_URL"),
@@ -52,40 +70,34 @@ def call_n8n_webhook(label: str, siren: str) -> dict:
         timeout=_WEBHOOK_TIMEOUT_SECONDS,
     )
     response.raise_for_status()
-    payload = response.json()
-    if not isinstance(payload, dict):
-        raise RuntimeError(f"Unexpected n8n response type: {type(payload).__name__}")
-    return payload
+    return _normalize_n8n_payload(response.json())
 
 
 def build_flat_record(scraped: dict, offer: dict, scraped_at: str) -> dict:
-    adr = scraped.get("adresse", {}) or {}
     return {
         "employer_name": offer["employer_name"],
         "nom_commune": offer["nom_commune"],
         "siren": scraped.get("siren") or offer["siren"],
-        "scraped_at": scraped_at,
-        "siret_siege": scraped.get("siret_siege"),
-        "tva_intra": scraped.get("tva_intra"),
-        "legal_name": scraped.get("legal_name"),
-        "naf_code": scraped.get("naf_code"),
-        "naf_label": scraped.get("naf_label"),
-        "date_creation": scraped.get("date_creation"),
-        "adresse_rue": adr.get("rue"),
-        "adresse_complement": adr.get("complement"),
-        "adresse_code_postal": adr.get("code_postal"),
-        "adresse_ville": adr.get("ville"),
-        "forme_juridique_code": scraped.get("forme_juridique_code"),
-        "statut": scraped.get("statut"),
-        "dirigeants": scraped.get("dirigeants") or [],
-        "capital_social": scraped.get("capital_social"),
-        "convention_collective": scraped.get("convention_collective"),
-        "noms_commerciaux": scraped.get("noms_commerciaux"),
-        "statut_rcs": scraped.get("statut_rcs"),
-        "statut_insee": scraped.get("statut_insee"),
-        "statut_rne": scraped.get("statut_rne"),
-        "chiffre_affaires": scraped.get("chiffre_affaires"),
-        "effectif": scraped.get("effectif"),
+        "scraped_at": scraped.get("scrapped_at") or scraped_at,
+        "company_name": scraped.get("company_name"),
+        "url": scraped.get("url"),
+        "legal_form": scraped.get("legal_form"),
+        "capital": scraped.get("capital"),
+        "stated_primary_business_activity": scraped.get(
+            "stated_primary_business_activity"
+        ),
+        "type_of_business": scraped.get("type_of_business"),
+        "collective_bargaining_agreement": scraped.get(
+            "collective_bargaining_agreement"
+        ),
+        "revenue": scraped.get("revenue"),
+        "net_results": scraped.get("net_results"),
+        "carbon_footprint": scraped.get("carbon_footprint"),
+        "other_reports_json": json.dumps(
+            scraped.get("other_reports"), ensure_ascii=False
+        )
+        if scraped.get("other_reports") is not None
+        else None,
     }
 
 
