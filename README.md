@@ -41,7 +41,7 @@ flowchart TD
     Scheduler[Cloud Scheduler] -->|Déclenchement quotidien| Workflow[Cloud Workflows]
 
     %% Ingestion Parallèle
-    subgraph Ingestion [Ingestion & Chargement (Cloud Run & Workflows)]
+    subgraph Ingestion [Ingestion et Chargement (Cloud Run et Workflows)]
         job_ft[extract-ft-dev <br/>Cloud Run Job]
         job_geo[extract-geo-dev <br/>Cloud Run Job]
         job_adz[extract-adzuna-dev <br/>Cloud Run Job]
@@ -81,7 +81,7 @@ flowchart TD
     Workflow -->|3. Lance les transformations| job_dbt
     
     bq_raw -->|Lecture| job_dbt
-    job_dbt -->|Nettoyage & Jointures| bq_int
+    job_dbt -->|Nettoyage et Jointures| bq_int
     job_dbt -->|Agrégations Gold| bq_marts
 
     %% Scraping societe.com (n8n)
