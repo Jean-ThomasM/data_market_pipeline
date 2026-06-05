@@ -15,7 +15,6 @@ COPY 01_shared/pyproject.toml 01_shared/pyproject.toml
 COPY 02_extract/adzuna/pyproject.toml 02_extract/adzuna/pyproject.toml
 COPY 02_extract/france_travail/pyproject.toml 02_extract/france_travail/pyproject.toml
 COPY 02_extract/geo/pyproject.toml 02_extract/geo/pyproject.toml
-COPY 02_extract/sirene/pyproject.toml 02_extract/sirene/pyproject.toml
 
 # Copy only the packages needed by the Adzuna extractor.
 COPY 01_shared/shared 01_shared/shared

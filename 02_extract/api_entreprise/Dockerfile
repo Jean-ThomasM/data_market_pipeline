@@ -15,7 +15,6 @@ COPY 01_shared/pyproject.toml 01_shared/pyproject.toml
 COPY 02_extract/adzuna/pyproject.toml 02_extract/adzuna/pyproject.toml
 COPY 02_extract/geo/pyproject.toml 02_extract/geo/pyproject.toml
 COPY 02_extract/france_travail/pyproject.toml 02_extract/france_travail/pyproject.toml
-COPY 02_extract/sirene/pyproject.toml 02_extract/sirene/pyproject.toml
 COPY 02_extract/n8n_trigger/pyproject.toml 02_extract/n8n_trigger/pyproject.toml
 
 COPY 02_extract/api_entreprise/pyproject.toml 02_extract/api_entreprise/pyproject.toml
