@@ -12,13 +12,9 @@ Ce projet implémente un pipeline complet d'ingestion et de transformation de do
 
 ---
 
-## 1. Liens Utiles du Projet
+## 1. Lien Utiles du Projet
 
-* **Tableau Kanban de suivi de projet (Public)** : [GitHub Projects — Data Market Pipeline](https://github.com/users/Jean-ThomasM/projects/1)
-* **Dashboard BI (Looker Studio)** : [Looker Studio — Data Market Job Market Dashboard](https://lookerstudio.google.com/reporting/data-market-pipeline-public)
-* **Dashboard FinOps (Coûts GCP)** : [Looker Studio — Coûts et Optimisation Cloud](https://lookerstudio.google.com/reporting/data-market-pipeline-costs)
-* **Auteur** : **Jean-Thomas Miquelot** ([miquelot.jeanthomas@gmail.com](mailto:miquelot.jeanthomas@gmail.com))
-
+* **Dashboard BI (Looker Studio)** : [Looker Studio — Data Market Job Market Dashboard]([https://lookerstudio.google.com/reporting/data-market-pipeline-public](https://datastudio.google.com/u/0/reporting/b4318a42-ebcf-4fc4-9307-0f6c58453f91/page/zuB0F))
 ---
 
 ## 2. Choix Technologiques : Pourquoi GCP ?
