@@ -38,7 +38,7 @@ Le flux de données commence par l'extraction depuis diverses APIs et se termine
 ```mermaid
 flowchart TD
     %% Orchestration
-    Scheduler[Cloud Scheduler] ➔|Déclenchement quotidien| Workflow[Cloud Workflows]
+    Scheduler[Cloud Scheduler] -->|Déclenchement quotidien| Workflow[Cloud Workflows]
 
     %% Ingestion Parallèle
     subgraph Ingestion [Ingestion & Chargement (Cloud Run & Workflows)]
@@ -48,24 +48,24 @@ flowchart TD
         job_api[api-entreprise-dev <br/>Cloud Run Job]
     end
 
-    Workflow ➔|1. Lance les Jobs en parallèle| Ingestion
+    Workflow -->|1. Lance les Jobs en parallèle| Ingestion
 
     %% External APIs
-    API_FT[API France Travail] ➔|OAuth2 Fetch| job_ft
-    API_GEO[API Géo Gouv] ➔|Public Fetch| job_geo
-    API_ADZ[API Adzuna] ➔|Fetch JSON| job_adz
-    API_ENT[API Recherche Entreprises] ➔|Fetch JSON| job_api
+    API_FT[API France Travail] -->|OAuth2 Fetch| job_ft
+    API_GEO[API Géo Gouv] -->|Public Fetch| job_geo
+    API_ADZ[API Adzuna] -->|Fetch JSON| job_adz
+    API_ENT[API Recherche Entreprises] -->|Fetch JSON| job_api
 
     %% GCS Data Lake
     bucket[GCS Data Lake <br/>gs://data-market-386959-data-lake-dev/]
-    job_ft ➔|Upload NDJSON| bucket
-    job_geo ➔|Upload JSON| bucket
-    job_adz ➔|Upload NDJSON| bucket
-    job_api ➔|Upload NDJSON| bucket
+    job_ft -->|Upload NDJSON| bucket
+    job_geo -->|Upload JSON| bucket
+    job_adz -->|Upload NDJSON| bucket
+    job_api -->|Upload NDJSON| bucket
 
     %% BigQuery Load
-    Workflow ➔|2. Lance les BQ Load Jobs| BQLoad[BigQuery Load Jobs]
-    bucket ➔|Chargement brut| BQLoad
+    Workflow -->|2. Lance les BQ Load Jobs| BQLoad[BigQuery Load Jobs]
+    bucket -->|Chargement brut| BQLoad
 
     %% BigQuery Layers
     subgraph BigQuery [BigQuery Serverless Data Warehouse]
@@ -74,15 +74,15 @@ flowchart TD
         bq_marts[Couche Marts / mart_*]
     end
 
-    BQLoad ➔ bq_raw
+    BQLoad --> bq_raw
 
     %% Transformation dbt
     job_dbt[dbt-run-dev <br/>Cloud Run Job]
-    Workflow ➔|3. Lance les transformations| job_dbt
+    Workflow -->|3. Lance les transformations| job_dbt
     
-    bq_raw ➔|Lecture| job_dbt
-    job_dbt ➔|Nettoyage & Jointures| bq_int
-    job_dbt ➔|Agrégations Gold| bq_marts
+    bq_raw -->|Lecture| job_dbt
+    job_dbt -->|Nettoyage & Jointures| bq_int
+    job_dbt -->|Agrégations Gold| bq_marts
 
     %% Scraping societe.com (n8n)
     subgraph n8n_flow [Scraping Complémentaire (n8n)]
@@ -92,19 +92,19 @@ flowchart TD
         load_n8n[load-n8n-workflow <br/>GCP Workflow]
     end
 
-    Workflow ➔|4. Lance le scraping societe.com| job_n8n_trig
-    bq_int ➔|Offres non traitées| job_n8n_trig
+    Workflow -->|4. Lance le scraping societe.com| job_n8n_trig
+    bq_int -->|Offres non traitées| job_n8n_trig
     
-    job_n8n_trig ➔|Appel Webhook| n8n_proxy
-    n8n_proxy ➔|Scrape HTML| web_societe
-    n8n_proxy ➔|Upload NDJSON scrapé| bucket
+    job_n8n_trig -->|Appel Webhook| n8n_proxy
+    n8n_proxy -->|Scrape HTML| web_societe
+    n8n_proxy -->|Upload NDJSON scrapé| bucket
     
-    Workflow ➔|5. Charge les données scrapées| load_n8n
-    bucket ➔|Chargement n8n| load_n8n
-    load_n8n ➔|Alimente staging_n8n_societe| bq_raw
+    Workflow -->|5. Charge les données scrapées| load_n8n
+    bucket -->|Chargement n8n| load_n8n
+    load_n8n -->|Alimente staging_n8n_societe| bq_raw
 
     %% Consommation
-    Dashboard[Dashboard Looker Studio] ➔|Lecture des Marts| bq_marts
+    Dashboard[Dashboard Looker Studio] -->|Lecture des Marts| bq_marts
 ```
 
 Détails complets de l'infrastructure dans [ARCHITECTURE.md](ARCHITECTURE.md).
