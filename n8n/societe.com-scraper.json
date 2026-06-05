@@ -1,0 +1,123 @@
+{
+  "id": "e1b2c3d4-5a6b-7c8d-9e0f-a1b2c3d4e5f6",
+  "name": "societe.com scraper",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "societe-scraper",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 300],
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Webhook",
+      "webhookId": "societe-com-scraper"
+    },
+    {
+      "parameters": {
+        "url": "={{ ((name) => { const s = name.toLowerCase().trim().replace(/'/g, '-').replace(/&/g, '-').replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, ''); return 'https://www.societe.com/societe/' + s + '-' + $json.body.siren + '.html'; })($json.body.employer_name || $json.body.siren) }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "autodetect"
+            }
+          }
+        },
+        "sendBody": false,
+        "sendHeaders": false,
+        "sendQuery": false
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [300, 300],
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "siren",
+                                "value": "={{ $('Webhook').item.json.body.siren }}",
+              "type": "string"
+            },
+            {
+              "id": "2",
+              "name": "employer_name",
+                                "value": "={{ $('Webhook').item.json.body.employer_name }}",
+              "type": "string"
+            },
+            {
+              "id": "3",
+              "name": "nom_commune",
+                                "value": "={{ $('Webhook').item.json.body.nom_commune }}",
+              "type": "string"
+            },
+            {
+              "id": "4",
+              "name": "html",
+              "value": "={{ $json.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [600, 300],
+      "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+      "name": "Set Output"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [900, 300],
+      "id": "f6a7b8c9-d0e1-2345-fabc-456789012345",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Set Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Output": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
