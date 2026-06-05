@@ -2,7 +2,7 @@
 set -euo pipefail
 
 N8N_URL="${1:-https://n8n-dev-822083335202.europe-west1.run.app}"
-WORKFLOW_ID="e1b2c3d4-5a6b-7c8d-9e0f-a1b2c3d4e5f6"
+WORKFLOW_NAME="www.societe.com"
 OWNER_EMAIL="admin@datamarket.local"
 OWNER_PASSWORD="DataMarket2024!"
 
@@ -36,6 +36,32 @@ if [ -z "$USER_ID" ]; then
 fi
 echo "Logged in as user: $USER_ID"
 
+echo "=== Looking up workflow by name: $WORKFLOW_NAME ==="
+curl -s -b /tmp/n8n_cookies.txt "$N8N_URL/rest/workflows" > /tmp/n8n_workflows.json
+WORKFLOW_ID=$(python3 -c "
+import json
+with open('/tmp/n8n_workflows.json') as f:
+    data = json.load(f)
+for wf in data.get('data', []):
+    if wf.get('name') == '$WORKFLOW_NAME':
+        print(wf['id'])
+        break
+" 2>/dev/null || true)
+
+if [ -z "$WORKFLOW_ID" ]; then
+  echo "Workflow '$WORKFLOW_NAME' not found. Available workflows:"
+  python3 -c "
+import json
+with open('/tmp/n8n_workflows.json') as f:
+    data = json.load(f)
+for wf in data.get('data', []):
+    print(f\"  {wf['id']} - {wf['name']}\")
+" 2>/dev/null || cat /tmp/n8n_workflows.json | head -c 500
+  rm -f /tmp/n8n_cookies.txt /tmp/n8n_workflows.json
+  exit 1
+fi
+echo "Found workflow: $WORKFLOW_ID"
+
 echo "=== Getting workflow versionId ==="
 curl -s -b /tmp/n8n_cookies.txt "$N8N_URL/rest/workflows/$WORKFLOW_ID" > /tmp/n8n_workflow.json
 VERSION_ID=$(python3 -c "import json; print(json.load(open('/tmp/n8n_workflow.json'))['data']['versionId'])")
@@ -53,4 +79,4 @@ d = json.load(sys.stdin)
 print("Active:", d["data"]["active"], "| Triggers:", d["data"].get("triggerCount", "?"))
 ' 2>/dev/null || echo "Activation response: $(echo "$ACTIVATE_RESP" | head -c 200)"
 
-rm -f /tmp/n8n_cookies.txt /tmp/n8n_workflow.json
+rm -f /tmp/n8n_cookies.txt /tmp/n8n_workflow.json /tmp/n8n_workflows.json

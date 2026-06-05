@@ -83,16 +83,21 @@ Le workflow n8n est importé au démarrage avec `n8n import:workflow` (désactiv
 Étapes d'activation (API REST externe) :
 1. `POST /rest/owner/setup` — créer l'owner (ignorer si 400/409)
 2. `POST /rest/login` — récupérer cookie `n8n-auth`
-3. `GET /rest/workflows/:id` — récupérer `versionId`
-4. `POST /rest/workflows/:id/activate` — activer avec `{"versionId":"..."}`
+3. `GET /rest/workflows` — trouver le workflow par nom (`www.societe.com`) pour récupérer son ID
+4. `GET /rest/workflows/:id` — récupérer `versionId`
+5. `POST /rest/workflows/:id/activate` — activer avec `{"versionId":"..."}`
+
+Le script `n8n/n8n_activate.sh` automatise ces étapes (recherche par nom du workflow).
 
 **IMPORTANT** : L'API `/rest/*` ne répond pas depuis localhost dans le conteneur (404). L'activation doit être faite depuis l'extérieur (Cloud Run URL). En local, l'instance n8n est accessible sur le port 5678, mais le webhook nécessite un tunnel/ngrok.
 
-Détails du workflow `societe.com-scraper` :
-- Webhook ID : `e1b2c3d4-5a6b-7c8d-9e0f-a1b2c3d4e5f6`
-- Méthode HTTP : POST (par défaut GET, nécessite `"httpMethod": "POST"` dans le JSON)
-- Webhook node output : `$json.body.siren` (pas `$json.siren`)
+Détails du workflow `societe.com-scraper` (fichier : `n8n/societe.com-scraper.json`) :
+- Nom : `www.societe.com`
+- Webhook path : `e35588dd-bf2c-4183-952a-2694ef4a0b95`
+- Méthode HTTP : POST
+- Webhook node output : `$json.body.siren`
 - URL societe.com : `https://www.societe.com/societe/{slug}-{siren}.html` où slug = `company_name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')`
+- Le fichier est gitignoré (`.gitignore` a `*.json`), nécessite `git add -f` pour commiter
 
 ## dbt
 
