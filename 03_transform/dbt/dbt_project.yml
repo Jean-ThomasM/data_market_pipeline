@@ -24,5 +24,4 @@ models:
     marts:
       +schema: marts_dev
       +materialized: table
-    silver:
-      +materialized: table
+

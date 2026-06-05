@@ -1,6 +1,6 @@
 # Schéma des Transformations (dbt Models)
 
-Ce document décrit le fonctionnement et la structure réels de la couche de transformation SQL opérée par **dbt** au sein du répertoire [03_transform/dbt](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt).
+Ce document décrit le fonctionnement et la structure réels de la couche de transformation SQL opérée par **dbt** au sein du répertoire `03_transform/dbt`.
 
 ---
 
@@ -78,17 +78,17 @@ flowchart TD
 
 La couche Intermediate consolide, filtre et géocode les données brutes.
 
-### [int_geo_communes.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/intermediate_dev/int_geo_communes.sql)
+### `int_geo_communes.sql`
 * **Type** : Table
 * **Rôle** : Reconstitue le référentiel géographique des communes de France en agrégeant les tables de l'API Géo (`staging_communes`, `staging_departements`, `staging_regions`, `staging_epcis`).
 * **Traitement** : Unionise les codes postaux multiples pour chaque commune et résout les hiérarchies géographiques (Commune ➔ EPCI ➔ Département ➔ Région).
 
-### [int_ft_employer_names.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/intermediate_dev/int_ft_employer_names.sql)
+### `int_ft_employer_names.sql`
 * **Type** : Table
 * **Rôle** : Enrichit les noms d'employeurs associés aux offres France Travail.
 * **Traitement** : Utilise des correspondances de sous-chaînes (`STRPOS`) et des expressions régulières de repli pour nettoyer les appellations anonymes ou génériques (ex: extrait le nom d'entreprise depuis des phrases comme "Rejoindre [Société]").
 
-### [int_ft_offres.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/intermediate_dev/int_ft_offres.sql)
+### `int_ft_offres.sql`
 * **Type** : Table (Clé unique : `offer_id`)
 * **Rôle** : Consolidation et géocodage des offres France Travail.
 * **Traitement** :
@@ -97,7 +97,7 @@ La couche Intermediate consolide, filtre et géocode les données brutes.
   * Joint le référentiel géo sur le code commune INSEE de l'offre (`lieuTravail.commune`).
   * Récupère le nom d'employeur nettoyé depuis `int_ft_employer_names`.
 
-### [int_adzuna_offres.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/intermediate_dev/int_adzuna_offres.sql)
+### `int_adzuna_offres.sql`
 * **Type** : Table (Clé unique : `offer_id`)
 * **Rôle** : Consolidation et géocodage des offres issues d'Adzuna.
 * **Traitement** :
@@ -107,7 +107,7 @@ La couche Intermediate consolide, filtre et géocode les données brutes.
     2. Fallback par recherche textuelle de noms de villes ou de départements dans le libellé géographique d'Adzuna.
     3. Fallback géospatial par calcul de distance euclidienne minimale sur les coordonnées de latitude/longitude.
 
-### [int_adzuna_enrichissement.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/intermediate_dev/int_adzuna_enrichissement.sql)
+### `int_adzuna_enrichissement.sql`
 * **Type** : Table (Clé unique : `offer_id`)
 * **Rôle** : Enrichissement corporate des offres Adzuna via API Entreprise (SIREN, finances, dirigeants) et scraping societe.com (capital social, convention collective, effectif).
 * **Traitement** : Joint `int_adzuna_offres` avec `staging_api_entreprise` et `staging_n8n_societe` sur le couple `(employer_name, nom_commune)`. BigQuery only ; fallback null sur SQLite.
@@ -118,32 +118,32 @@ La couche Intermediate consolide, filtre et géocode les données brutes.
 
 La couche Marts met à disposition les données finales prêtes pour l'analyse BI.
 
-### [mart_offres_data_jobs.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/marts/mart_offres_data_jobs.sql)
+### `mart_offres_data_jobs.sql`
 * **Type** : Table
 * **Rôle** : Modèle de faits central.
 * **Traitement** : Unionise les offres nettoyées de France Travail et d'Adzuna. Enrichit les offres Adzuna des données corporate (SIREN, finances, RSE) via `int_adzuna_enrichissement`. Filtre les alternances et les offres sans géolocalisation.
 
-### [mart_recrutement_geographique.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/marts/mart_recrutement_geographique.sql)
+### `mart_recrutement_geographique.sql`
 * **Type** : Table
 * **Rôle** : Analyse géographique de la dynamique d'embauche.
 * **Traitement** : Agrège les offres par région, département et commune pour calculer le nombre d'offres, la part de CDI, le nombre d'employeurs distincts et les salaires moyens proposés.
 
-### [mart_recruteurs.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/marts/mart_recruteurs.sql)
+### `mart_recruteurs.sql`
 * **Type** : Table
 * **Rôle** : Classement et analyse des employeurs recrutant sur les métiers Data.
 * **Traitement** : Agrège les offres au niveau de chaque recruteur pour mesurer le volume d'embauche et calculer les salaires min/max moyens affichés.
 
-### [mart_employeurs_corporate.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/marts/mart_employeurs_corporate.sql)
+### `mart_employeurs_corporate.sql`
 * **Type** : Table
 * **Rôle** : Fiches corporate des employeurs Adzuna enrichies (SIREN, finances, RSE, structure).
 * **Traitement** : Agrège `int_adzuna_enrichissement` par employeur/commune pour produire une table de référence corporate unique (1 ligne = 1 entreprise).
 
-### [mart_salaires.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/marts/mart_salaires.sql)
+### `mart_salaires.sql`
 * **Type** : Table
 * **Rôle** : Analyse des salaires par poste et employeur.
 * **Traitement** : Agrège `mart_offres_data_jobs` par `(employer_name, nom_commune, job_title)` pour calculer min/max/moyen des salaires, ventilé par SIREN, nature juridique et catégorie d'entreprise.
 
-### [mart_finops_costs.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/marts/mart_finops_costs.sql)
+### `mart_finops_costs.sql`
 * **Type** : Table (datatset `finops_dev`)
 * **Rôle** : Coûts GCP quotidiens pour le suivi FinOps.
 * **Traitement** : Lit l'export de facturation GCP (`billing_raw.gcp_billing_export_v1_*`), agrège par jour, service et environnement. BigQuery only ; table vide sur SQLite.

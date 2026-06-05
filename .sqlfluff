@@ -3,6 +3,7 @@ templater = jinja
 dialect = bigquery
 runaway_limit = 10
 max_line_length = 120
+large_file_skip_byte_limit = 50000
 
 [sqlfluff:indentation]
 tab_width = 4

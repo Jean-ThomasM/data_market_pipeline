@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def integration_test_dir():
     """Crée un répertoire temporaire pour les tests d'intégration."""
     with tempfile.TemporaryDirectory() as tmpdir:

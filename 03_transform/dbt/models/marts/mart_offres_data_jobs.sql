@@ -47,8 +47,8 @@ with adzuna_offers as (
         e.section_activite_principale,
         e.naf_code_societe,
         e.naf_label_societe
-    from {{ ref('int_adzuna_offres') }} a
-    left join {{ ref('int_adzuna_enrichissement') }} e
+    from {{ ref('int_adzuna_offres') }} as a
+    left join {{ ref('int_adzuna_enrichissement') }} as e
         on a.offer_id = e.offer_id
 ),
 

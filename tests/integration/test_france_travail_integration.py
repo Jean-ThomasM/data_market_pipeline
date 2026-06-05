@@ -7,14 +7,15 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-# Ajoute le chemin vers le module france_travail
-sys.path.insert(
-    0, str(Path(__file__).parent.parent.parent / "02_extract" / "france_travail")
-)
+ft_path = str(Path(__file__).parent.parent.parent / "02_extract" / "france_travail")
+sys.path.insert(0, ft_path)
 
-from config import Config
-from shared.storage import save_ndjson_records
-from shared.metrics import MetricsCollector
+from config import Config  # noqa: E402
+from shared.storage import save_ndjson_records  # noqa: E402
+from shared.metrics import MetricsCollector  # noqa: E402
+
+# Nettoie sys.path pour éviter les conflits avec les autres modules workspace
+sys.path.remove(ft_path)
 
 
 class TestFranceTravailStorage:
@@ -149,7 +150,18 @@ class TestFranceTravailEndToEnd:
         self, mock_local_storage, sample_ft_offers
     ):
         """Test le workflow complet avec des mocks."""
+        # Évite le conflit avec le module scraper des autres packages workspace
+        import sys
+        from pathlib import Path
+
+        ft_path = str(
+            Path(__file__).parent.parent.parent / "02_extract" / "france_travail"
+        )
+        sys.path.insert(0, ft_path)
+        sys.modules.pop("scraper", None)
         from scraper import OffersExtractor
+
+        sys.path.remove(ft_path)
 
         # Crée une config mock
         config = Mock()

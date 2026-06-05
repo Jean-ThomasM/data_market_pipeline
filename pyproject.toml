@@ -38,6 +38,9 @@ norecursedirs = [
     ".opencode",
 ]
 testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
 
 [tool.uv.sources]
 shared = { workspace = true }
@@ -52,7 +55,6 @@ members = [
     "01_shared",
     "02_extract/france_travail",
     "02_extract/geo",
-    "02_extract/sirene",
     "02_extract/adzuna",
     "02_extract/n8n_trigger",
     "02_extract/api_entreprise",

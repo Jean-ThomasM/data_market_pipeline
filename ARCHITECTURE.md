@@ -89,8 +89,6 @@ flowchart TD
 
 * **extract-ft** (Cloud Run Job) : Interroge l'API France Travail avec authentification OAuth2, gère la pagination et écrit les offres brutes au format NDJSON dans GCS.
 * **extract-geo** (Cloud Run Job) : Interroge l'API GEO publique pour récupérer les référentiels géographiques (communes, départements, régions, EPCI) et les écrit au format JSON dans GCS.
-* **extract-sirene** (Cloud Run Job - **STUB**) : Actuellement sous forme de stub qui logue un message d'attente (`print("Hello from sirene!")`), en prévision d'une future intégration avec l'API Sirene.
-
 Role :
 - Python appelle les APIs
 - gere auth, retries, pagination
@@ -99,7 +97,7 @@ Role :
 Formats de fichiers stockés dans GCS :
 - France Travail : `NDJSON`
 - GEO : `JSON`
-- Sirene : `NDJSON` (prévu)
+- Adzuna : `NDJSON`
 
 ## 2. Load
 
@@ -128,7 +126,6 @@ Role :
 - typage
 - jointures
 - enrichissement geographique
-- matching entreprises Sirene
 - tables finales pour le dashboard
 
 ### 4. Consommation
@@ -141,46 +138,35 @@ BigQuery marts ---> Dashboard BI
 ## Architecture Medallion
 
 ```text
-RAW
+STAGING (raw)
   |
-  +-- raw_ft_offres_json
-  +-- raw_ft_referentiels_*
-  +-- raw_geo_regions
-  +-- raw_geo_departements
-  +-- raw_geo_communes
-  +-- raw_geo_epcis
-  +-- raw_sirene_search_results
-  +-- raw_sirene_matches
-  |
-  v
-STAGING
-  |
-  +-- stg_ft_offres
-  +-- stg_ft_offres_location
-  +-- stg_ft_offres_employer
-  +-- stg_ft_offres_salary
-  +-- stg_geo_regions
-  +-- stg_geo_departements
-  +-- stg_geo_communes
-  +-- stg_geo_epcis
-  +-- stg_sirene_matches
+  +-- staging_offres_ft
+  +-- staging_offres_adzuna
+  +-- staging_communes
+  +-- staging_departements
+  +-- staging_regions
+  +-- staging_epcis
+  +-- staging_api_entreprise
+  +-- staging_n8n_societe
   |
   v
-INTERMEDIATE
+INTERMEDIATE (clean & enrich)
   |
-  +-- int_employer_candidates
-  +-- int_ft_offres_geo
-  +-- int_ft_offres_employers_matched
-  +-- int_ft_offres_enriched
+  +-- int_geo_communes
+  +-- int_ft_employer_names
+  +-- int_ft_offres
+  +-- int_adzuna_offres
+  +-- int_adzuna_enrichissement
   |
   v
-MARTS
+MARTS (analytics)
   |
   +-- mart_offres_data_jobs
   +-- mart_recrutement_geographique
-  +-- mart_entreprises_recruteuses
+  +-- mart_recruteurs
+  +-- mart_employeurs_corporate
   +-- mart_salaires
-  +-- mart_tendances_publication
+  +-- mart_finops_costs
 ```
 
 ## Repartition des responsabilites
@@ -191,7 +177,7 @@ Python
   - auth
   - retry / pagination
   - ecriture GCS
-  - eventuel matching Sirene
+  - matching API Entreprise
 
 SQL / dbt
   - staging
@@ -216,15 +202,11 @@ IaC
 
 ```text
 1. Cloud Scheduler declenche Workflows
-2. Workflows lance extract-ft
-3. Workflows lance extract-geo
-4. Workflows declenche les load jobs BigQuery pour FT
-5. Workflows declenche les load jobs BigQuery pour GEO
-6. Workflows lance extract-sirene
-7. Workflows declenche les load jobs BigQuery pour Sirene
-8. Workflows lance transform-dbt
-9. Les marts BigQuery sont alimentes
-10. Le dashboard BI lit les marts
+2. Workflows lance extract-ft, extract-geo, extract-adzuna, api-entreprise en parallele
+3. Workflows declenche les load jobs BigQuery pour chaque source
+4. Workflows lance transform-dbt
+5. Les marts BigQuery sont alimentes
+6. Le dashboard BI lit les marts
 ```
 
 ## Datasets BigQuery cibles
@@ -269,10 +251,6 @@ marts_<env>
 - `FT_CLIENT_KEY`
   Obligatoire.
   Usage : authentification France Travail pour `extract-ft`.
-
-- `SIRENE_API_KEY`
-  Optionnel pour l'instant.
-  Usage : futur `extract-sirene` si l'API retenue l'exige.
 
 ### Variables du Cloud Run Job
 

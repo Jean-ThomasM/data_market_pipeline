@@ -20,7 +20,6 @@ members = [
     "geo",
     "n8n-trigger",
     "shared",
-    "sirene",
 ]
 
 [[package]]
@@ -2093,21 +2092,6 @@ requires-dist = [
     { name = "google-cloud-secret-manager", specifier = ">=2.27.0" },
     { name = "google-cloud-storage", specifier = ">=2.10.1" },
     { name = "requests", specifier = ">=2.33.1" },
-]
-
-[[package]]
-name = "sirene"
-version = "0.1.0"
-source = { editable = "02_extract/sirene" }
-dependencies = [
-    { name = "python-dotenv" },
-    { name = "shared" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "python-dotenv", specifier = ">=1.0.1" },
-    { name = "shared", editable = "01_shared" },
 ]
 
 [[package]]

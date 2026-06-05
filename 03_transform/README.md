@@ -10,7 +10,7 @@ Le module lit les données d'ingestion brutes (couche Raw/Staging) et produit le
 * **Cible `local`** : Travail hors ligne et tests rapides sur une base de données de développement locale **SQLite** (`staging_offres_ft.sqlite`, `main_intermediate_dev.db`, `main_marts_dev.db`).
 * **Cible `dev`** : Modélisation et rafraîchissement des tables réelles sur le data warehouse **Google BigQuery** (projet `data-market-386959`).
 
-Le détail des tables créées est disponible dans [03_transform/SCHEMA_TRANSFORM.md](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/SCHEMA_TRANSFORM.md).
+Le détail des tables créées est disponible dans [SCHEMA_TRANSFORM.md](SCHEMA_TRANSFORM.md).
 
 ---
 

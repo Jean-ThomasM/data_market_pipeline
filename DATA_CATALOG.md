@@ -18,7 +18,8 @@ flowchart TD
         raw_geo_dep[staging_departements]
         raw_geo_reg[staging_regions]
         raw_geo_epc[staging_epcis]
-        raw_sirene[staging_sirene]
+        raw_api_ent[staging_api_entreprise]
+        raw_n8n[staging_n8n_societe]
     end
 
     %% Intermediate
@@ -27,6 +28,7 @@ flowchart TD
         int_ft_emp[int_ft_employer_names]
         int_ft_offres[int_ft_offres]
         int_adzuna_offres[int_adzuna_offres]
+        int_adzuna_enrich[int_adzuna_enrichissement]
     end
 
     %% Marts
@@ -34,6 +36,8 @@ flowchart TD
         mart_fact[mart_offres_data_jobs]
         mart_geo[mart_recrutement_geographique]
         mart_recruteurs[mart_recruteurs]
+        mart_corporate[mart_employeurs_corporate]
+        mart_sal[mart_salaires]
     end
 
     %% Relations de dépendance
@@ -50,11 +54,17 @@ flowchart TD
     raw_adzuna --> int_adzuna_offres
     int_geo --> int_adzuna_offres
 
+    raw_api_ent --> int_adzuna_enrich
+    raw_n8n --> int_adzuna_enrich
+    int_adzuna_offres --> int_adzuna_enrich
+
     int_ft_offres --> mart_fact
-    int_adzuna_offres --> mart_fact
+    int_adzuna_enrich --> mart_fact
 
     mart_fact --> mart_geo
     mart_fact --> mart_recruteurs
+    mart_fact --> mart_sal
+    int_adzuna_enrich --> mart_corporate
 ```
 
 ---
@@ -87,12 +97,7 @@ Ces tables brutes proviennent directement de l'extraction des APIs externes. Dan
 * **Tags de Sensibilité** : `PUBLIC` (Aucune donnée sensible)
 * **Description** : Référentiels géographiques officiels de la République Française (Codes INSEE, codes postaux, populations, rattachements EPCI/Régions).
 
-### Table : `staging_sirene`
-* **Source** : API Sirene (INSEE) via Scraper / Stub
-* **Fréquence de rafraîchissement** : Statique / En développement (actuellement Stub)
-* **Propriétaire / Consommateur** : Équipe Data
-* **Tags de Sensibilité** : `PUBLIC` (Données légales d'entreprises)
-* **Description** : Registre d'entreprises pour valider les SIRET/SIREN des recruteurs (Stub actuel).
+
 
 ---
 
@@ -250,13 +255,13 @@ Les correspondances croisées entre les différentes sources de données reposen
 ### Jointure : France Travail ↔ Référentiel GEO (API Géo Gouv)
 * **Type de jointure** : Déterministe (`INNER JOIN`)
 * **Clé de jointure** : `commune_code`
-* **Fichier d'implémentation** : [int_ft_offres.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/intermediate_dev/int_ft_offres.sql#L108-L109)
+* **Fichier d'implémentation** : `03_transform/dbt/models/intermediate_dev/int_ft_offres.sql`
 * **Méthode** : L'API France Travail fournit directement le code commune INSEE de l'établissement d'accueil (champ `lieuTravail.commune`). Cette clé permet une jointure parfaite avec la colonne `commune_code` de la table consolidée `int_geo_communes`.
 
 ### Jointure : Adzuna ↔ Référentiel GEO (API Géo Gouv)
 * **Type de jointure** : Multi-niveaux avec fallbacks (`LEFT JOIN` successifs)
 * **Clé de jointure** : Nom de commune normalisé, parsing textuel ou coordonnées GPS.
-* **Fichier d'implémentation** : [int_adzuna_offres.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/intermediate_dev/int_adzuna_offres.sql#L147-L241)
+* **Fichier d'implémentation** : `03_transform/dbt/models/intermediate_dev/int_adzuna_offres.sql`
 * **Méthode** :
   1. *Match primaire* : Correspondance exacte du nom de ville extrait du tableau géographique Adzuna face au référentiel (`upper(a.city_name_raw) = g.commune_nom_upper`).
   2. *Fallback textuel* : Si aucun match direct, recherche d'une mention du nom d'une commune, d'un département ou d'une région française dans la chaîne textuelle brute `location_display_name` d'Adzuna.
@@ -270,7 +275,7 @@ Les correspondances croisées entre les différentes sources de données reposen
 ### Jointure : Adzuna ↔ API Entreprise + societe.com (Enrichissement Corporate)
 * **Type de jointure** : `LEFT JOIN` déterministe
 * **Clé de jointure** : `LOWER(TRIM(employer_name))` + `LOWER(TRIM(nom_commune))`
-* **Fichier d'implémentation** : [int_adzuna_enrichissement.sql](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/03_transform/dbt/models/intermediate_dev/int_adzuna_enrichissement.sql#L54-L84)
+* **Fichier d'implémentation** : `03_transform/dbt/models/intermediate_dev/int_adzuna_enrichissement.sql`
 * **Méthode** :
   1. *Étape d'extraction* : Les Cloud Run Jobs `api-entreprise-dev` et `n8n-trigger-dev` interrogent respectivement l'API Recherche Entreprises et societe.com (via n8n). Les résultats sont chargés dans les tables `staging_api_entreprise` et `staging_n8n_societe`.
   2. *Jointure dbt* : `int_adzuna_enrichissement` joint `int_adzuna_offres` avec ces deux tables sur le couple `(employer_name, nom_commune)` normalisé (lower + trim). Le SIREN sert de pont entre les deux sources d'enrichissement.

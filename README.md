@@ -107,13 +107,13 @@ flowchart TD
     Dashboard[Dashboard Looker Studio] ➔|Lecture des Marts| bq_marts
 ```
 
-Détails complets de l'infrastructure dans [ARCHITECTURE.md](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/ARCHITECTURE.md).
+Détails complets de l'infrastructure dans [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 
 ## 4. Architecture de Données Medallion
 
-Nos tables de données transitent par 3 zones logiques (Medallion) décrites plus en détail dans le [Catalogue de Données (DATA_CATALOG.md)](file:///home/jean-thomas-miquelot/kDrive/PROGRAMMATION/simplon/Simplon_projets/data_market_pipeline/DATA_CATALOG.md) :
+Nos tables de données transitent par 3 zones logiques (Medallion) décrites plus en détail dans le [Catalogue de Données (DATA_CATALOG.md)](DATA_CATALOG.md) :
 
 1. **Couche Raw (Bronze)** : Les données brutes chargées telles quelles depuis GCS sans altération (tables `staging_*` alimentées par Google Cloud Workflows).
 2. **Couche Intermediate (Silver)** : Nettoyage, typage, déduplication temporelle (offres uniques) et enrichissement par croisement géographique (tables `int_*` gérées par dbt).
@@ -128,7 +128,6 @@ Nos tables de données transitent par 3 zones logiques (Medallion) décrites plu
 | **France Travail** | `NDJSON` | ~15k offres / jour | Quotidienne | Authentification OAuth2 obligatoire, quota de requêtes par seconde. |
 | **Adzuna** | `NDJSON` | ~5k offres / jour | Quotidienne | Authentification via App ID & API Key, limitation de requêtes mensuelles. |
 | **API GEO Gouv** | `JSON` | Statique / Faible | Annuelle | API publique sans authentification. |
-| **API Sirene** | `NDJSON` | En développement (Stub) | Statique | Préparé en stub pour de futures intégrations. |
 | **API Entreprise** | `JSON` | À la demande (Enrichissement) | Temps réel | API publique sans clé, rate-limité à 0,15s par appel pour respecter les quotas de l'État. |
 
 ---

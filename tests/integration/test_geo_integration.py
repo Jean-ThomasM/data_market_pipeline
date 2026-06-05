@@ -108,6 +108,10 @@ class TestGeoEndToEnd:
         self, mock_local_storage, sample_geo_communes
     ):
         """Test le workflow complet avec des mocks."""
+        # Évite le conflit avec le module scraper des autres packages workspace
+        import sys
+
+        sys.modules.pop("scraper", None)
         from scraper import GeoExtractor
 
         # Crée une config mock

@@ -61,7 +61,7 @@ class TestGeoExtractor:
 
         ext = GeoExtractor(config)
         mock_fetch = mocker.patch.object(
-            ext, "_fetch_resource", return_value=[{"id": 1}]
+            ext, "_fetch_resource", side_effect=lambda _: [{"id": 1}]
         )
         mock_save = mocker.patch("scraper.save_ndjson_records")
 
@@ -69,9 +69,12 @@ class TestGeoExtractor:
 
         for resource_name in RESOURCE_PATHS:
             mock_fetch.assert_any_call(resource_name)
+            expected_records = [{"id": 1}]
+            if resource_name in ("communes", "epcis"):
+                expected_records = [{"id": 1, "latitude": None, "longitude": None}]
             mock_save.assert_any_call(
                 config=config,
-                records=[{"id": 1}],
+                records=expected_records,
                 destination_name=RESOURCE_FILE_NAMES[resource_name],
                 gcs_prefix="raw_geo",
                 local_directory=config.local_save_directory,

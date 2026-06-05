@@ -138,3 +138,47 @@ models:
         description: "Service GCP (BigQuery, Cloud Run, etc.)."
       - name: cout_net
         description: "Coût net après crédits."
+
+  - name: mart_pipeline_stats
+    description: "Table de monitoring et qualite des donnees. Une ligne par table du pipeline (staging > intermediaire > mart) avec les metriques de volume, completude, fraicheur et statut."
+    columns:
+      - name: pipeline_stage
+        description: "Etape du pipeline : Extraction, Enrichissement, Intermediaire, Mart."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Extraction', 'Enrichissement', 'Intermediaire', 'Mart']
+      - name: source_system
+        description: "Systeme source (France Travail, Adzuna, Geo, API Entreprise, n8n Societe, France Travail + Adzuna)."
+      - name: table_name
+        description: "Nom de la table BigQuery."
+        tests:
+          - not_null
+          - unique
+      - name: row_count
+        description: "Nombre total de lignes dans la table."
+      - name: column_count
+        description: "Nombre de colonnes dans le schema."
+      - name: key_columns
+        description: "Liste des colonnes clefs monitorées pour le fill rate."
+      - name: fill_rate_c1
+        description: "Taux de remplissage colonne 1 (cle primaire ou premiere colonne cle, %)."
+      - name: fill_rate_c2
+        description: "Taux de remplissage colonne 2 (intitule/titre, %)."
+      - name: fill_rate_c3
+        description: "Taux de remplissage colonne 3 (description ou deuxieme colonne cle, %)."
+      - name: fill_rate_c4
+        description: "Taux de remplissage colonne 4 (nom employeur ou troisieme colonne cle, %)."
+      - name: fill_rate_c5
+        description: "Taux de remplissage colonne 5 (salaire/contrat ou quatrieme colonne cle, %)."
+      - name: fill_rate_c6
+        description: "Taux de remplissage colonne 6 (varie selon table, %)."
+      - name: fill_rate_c7
+        description: "Taux de remplissage colonne 7 (varie selon table, %)."
+      - name: recency_date
+        description: "Date de derniere donnee dans la table (MAX de la colonne temporelle)."
+      - name: notes
+        description: "Notes contextuelles sur la table et les transformations."
+      - name: status
+        description: "Statut de sante : OK (donnees recentes et non vides), STALE (pas de mise a jour >7j), VIDE (0 lignes), NON_RENSEIGNE (pas de date de reference)."
