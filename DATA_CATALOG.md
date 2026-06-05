@@ -11,7 +11,7 @@ Le lignage des données suit un flux d'ingestion et de transformation structuré
 ```mermaid
 flowchart TD
     %% Ingestion / Raw
-    subgraph Ingestion [1. Extraction & Load (Raw/Staging)]
+    subgraph Ingestion [1. Extraction et Load - Raw/Staging]
         raw_ft[staging_offres_ft]
         raw_adzuna[staging_offres_adzuna]
         raw_geo_com[staging_communes]
@@ -23,7 +23,7 @@ flowchart TD
     end
 
     %% Intermediate
-    subgraph Intermediate [2. Transformation & Enrichissement (Intermediate)]
+    subgraph Intermediate [2. Transformation et Enrichissement - Intermediate]
         int_geo[int_geo_communes]
         int_ft_emp[int_ft_employer_names]
         int_ft_offres[int_ft_offres]
@@ -32,7 +32,7 @@ flowchart TD
     end
 
     %% Marts
-    subgraph Marts [3. Restitution (Marts)]
+    subgraph Marts [3. Restitution - Marts]
         mart_fact[mart_offres_data_jobs]
         mart_geo[mart_recrutement_geographique]
         mart_recruteurs[mart_recruteurs]

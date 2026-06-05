@@ -14,7 +14,7 @@ flowchart TD
     Scheduler[Cloud Scheduler] -->|Déclenchement quotidien| Workflow[Cloud Workflows]
 
     %% Ingestion Parallèle
-    subgraph Ingestion [Ingestion et Chargement (Cloud Run et Workflows)]
+    subgraph Ingestion [Ingestion et Chargement - Cloud Run et Workflows]
         job_ft[extract-ft-dev <br/>Cloud Run Job]
         job_geo[extract-geo-dev <br/>Cloud Run Job]
         job_adz[extract-adzuna-dev <br/>Cloud Run Job]
@@ -58,7 +58,7 @@ flowchart TD
     job_dbt -->|Agrégations Gold| bq_marts
 
     %% Scraping societe.com (n8n)
-    subgraph n8n_flow [Scraping Complémentaire (n8n)]
+    subgraph n8n_flow [Scraping Complémentaire - n8n]
         job_n8n_trig[n8n-trigger-dev <br/>Cloud Run Job]
         n8n_proxy[n8n-dev <br/>Cloud Run Service]
         web_societe[Site societe.com]

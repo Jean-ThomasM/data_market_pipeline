@@ -13,7 +13,7 @@ Le flux de modélisation réel dans dbt est structuré comme suit :
 ```mermaid
 flowchart TD
     %% Sources
-    subgraph Sources [Sources BigQuery (chargées par Workflows)]
+    subgraph Sources [Sources BigQuery - chargées par Workflows]
         src_ft[staging_offres_ft]
         src_adzuna[staging_offres_adzuna]
         src_com[staging_communes]
